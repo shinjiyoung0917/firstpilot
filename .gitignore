@@ -3,6 +3,8 @@ HELP.md
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 *.map
+node_modules/
+package-lock.json
 
 ### STS ###
 .apt_generated
