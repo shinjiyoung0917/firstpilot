@@ -6,7 +6,7 @@
       <router-view/>
     </div>
     <div class="site-info">
-      <router-link class="btn btn-primary" to="/join"> 회원가입 버튼 </router-link>
+      <router-link class="btn btn-primary" to="/signup"> 회원가입 버튼 </router-link>
       <router-view/>
     </div>
     <div class="site-info">

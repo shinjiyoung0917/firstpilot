@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class User {
@@ -11,7 +12,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
     @Getter @Setter
-    private String userID;
+    private Long userID;
 
     @Column(name = "email")
     @Getter @Setter
@@ -27,7 +28,7 @@ public class User {
 
     @Column(name = "nickname_change_date")
     @Getter @Setter
-    private String nicknameChange_date;
+    private LocalDateTime nickChange_date;
 }
 
 

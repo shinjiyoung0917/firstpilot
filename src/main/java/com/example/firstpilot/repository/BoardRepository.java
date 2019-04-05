@@ -7,7 +7,8 @@ import com.example.firstpilot.model.Board;
 
 import java.util.List;
 
-public interface BoardRepository extends CrudRepository<Board, Integer> {
+public interface BoardRepository extends CrudRepository<Board, Long> {
+
 }
 
 

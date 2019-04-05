@@ -16,12 +16,12 @@ import java.util.List;
 public class BoardController {
     private static final Logger log = LoggerFactory.getLogger(BoardController.class);
 
-    @Autowired
-    BoardRepository repo;
+    //@Autowired
+    //BoardRepository repo;
     //private BoardService boardService;
 
     /* 대시보드 (본인이 작성한 글 혹은 댓글) */
-    @GetMapping(path = "/users/{nickname}")
+    /*@GetMapping(path = "/users/{nickname}")
     public List<Board> getMyBoard(@PathVariable("nickname") String  nickname) {
         log.info("컨트롤러 로그 - 내가 쓴 게시물 및 댓글 정보 가져오기");
 
@@ -30,4 +30,5 @@ public class BoardController {
 
         return board;
     }
+    */
 }

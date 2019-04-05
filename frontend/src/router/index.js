@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main.vue'
-import Join from '@/components/join/Join.vue';
+import SignUp from '@/components/signup/SignUp.vue';
 import LogIn from '@/components/login/LogIn.vue'
 import UserList from '@/components/UserList.vue'; // 테스트
 
@@ -21,9 +21,9 @@ export default new Router({
       component: LogIn
     },
     {
-      path: '/join',
-      name: 'join',
-      component: Join
+      path: '/signup',
+      name: 'signup',
+      component: SignUp
     },
 
     {

@@ -12,7 +12,7 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "board_id")
     @Getter @Setter
-    private Integer boardID;
+    private Long boardID;
 
     @Column(name = "title")
     @Getter @Setter
@@ -24,29 +24,33 @@ public class Board {
 
     @Column(name = "user_id")
     @Getter @Setter
-    private String userID;
+    private Long userID;
 
     @Column(name = "nickname")
     @Getter @Setter
     private String nickname;
 
-    @Column(name = "board_date")
+    @Column(name = "created_date")
     @Getter @Setter
-    private LocalDateTime boardDate;
+    private LocalDateTime createdDate;
 
-    @Column(name = "like_cnt")
+    @Column(name = "updated_date")
     @Getter @Setter
-    private Integer likeCnt;
+    private LocalDateTime updatedDate;
 
-    @Column(name = "comment_cnt")
+    @Column(name = "like_count")
     @Getter @Setter
-    private Integer commentCnt;
+    private Long likeCnt;
 
-    @Column(name = "filepath")
+    @Column(name = "comment_count")
+    @Getter @Setter
+    private Long commentCnt;
+
+    @Column(name = "file_path")
     @Getter @Setter
     private String filePath;
 
-    @Column(name = "valid")
+    @Column(name = "is_valid")
     @Getter @Setter
-    private Integer valid;
+    private Integer isValid;
 }

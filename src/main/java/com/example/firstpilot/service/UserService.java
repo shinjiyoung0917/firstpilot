@@ -3,7 +3,9 @@ package com.example.firstpilot.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.firstpilot.model.User;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
