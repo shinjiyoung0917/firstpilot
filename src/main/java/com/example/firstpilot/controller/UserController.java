@@ -20,18 +20,19 @@ public class UserController {
     UserRepository repo;
     private UserService userService;
 
-    /* 회원가입 */
+    /* 사용자 정보 삽입하기 */
     @PostMapping(path = "/users")
     public void postUser(@RequestBody User user) {
-        log.info("컨트롤러 로그 - 회원가입");
-
-        userService.join(user);
+        log.info("postUser 로그 - 진입");
+        log.info("postUser 로그 - data : " + user.toString());
+        log.info("postUser 로그 - data2 : " + user.getEmail());
+        userService.signUp(user);
     }
 
-    /* 대시보드 (사용자 정보) */
+    /* 사용자 정보 가져오기 */
     @GetMapping(path = "/users")
     public List<User> getUser() {
-        log.info("컨트롤러 로그 - 사용자 정보 가져오기");
+        log.info("getUser 로그 - 사용자 정보 가져오기");
 
         List<User> users = new ArrayList<>();
         repo.findAll().forEach(users::add);

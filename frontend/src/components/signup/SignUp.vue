@@ -1,20 +1,33 @@
 <template>
-  <div class="login-row">
-    <div class="login-form">
+  <div class="signup-row">
+    <div class="signup-form">
       <h1>회 원 가 입</h1>
       <p>
-        <input type="text" placeholder="ID" v-model="email">
+        이메일
+        <input type="text" placeholder="yourname@example.com" v-model="email" v-on:keyup="checkEmailPattern">
+        <button v-on:click="reqAuthCode">인증</button>
+        <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
+        <br><span id="abc" style="color: #B94A48;"></span>
       </p>
       <p>
-        <input type="password" placeholder="Password" v-model="password">
+        비밀번호
+        <input type="password" placeholder="" v-model="password" v-on:keyup="checkPasswordPattern">
+        <br><span id="checkPasswordPatternResult" style="color: #B94A48;"></span>
       </p>
       <p>
-        <button @click="signup">확인</button>
-        <button @click="cancel">취소</button>
+        비밀번호 재확인
+        <input type="password" placeholder="" v-model="passwordRepeat" v-on:keyup="checkPasswordRepeat">
+        <br><span id="checkPasswordRepeatResult" style="color: #B94A48;"></span>
+      </p>
+      <p>
+        <button v-on:click="signup"> 가입 </button>
+        <button v-on:click="cancel"> 취소 </button>
       </p>
     </div>
+    <!-- <div class='toast' style='display:none' id="toast">토스트 띄우기 테스트</div> -->
   </div>
 </template>
+
 
 <script>
   import http from "@/http-common";
@@ -23,32 +36,74 @@
     data() {
       return {
         email: '',
-        password: ''
+        password: '',
+        passwordRepeat: '',
+        submitted: false
       }
     },
     methods: {
-      signup() {
-        if (this.email && this.password) {
-          http
-            .post('/users', {
-              email: this.email,
-              password: this.password
-            }).then((res) => {
-            if (res.data.result === 1) {
-              this.$store.commit('loginFlush', res.data.email)
-              this.$router.push('/')
-            }
-            else {
-              window.alert(res.data.msg)
-              window.location.reload()
-            }
-          }).catch((err) => {
-            window.alert(err)
-            console.log(err)
-          });
+      /* 이메일 패턴 체크 */
+      checkEmailPattern() {
+        const expText = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/;
+
+        if(!expText.test(this.email)) {
+          document.getElementById('checkEmailPatternResult').innerHTML = "잘못된 이메일 형식입니다.";
+          return false;
+        } else {
+          document.getElementById('checkEmailPatternResult').innerHTML = "올바른 이메일 형식입니다.";
+          return true;
         }
-        else {
-          window.alert('입력란을 모두 입력하고 시도해주세요.')
+      },
+      /* 비밀번호 패턴 체크 */
+      checkPasswordPattern() {
+        const expText =  /^[A-Za-z0-9]{6,12}$/;
+
+        if(!expText.test(this.password)) {
+          document.getElementById('checkPasswordPatternResult').innerHTML = "6~12자리의 문자, 숫자의 조합을 사용하세요.";
+        } else {
+          document.getElementById('checkPasswordPatternResult').innerHTML = " ";
+        }
+      },
+      /* 비밀번호 재확인 체크 */
+      checkPasswordRepeat() {
+        if(this.password !== this.passwordRepeat){
+          document.getElementById('checkPasswordRepeatResult').innerHTML = "비밀번호와 동일하게 입력해주세요.";
+        }  else {
+          document.getElementById('checkPasswordRepeatResult').innerHTML = " ";
+        }
+      },
+      /* 인증코드 요청 */
+      reqAuthCode() {
+        //$('#toast').fadeIn(4000).delay(1000).fadeOut(400);
+
+        let check = this.checkEmailPattern();
+        if(!check) {
+          window.alert('이메일을 다시 한 번 확인하신 후 시도해주세요.');
+        } else {
+          //window.alert("오예~");
+        }
+      },
+      signup() {
+        if(!this.email || !this.password) {
+          window.alert('입력란을 모두 입력하신 후 시도해주세요.');
+        } else {
+          let data = {
+            email: this.email,
+            password: this.password
+          }
+
+          http.post('/users', data)
+            .then((res) => {
+            window.alert("컨트롤러 다녀와씀");
+            if(res.data) {
+              window.alert("통과");
+            } else {
+              window.alert("실패");
+            }
+          }).catch((e) => {
+            window.alert(e);
+            console.log(e);
+          });
         }
       },
       cancel() {
@@ -59,11 +114,11 @@
 </script>
 
 <style>
-  .login-row {
+  .signup-row {
     clear: both;
     padding-top: 4%;
   }
-  .login-form {
+  .signup-form {
     margin: 0 auto;
     padding-top: 4%;
     padding-left: 10%;
@@ -75,7 +130,7 @@
   h1 {
     padding-bottom: 6%;
   }
-  .login-form input {
+  .signup-form input {
     border-style: none;
     border-bottom: solid black 1px;
     height: 30px;
@@ -83,18 +138,41 @@
     padding-left: 2%;
     outline: none;
   }
-  .login-form p:last-child {
+  .signup-form p:last-child {
     text-align: right;
     padding-right: 15%;
   }
-  .login-form button {
+  .signup-form button {
     height: 35px;
     width: 80px;
     border: none;
     border-radius: 5px;
   }
-  .login-form button:first-child {
+  .signup-form button:first-child {
     background: #33c197;
     color: white;
   }
+
+/*
+  .toast {
+    width: 250px;
+    height: 20px;
+    height:auto;
+    position: fixed;
+    left: 50%;
+    margin-left:-125px;
+    bottom: 100px;
+    z-index: 9999;
+    background-color: #383838;
+    color: #F0F0F0;
+    font-family: Calibri;
+    font-size: 15px;
+    padding: 10px;
+    text-align:center;
+    border-radius: 2px;
+    -webkit-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+    -moz-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+    box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+   }
+*/
 </style>

@@ -35,24 +35,23 @@
               password: this.password
             }).then((res) => {
             if (res.data.result === 1) {
-              this.$store.commit('loginFlush', res.data.email)
-              this.$router.push('/')
+              this.$store.commit('loginFlush', res.data.email);
+              this.$router.push('/');
+            } else {
+              window.alert(res.data.msg);
+              window.location.reload();
             }
-            else {
-              window.alert(res.data.msg)
-              window.location.reload()
-            }
-          }).catch((err) => {
-            window.alert(err)
-            console.log(err)
+          }).catch((e) => {
+            window.alert(e);
+            console.log(e);
           });
         }
         else {
-          window.alert('입력란을 모두 입력하고 시도해주세요.')
+          window.alert('입력란을 모두 입력하고 시도해주세요.');
         }
       },
       cancel() {
-        this.$router.replace('/')
+        this.$router.replace('/');
       }
     }
   }

@@ -11,7 +11,7 @@ public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "board_id")
-    @Getter @Setter
+    @Getter
     private Long boardID;
 
     @Column(name = "title")
@@ -23,7 +23,7 @@ public class Board {
     private String content;
 
     @Column(name = "user_id")
-    @Getter @Setter
+    @Getter
     private Long userID;
 
     @Column(name = "nickname")

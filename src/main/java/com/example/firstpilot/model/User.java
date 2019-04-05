@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    @Getter @Setter
+    @Getter
     private Long userID;
 
     @Column(name = "email")
