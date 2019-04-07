@@ -1,9 +1,9 @@
 package com.example.firstpilot.service;
 
 import com.example.firstpilot.model.User;
-import com.example.firstpilot.model.AuthMail;
+import com.example.firstpilot.model.MailAuth;
 import com.example.firstpilot.repository.UserRepository;
-import com.example.firstpilot.repository.AuthMailRepository;
+import com.example.firstpilot.repository.MailAuthRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,20 +12,21 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+
+//@Transactional
 @Service
-@Transactional
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepo;
     @Autowired
-    private AuthMailRepository authRepo;
+    private MailAuthRepository authRepo;
     @Autowired
     private JavaMailSender mailSender;
 
@@ -33,13 +34,12 @@ public class UserService {
     private int size;
 
     /* 이메일 인증코드 삽입 */
-    public void createAuthCode(AuthMail authMailData) {
-        log.info("createAuthCode 로그 - 진입");
+    public MailAuth createAuthKey(MailAuth mailAuthData) {
+        log.info("createAuthKey 로그 - 진입");
 
         SimpleMailMessage message = new SimpleMailMessage();
 
         String text = getKey(50, false);
-        log.info("createAuthCode 로그 - 코드 : " + text);
 
         /*
         message.setTo(userEmail);
@@ -48,17 +48,12 @@ public class UserService {
         */
         //mailSender.send(message);
 
-        AuthMail authMail = new AuthMail();
-        authMail.setEmail(authMailData.getEmail());
-        authMail.setAuthType(1);
-        authMail.setAuthKey(text);
-        authMail.setCreatedDate(LocalDateTime.now());
-        log.info("createAuthCode 로그 - data1 : " + authMail.getEmail());
-        log.info("createAuthCode 로그 - data2 : " + authMail.getAuthType());
-        log.info("createAuthCode 로그 - data3 : " + authMail.getAuthKey());
-        log.info("createAuthCode 로그 - data4 : " + authMail.getCreatedDate());
-        //return this.authRepo.save(authMail);
-        log.info("createAuthCode 로그 - data4 : " + this.authRepo.save(authMail));
+        MailAuth mailAuth = new MailAuth();
+        mailAuth.setEmail(mailAuthData.getEmail());
+        mailAuth.setAuthType(1);
+        mailAuth.setAuthKey(text);
+        mailAuth.setCreatedDate(LocalDateTime.now());
+        return this.authRepo.save(mailAuth);
     }
 
     /* 인증코드 생성 */
@@ -81,6 +76,14 @@ public class UserService {
             return strBuff.toString().toLowerCase();
         }
         return strBuff.toString();
+    }
+
+    /* 이메일과 인증타입에 따라 인증코드 조회 */
+    public List<MailAuth> readAuthKey(MailAuth mailAuthData) {
+        log.info("readAuthKey 로그 - 진입");
+
+        List<MailAuth> mailAuth = this.authRepo.findByEmailAndAuthType(mailAuthData.getEmail(), mailAuthData.getAuthType());
+        return mailAuth;
     }
 
     /* 회원가입 */

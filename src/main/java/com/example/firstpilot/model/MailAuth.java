@@ -7,10 +7,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class AuthMail {
+public class MailAuth {
     @Id
     @GeneratedValue
-    @Column(name = "auth_mail_id")
+    @Column(name = "mail_auth_id")
     @Getter
     private Long authMailID;
 

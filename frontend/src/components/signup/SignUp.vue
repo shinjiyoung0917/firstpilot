@@ -5,10 +5,13 @@
       <p>
         이메일
         <input type="text" placeholder="yourname@example.com" v-model="email" v-bind:userEmail="email" v-on:keyup="checkEmailPattern">
-        <button v-on:click="reqAuthCode">인증</button>
+        <button v-on:click="reqAuthKey">인증</button>
         <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
-        <!--<router-link to="/auth" class="btn"> 인증 </router-link>
-        <router-view />-->
+      </p>
+      <p v-if="this.createAuthKey === 1">
+        인증코드
+        <input type="text" v-model="authKey">
+        <button v-on:click="checkAuthKey">인증</button>
       </p>
       <p>
         비밀번호
@@ -40,7 +43,9 @@
         password: '',
         passwordRepeat: '',
         nickname: '',
-        authCode: '',
+        authKey: '',
+        createAuthKey: 0,
+        useAuthKey: 0,
         submitted: false
       }
     },
@@ -76,7 +81,7 @@
         }
       },
       /* 인증코드 요청 */
-      reqAuthCode() {
+      reqAuthKey() {
         //$('#toast').fadeIn(4000).delay(1000).fadeOut(400);
 
         let check = this.checkEmailPattern();
@@ -89,17 +94,41 @@
 
           http.post("/auth", data)
             .then(res => {
-              //this.authCode = res.data;
-              alert("성공!");
+              this.authKey = res.data;
+              this.createAuthKey = 1;
+              window.alert(this.authKey);
             }).catch(e => {
               window.alert(e);
               console.log(e);
             });
         }
       },
+      /* 인증코드 확인 */
+      checkAuthKey() {
+        let data = {
+          email: this.email,
+          authType: 1
+        }
+
+        http.get("/auth", data)
+          .then(res => {
+            if(res.authKey === this.authKey) {
+              this.useAuthKey = 1;
+              window.alert("이메일 인증이 완료되었습니다.");
+            } else {
+              window.alert("인증코드를 다시 한 번 확인해주세요.");
+            }
+          }).catch(e => {
+          window.alert(e);
+          console.log(e);
+        });
+
+      },
       /* 회원가입 요청 */
       signup() {
-        if(!this.email || !this.password) {
+        if(this.useAuthKey === 0) {
+          window.alert("이메일 인증을 진행해주세요.");
+        } else if(!this.email || !this.password) {
           window.alert("입력란을 모두 입력하신 후 시도해주세요.");
         } else {
           let data = {
@@ -137,8 +166,8 @@
     margin: 0 auto;
     padding-top: 4%;
     padding-left: 10%;
-    height: 400px;
-    width: 50%;
+    height: 600px;
+    width: 60%;
     background-color: white;
     box-shadow: 3px 3px 3px 3px #d0d0d0;
   }
@@ -148,7 +177,7 @@
   .signup-form input {
     border-style: none;
     border-bottom: solid black 1px;
-    height: 30px;
+    height: 50px;
     width: 80%;
     padding-left: 2%;
     outline: none;

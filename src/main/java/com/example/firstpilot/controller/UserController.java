@@ -1,7 +1,7 @@
 package com.example.firstpilot.controller;
 
 import com.example.firstpilot.model.User;
-import com.example.firstpilot.model.AuthMail;
+import com.example.firstpilot.model.MailAuth;
 import com.example.firstpilot.repository.UserRepository;
 import com.example.firstpilot.service.UserService;
 //import org.springframework.stereotype.Controller;
@@ -27,10 +27,19 @@ public class UserController {
     /* 이메일 인증코드 생성하기 */
     @PostMapping("/auth")
     @ResponseStatus(HttpStatus.CREATED)
-    public void postAuthCode(@RequestBody AuthMail authMail) { //String userEmail
-        log.info("postAuthCode 로그 - 진입");
-        log.info("postAuthCode 로그 - data : " + authMail.getEmail());
-        userService.createAuthCode(authMail);
+    public void postAuthKey(@RequestBody MailAuth mailAuth) { //String userEmail
+        log.info("postAuthKey 로그 - 진입");
+        log.info("postAuthKey 로그 - data : " + mailAuth.getEmail());
+        userService.createAuthKey(mailAuth);
+    }
+
+    /* 이메일 인증코드 가져오기 */
+    @GetMapping("/auth")
+    public List<MailAuth> getAuthKey(@RequestBody MailAuth mailAuth) { //String userEmail
+        log.info("getAuthKey 로그 - 진입");
+        log.info("getAuthKey 로그 - data1 : " + mailAuth.getEmail());
+        log.info("getAuthKey 로그 - data2 : " + mailAuth.getAuthType());
+        return userService.readAuthKey(mailAuth);
     }
 
     /* 사용자 정보 삽입하기 */
