@@ -9,16 +9,16 @@ import java.time.LocalDateTime;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue //(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     @Getter
     private Long userID;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     @Getter @Setter
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     @Getter @Setter
     private String password;
 

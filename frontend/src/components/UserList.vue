@@ -12,7 +12,7 @@
       </ul>
     </div>
     <div class="col-md-6">
-      <router-view @refreshData="refreshList"></router-view>
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -30,8 +30,7 @@
     methods: {
       /* eslint-disable no-console */
       showUsers() {
-        http
-          .get("/users")
+        http.get("/users")
           .then(response => {
             this.users = response.data; // JSON이 자동으로 파싱됨
           })

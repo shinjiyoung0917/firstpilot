@@ -4,10 +4,11 @@
       <h1>회 원 가 입</h1>
       <p>
         이메일
-        <input type="text" placeholder="yourname@example.com" v-model="email" v-on:keyup="checkEmailPattern">
+        <input type="text" placeholder="yourname@example.com" v-model="email" v-bind:userEmail="email" v-on:keyup="checkEmailPattern">
         <button v-on:click="reqAuthCode">인증</button>
         <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
-        <br><span id="abc" style="color: #B94A48;"></span>
+        <!--<router-link to="/auth" class="btn"> 인증 </router-link>
+        <router-view />-->
       </p>
       <p>
         비밀번호
@@ -38,6 +39,8 @@
         email: '',
         password: '',
         passwordRepeat: '',
+        nickname: '',
+        authCode: '',
         submitted: false
       }
     },
@@ -78,14 +81,26 @@
 
         let check = this.checkEmailPattern();
         if(!check) {
-          window.alert('이메일을 다시 한 번 확인하신 후 시도해주세요.');
+          window.alert("이메일을 다시 한 번 확인하신 후 시도해주세요.");
         } else {
-          //window.alert("오예~");
+          let data = {
+            email: this.email
+          }
+
+          http.post("/auth", data)
+            .then(res => {
+              //this.authCode = res.data;
+              alert("성공!");
+            }).catch(e => {
+              window.alert(e);
+              console.log(e);
+            });
         }
       },
+      /* 회원가입 요청 */
       signup() {
         if(!this.email || !this.password) {
-          window.alert('입력란을 모두 입력하신 후 시도해주세요.');
+          window.alert("입력란을 모두 입력하신 후 시도해주세요.");
         } else {
           let data = {
             email: this.email,
@@ -94,12 +109,12 @@
 
           http.post('/users', data)
             .then((res) => {
-            window.alert("컨트롤러 다녀와씀");
-            if(res.data) {
-              window.alert("통과");
-            } else {
-              window.alert("실패");
-            }
+              if(res.data) {
+                // 회원가입 완료 화면으로 데이터 전송 어떻게 한담,,,,
+                this.$router.replace('/SignUpComplete');
+              } else {
+                window.alert("이메일과 비밀번호를 다시 한 번 확인해주세요.");
+              }
           }).catch((e) => {
             window.alert(e);
             console.log(e);
