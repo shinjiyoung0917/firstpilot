@@ -1,32 +1,27 @@
 package com.example.firstpilot.model;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Data
 @Entity
+@IdClass(MailAuthPK.class)
 public class MailAuth {
     @Id
-    @GeneratedValue
-    @Column(name = "mail_auth_id")
-    @Getter
-    private Long authMailID;
-
     @Column(name = "email", nullable = false)
-    @Getter @Setter
     private String email;
 
+    @Id
     @Column(name = "auth_type", nullable = false)
-    @Getter @Setter
     private Integer authType;
 
     @Column(name = "auth_key", nullable = false)
-    @Getter @Setter
     private String authKey;
 
     @Column(name = "created_date", nullable = false)
-    @Getter @Setter
     private LocalDateTime createdDate;
 }

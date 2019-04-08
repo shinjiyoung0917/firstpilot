@@ -8,5 +8,4 @@ public class FirstpilotApplication {
     public static void main(String[] args) {
         SpringApplication.run(FirstpilotApplication.class, args);
     }
-
 }

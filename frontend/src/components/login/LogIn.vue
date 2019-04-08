@@ -29,22 +29,24 @@
     methods: {
       login() {
         if (this.email && this.password) {
-          http
-            .post('/login', {
-              email: this.email,
-              password: this.password
-            }).then((res) => {
-            if (res.data.result === 1) {
-              this.$store.commit('loginFlush', res.data.email);
-              this.$router.push('/');
-            } else {
-              window.alert(res.data.msg);
-              window.location.reload();
-            }
-          }).catch((e) => {
-            window.alert(e);
-            console.log(e);
-          });
+          let data = {
+            email: this.email,
+            password: this.password
+          }
+
+          http.post('/login', data)
+            .then((res) => {
+              if (res.data.result === 1) {
+                this.$store.commit('loginFlush', res.data.email);
+                this.$router.push('/');
+              } else {
+                window.alert(res.data.msg);
+                window.location.reload();
+              }
+            }).catch((e) => {
+              window.alert(e);
+              console.log(e);
+            });
         }
         else {
           window.alert('입력란을 모두 입력하고 시도해주세요.');

@@ -1,32 +1,51 @@
 <template>
   <div class="signup-row">
     <div class="signup-form">
-      <h1>회 원 가 입</h1>
-      <p>
-        이메일
-        <input type="text" placeholder="yourname@example.com" v-model="email" v-bind:userEmail="email" v-on:keyup="checkEmailPattern">
-        <button v-on:click="reqAuthKey">인증</button>
-        <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
-      </p>
-      <p v-if="this.createAuthKey === 1">
-        인증코드
-        <input type="text" v-model="authKey">
-        <button v-on:click="checkAuthKey">인증</button>
-      </p>
-      <p>
-        비밀번호
-        <input type="password" placeholder="" v-model="password" v-on:keyup="checkPasswordPattern">
-        <br><span id="checkPasswordPatternResult" style="color: #B94A48;"></span>
-      </p>
-      <p>
-        비밀번호 재확인
-        <input type="password" placeholder="" v-model="passwordRepeat" v-on:keyup="checkPasswordRepeat">
-        <br><span id="checkPasswordRepeatResult" style="color: #B94A48;"></span>
-      </p>
-      <p>
+      <div v-if="this.isSignUp === 0">
+        <h1>회 원 가 입</h1>
+        <p>
+          이메일
+          <input type="text" placeholder="yourname@example.com" v-model="email" v-on:keyup="checkEmailPattern"> <!--  v-bind:memberEmail="email" -->
+          <button v-on:click="reqAuthKey"> 인증 </button>
+          <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
+        </p>
+        <p v-if="this.isCreatedAuthKey === 1">
+          인증코드
+          <input type="text" v-model="inputAuthKey">
+          <span id="countTime" style="color: #B94A48;"> {{ this.min }}:{{ this.sec }}} </span>
+          <button v-on:click="checkAuthKey"> 확인 </button>
+        </p>
+        <p>
+          비밀번호
+          <input type="password" placeholder="" v-model="password" v-on:keyup="checkPasswordPattern">
+          <br><span id="checkPasswordPatternResult" style="color: #B94A48;"></span>
+        </p>
+        <p>
+          비밀번호 재확인
+          <input type="password" placeholder="" v-model="passwordRepeat" v-on:keyup="checkPasswordRepeat">
+          <br><span id="checkPasswordRepeatResult" style="color: #B94A48;"></span>
+        </p>
         <button v-on:click="signup"> 가입 </button>
         <button v-on:click="cancel"> 취소 </button>
-      </p>
+      </div>
+      <div v-else>
+        <h1>회원이 되신 것을 축하드립니다 !</h1>
+        <p>
+          이메일 :
+          <span id="email"> {{ this.email }} </span>
+        </p>
+        <p>
+          닉네임 :
+          <span id="nickname"> {{ this.nickname }} </span>
+          <br><span style="color: #B94A48"> (* 위의 닉네임은 임시 닉네임이며, 변경이 가능합니다.) </span>
+        </p>
+        <p>
+          <router-link class="btn btn-primary" to="/"><button> 홈 </button></router-link>
+          <router-view/>
+          <router-link class="btn btn-primary" to="/login"><button> 로그인 </button></router-link>
+          <router-view/>
+        </p>
+      </div>
     </div>
     <!-- <div class='toast' style='display:none' id="toast">토스트 띄우기 테스트</div> -->
   </div>
@@ -44,8 +63,12 @@
         passwordRepeat: '',
         nickname: '',
         authKey: '',
-        createAuthKey: 0,
-        useAuthKey: 0,
+        inputAuthKey: '',
+        isCreatedAuthKey: 0,
+        isUsedAuthKey: 0,
+        isSignUp: 0,
+        min: 3,
+        sec: 0,
         submitted: false
       }
     },
@@ -94,39 +117,37 @@
 
           http.post("/auth", data)
             .then(res => {
-              this.authKey = res.data;
-              this.createAuthKey = 1;
-              window.alert(this.authKey);
+              if(res.data.email === "Already-Exist") {
+                window.alert("이미 가입된 이메일입니다.")
+              } else {
+                this.authKey = res.data.authKey;
+                this.isCreatedAuthKey = 1;
+                window.alert("인증코드를 메일로 발송하였습니다.\n 확인하신 후 인증코드를 입력해주세요.");
+                //this.getTime();
+              }
             }).catch(e => {
               window.alert(e);
               console.log(e);
             });
         }
       },
+      /* 인증코드 만료 시간 카운팅 */
+      getTime() {
+        //window.setTimeout("getTime();", 1000);
+      },
       /* 인증코드 확인 */
       checkAuthKey() {
-        let data = {
-          email: this.email,
-          authType: 1
+        if(this.inputAuthKey === this.authKey) {
+          this.isUsedAuthKey = 1;
+          window.alert("이메일 인증이 완료되었습니다.");
+        } else {
+          window.alert("인증코드를 다시 한 번 확인해주세요.");
         }
-
-        http.get("/auth", data)
-          .then(res => {
-            if(res.authKey === this.authKey) {
-              this.useAuthKey = 1;
-              window.alert("이메일 인증이 완료되었습니다.");
-            } else {
-              window.alert("인증코드를 다시 한 번 확인해주세요.");
-            }
-          }).catch(e => {
-          window.alert(e);
-          console.log(e);
-        });
 
       },
       /* 회원가입 요청 */
       signup() {
-        if(this.useAuthKey === 0) {
+        if(this.isUsedAuthKey === 0) {
           window.alert("이메일 인증을 진행해주세요.");
         } else if(!this.email || !this.password) {
           window.alert("입력란을 모두 입력하신 후 시도해주세요.");
@@ -136,11 +157,15 @@
             password: this.password
           }
 
-          http.post('/users', data)
+          http.post('/members', data)
             .then((res) => {
               if(res.data) {
-                // 회원가입 완료 화면으로 데이터 전송 어떻게 한담,,,,
-                this.$router.replace('/SignUpComplete');
+                if(res.data.email === "Already-Exist") {
+                  window.alert("이미 가입된 이메일입니다.")
+                } else {
+                  this.isSignUp = 1;
+                  this.nickname = res.data.nickname;
+                }
               } else {
                 window.alert("이메일과 비밀번호를 다시 한 번 확인해주세요.");
               }
@@ -166,7 +191,7 @@
     margin: 0 auto;
     padding-top: 4%;
     padding-left: 10%;
-    height: 600px;
+    height: 800px;
     width: 60%;
     background-color: white;
     box-shadow: 3px 3px 3px 3px #d0d0d0;
@@ -177,7 +202,7 @@
   .signup-form input {
     border-style: none;
     border-bottom: solid black 1px;
-    height: 50px;
+    height: 70px;
     width: 80%;
     padding-left: 2%;
     outline: none;

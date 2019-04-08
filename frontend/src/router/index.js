@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main.vue'
 import SignUp from '@/components/signup/SignUp.vue';
-import SignUpComplete from '@/components/signup/SignUpComplete.vue'
 import LogIn from '@/components/login/LogIn.vue'
 import UserList from '@/components/UserList.vue'; // 테스트
 
@@ -25,23 +24,10 @@ export default new Router({
       path: '/signup',
       name: 'signup',
       component: SignUp
-      /*children : [
-        {
-          path: '/signup/auth',
-          name: 'auth',
-          component: AuthMail,
-          props: true
-        }
-      ]*/
     },
     {
-      path: '/signup/complete',
-      name: 'signup-complete',
-      component: SignUpComplete
-    },
-    {
-      path: '/users',
-      name: 'users',
+      path: '/members',
+      name: 'members',
       component: UserList
     }
   ]

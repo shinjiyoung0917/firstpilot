@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 // 위 함수는 개발시에만 사용?
                 .authorizeRequests()
-                    .antMatchers("/", "/main", "/users", "/auth").permitAll()
+                    .antMatchers("/", "/main", "/members", "/auth").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .formLogin()

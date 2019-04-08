@@ -7,12 +7,12 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class User {
+public class Member {
     @Id
     @GeneratedValue //(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "member_id")
     @Getter
-    private Long userID;
+    private Long memberId;
 
     @Column(name = "email", nullable = false)
     @Getter @Setter
