@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -39,13 +38,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     /* 인코더 등록 */
     @Bean
-    public PasswordEncoder emailAndPasswordEncoder() {
+    public BCryptPasswordEncoder emailAndPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     /* 인증방식 */
-    @Autowired
-    protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    //@Autowired
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .userDetailsService(memberService)
                 .passwordEncoder(emailAndPasswordEncoder());
@@ -59,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 // 인증 요청
                 .authorizeRequests()
-                    .antMatchers("/", "/main", "/members/**", "/auth", "/login/**", "/board").permitAll()
+                    .antMatchers("/", "/main", "/members/**", "/auth", "/login/**", "/board", "/**").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .formLogin()
@@ -67,9 +67,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/login")
                     .defaultSuccessUrl("/main")
                     .failureUrl("/login?error=true")
-                    .usernameParameter("email")
-                    .passwordParameter("password")
-                    .permitAll()
+                    //.usernameParameter("email")
+                    //.passwordParameter("password")
+                    //.permitAll()
                     .and()
                 .logout()
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

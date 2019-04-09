@@ -2,16 +2,26 @@
   <div class="login-row">
     <div class="login-form">
       <h1>로 그 인</h1>
+      <form @submit.prevent="login" id="loginForm">
       <p>
-        <input type="text" placeholder="ID" v-model="email" name="email">
+        <input type="email" placeholder="ID" v-model="email" name="username">
       </p>
       <p>
         <input type="password" placeholder="Password" v-model="password" name="password">
-      </p>
+       </p>
+      <!--
+      <b-form-group id="exampleInputGroup1" label="Username:" label-for="exampleInput1">
+        <b-form-input id="exampleInput1" type="username" v-model="form.username" required placeholder="Enter username"></b-form-input>
+      </b-form-group>
+      <b-form-group id="exampleInputGroup2" label="Password:" label-for="exampleInput2">
+        <b-form-input id="exampleInput2" type="password" v-model="form.password" required placeholder="Enter password"></b-form-input>
+      </b-form-group>
+      -->
       <p>
-        <button @click="login"> 로그인 </button>
+        <button> 로그인 </button> <!-- @click="login" -->
         <button @click="cancel"> 취소 </button>
       </p>
+      </form>
     </div>
   </div>
 </template>
@@ -30,15 +40,21 @@
     methods: {
       login() {
         if (this.email && this.password) {
-          let data = {
-            email: this.email,
+          /*let data = {
+            username: this.email,
             password: this.password
-          }
+          }*/
           // loginForm = new FormData();
           // loginForm.add("email", this.email);
           // loginForm.add("password", this.password);
+          window.alert("// " + this.email + ", " + this.password);
 
-          http.post('/login', this.email)
+          http.post('/login', {
+            params: {
+              username: this.email,
+              password: this.password
+            }
+          })
             .then((res) => {
               //console.log("data", data, "this", res)
 

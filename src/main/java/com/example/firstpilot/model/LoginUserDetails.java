@@ -12,8 +12,7 @@ public class LoginUserDetails extends User {
     @Getter
     private long memberId;
 
-    public LoginUserDetails(Member member)
-    {
+    public LoginUserDetails(Member member) {
         // 일반적으로는 AuthorityUtils.createAuthorityList 에 다수의 룰을 넣고
         // account 테이블과 분리되어 별도의 권한테이블을 join 해서 가져와야함
         super
