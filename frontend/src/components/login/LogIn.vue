@@ -3,14 +3,14 @@
     <div class="login-form">
       <h1>로 그 인</h1>
       <p>
-        <input type="text" placeholder="ID" v-model="email">
+        <input type="text" placeholder="ID" v-model="email" name="email">
       </p>
       <p>
-        <input type="password" placeholder="Password" v-model="password">
+        <input type="password" placeholder="Password" v-model="password" name="password">
       </p>
       <p>
-        <button @click="login">로그인</button>
-        <button @click="cancel">취소</button>
+        <button @click="login"> 로그인 </button>
+        <button @click="cancel"> 취소 </button>
       </p>
     </div>
   </div>
@@ -23,6 +23,7 @@
     data() {
       return {
         email: '',
+        username: '',
         password: ''
       }
     },
@@ -33,16 +34,23 @@
             email: this.email,
             password: this.password
           }
+          // loginForm = new FormData();
+          // loginForm.add("email", this.email);
+          // loginForm.add("password", this.password);
 
-          http.post('/login', data)
+          http.post('/login', this.email)
             .then((res) => {
-              if (res.data.result === 1) {
+              //console.log("data", data, "this", res)
+
+              /*if (res.data.result === 1) {
+                window.alert("로그인 성공");
                 this.$store.commit('loginFlush', res.data.email);
                 this.$router.push('/');
               } else {
-                window.alert(res.data.msg);
+                window.alert("로그인 실패");
+                //window.alert(res.data.msg);
                 window.location.reload();
-              }
+              }*/
             }).catch((e) => {
               window.alert(e);
               console.log(e);

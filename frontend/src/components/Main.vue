@@ -10,7 +10,7 @@
       <router-view/>
     </div>
     <div class="site-info">
-      <router-link class="btn btn-primary" to="/users"> 사용자 조회 버튼 (테스트용) </router-link>
+      <router-link class="btn btn-primary" to="/members"> 사용자 조회 버튼 (테스트용) </router-link>
       <router-view/>
     </div>
   </div>

@@ -30,7 +30,7 @@
     methods: {
       /* eslint-disable no-console */
       showUsers() {
-        http.get("/users")
+        http.get("/members")
           .then(response => {
             this.users = response.data; // JSON이 자동으로 파싱됨
           })

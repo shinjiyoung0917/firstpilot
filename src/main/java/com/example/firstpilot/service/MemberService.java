@@ -1,11 +1,19 @@
 package com.example.firstpilot.service;
 
+import com.example.firstpilot.model.LoginUserDetails;
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.model.MailAuth;
+import com.example.firstpilot.model.MemberRole;
 import com.example.firstpilot.repository.MemberRepository;
 import com.example.firstpilot.repository.MailAuthRepository;
 
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,13 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-
 //@Transactional
 @Service
-public class MemberService {
+public class MemberService implements UserDetailsService {
     private static final Logger log = LoggerFactory.getLogger(MemberService.class);
 
     @Autowired
@@ -34,6 +43,35 @@ public class MemberService {
 
     private boolean lowerCheck;
     private int size;
+
+    /* 로그인 인증 (시큐리티 내부에서 자동 호출?) */
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        log.info("loadUserByUsername 로그 - email : " + email);
+        String encodedEmail = emailAndPasswordEncoder.encode(email);
+        log.info("loadUserByUsername 로그 - encodedEmail : " + encodedEmail);
+        Member member = memberRepo.findByEmail(encodedEmail);
+        log.info("loadUserByUsername 로그 - member : " + member);
+        if(member == null) {
+            throw new UsernameNotFoundException(email);
+        }
+        log.info("loadUserByUsername 로그 - 나와라아아3");
+        //List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
+        //User user = new User(member.getEmail(), member.getPassword(), AuthorityUtils.createAuthorityList("ROLE_USER"));
+        return new LoginUserDetails(member);
+    }
+    /*
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        //return Optional.ofNullable(memberRepo.findByEmail(email))
+        //                .filter(m -> m!= null)
+        //                .map(m -> new SecurityMember(m)).get();
+        Member member = memberRepo.findByEmail(email);
+        if(member == null) {
+            throw new UsernameNotFoundException(email);
+        }
+        return new SecurityMember(member);
+    }*/
 
     /* 이메일 인증코드 삽입 */
     public MailAuth createAuthKey(MailAuth mailAuthData) {
@@ -136,6 +174,9 @@ public class MemberService {
                     member.setEmail(encodedEmail);
                     member.setPassword(encodedPassword);
                     member.setNickname(nickname);
+                    MemberRole role = new MemberRole();
+                    //role.setRoleName("ROLE_USER");
+                    member.setRole("ROLE_USER"); //Arrays.asList(role)
                     return this.memberRepo.save(member);
                 } else {
                     log.info("signUp 로그 - 잘못된 비밀번호 패턴");
