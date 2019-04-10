@@ -18,7 +18,7 @@
 </template>
 
 <script>
-  import http from "@/http-common";
+  import http from "@/http-common"
 
   export default {
     name: "users-list",
@@ -31,10 +31,11 @@
       /* eslint-disable no-console */
       showUsers() {
         http.get("/members")
-          .then(response => {
-            this.users = response.data; // JSON이 자동으로 파싱됨
+          .then(res => {
+            this.users = res.data; // JSON이 자동으로 파싱됨
           })
           .catch(e => {
+            window.alert(e);
             console.log(e);
           });
       },

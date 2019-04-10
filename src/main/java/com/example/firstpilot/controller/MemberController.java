@@ -59,19 +59,12 @@ public class MemberController {
         return this.memberRepo.findByMemberId(id);
     }
 
-    /* 로그인 요청
-    //@PostMapping("/login")
-    @GetMapping("/login")
-    public void postLogin(String email) {
-        log.info("postLogin 로그 - 진입");
-
-        UserDetails userDetails = this.memberService.loadUserByUsername(email);
-        log.info("postLogin 로그 - userDetails : " + userDetails);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "password", userDetails.getAuthorities());
-        log.info("postLogin 로그 - authentication : " + authentication);
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        securityContext.setAuthentication(authentication);
-    }*/
+  /* 세션의 닉네임 가져오기 */
+    @GetMapping("/nickname")
+    public String getNickname() {
+        log.info("getNickname 로그 - 진입");
+        return this.memberService.readSession().getNickname();
+    }
 
 }
 

@@ -7,20 +7,28 @@ import com.example.firstpilot.model.MemberRole;
 import com.example.firstpilot.repository.MemberRepository;
 import com.example.firstpilot.repository.MailAuthRepository;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
@@ -39,39 +47,44 @@ public class MemberService implements UserDetailsService {
     @Autowired
     private JavaMailSender mailSender;
 
-    private BCryptPasswordEncoder emailAndPasswordEncoder = new BCryptPasswordEncoder();
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private boolean lowerCheck;
     private int size;
 
     /* 로그인 인증 (시큐리티 내부에서 자동 호출?) */
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        log.info("loadUserByUsername 로그 - email : " + email);
-        String encodedEmail = emailAndPasswordEncoder.encode(email);
-        log.info("loadUserByUsername 로그 - encodedEmail : " + encodedEmail);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("loadUserByUsername 로그 - email : " + username);
+
+        String encodedEmail = encryptSHA256(username);
         Member member = memberRepo.findByEmail(encodedEmail);
-        log.info("loadUserByUsername 로그 - member : " + member);
         if(member == null) {
-            throw new UsernameNotFoundException(email);
+            throw new UsernameNotFoundException(username);
         }
-        log.info("loadUserByUsername 로그 - 나와라아아3");
+
         //List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
         //User user = new User(member.getEmail(), member.getPassword(), AuthorityUtils.createAuthorityList("ROLE_USER"));
         return new LoginUserDetails(member);
     }
-    /*
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        //return Optional.ofNullable(memberRepo.findByEmail(email))
-        //                .filter(m -> m!= null)
-        //                .map(m -> new SecurityMember(m)).get();
-        Member member = memberRepo.findByEmail(email);
-        if(member == null) {
-            throw new UsernameNotFoundException(email);
+
+    /* SHA256 해시 함수 (이메일을 위한 것) */
+    public String encryptSHA256(String email) {
+        String SHA = null;
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256"); // 이 부분을 SHA-1으로 바꿔도 된다!
+            messageDigest.update(email.getBytes());
+            byte byteData[] = messageDigest.digest();
+            StringBuffer stringBuffer = new StringBuffer();
+            for(int i = 0 ; i < byteData.length ; i++){
+                stringBuffer.append(Integer.toString((byteData[i]&0xff) + 0x100, 16).substring(1));
+            }
+            SHA = stringBuffer.toString();
+        } catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
         }
-        return new SecurityMember(member);
-    }*/
+        return SHA;
+    }
 
     /* 이메일 인증코드 삽입 */
     public MailAuth createAuthKey(MailAuth mailAuthData) {
@@ -79,8 +92,8 @@ public class MemberService implements UserDetailsService {
 
         // 이메일 중복 검사
         String email = mailAuthData.getEmail();
-        String encodedEmail = emailAndPasswordEncoder.encode(email);
-        Member isMailExist = this.memberRepo.findByEmail(email);
+        String encodedEmail = encryptSHA256(email);
+        Member isMailExist = this.memberRepo.findByEmail(encodedEmail);
         if(isMailExist == null) {
             SimpleMailMessage message = new SimpleMailMessage();
             String text = getKey(50, false);
@@ -132,8 +145,8 @@ public class MemberService implements UserDetailsService {
 
         String email = memberData.getEmail();
         String password = memberData.getPassword();
-        String encodedEmail = emailAndPasswordEncoder.encode(email);
-        String encodedPassword = emailAndPasswordEncoder.encode(password);
+        String encodedEmail = encryptSHA256(email);
+        String encodedPassword = passwordEncoder.encode(password);
 
         // 이메일 중복 검사
         Member isMailExist = this.memberRepo.findByEmail(encodedEmail);
@@ -193,6 +206,19 @@ public class MemberService implements UserDetailsService {
 
         // 이메일, 비밀번호 암호화
 
+    }
+
+    /* 세션 값 가져오기 */
+    public Member readSession() {
+        log.info("readSession 로그 - 진입");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
+        log.info("readSession 로그 - member : " + login);
+        log.info("readSession 로그 - member id : " + login.getMemberId());
+        Long memberId = login.getMemberId();
+        Member member = this.memberRepo.findByMemberId(memberId);
+        return member;
     }
 
     /* 닉네임 변경 */

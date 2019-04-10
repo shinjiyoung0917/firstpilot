@@ -27,28 +27,21 @@ import javax.sql.DataSource;
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    /*@Autowired
-    UserDetailsService userDetailsService;*/
     @Autowired
     MemberService memberService;
-    //private CustomUserDetailsService customUserDetailsService;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
     /* 인코더 등록 */
     @Bean
-    public BCryptPasswordEncoder emailAndPasswordEncoder() {
+    public PasswordEncoder PasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     /* 인증방식 */
-    //@Autowired
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .userDetailsService(memberService)
-                .passwordEncoder(emailAndPasswordEncoder());
+                .passwordEncoder(PasswordEncoder());
     }
 
     /* Secure 패턴 등록 */
@@ -65,11 +58,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                     .loginProcessingUrl("/login")
                     .loginPage("/login")
-                    .defaultSuccessUrl("/main")
+                    .defaultSuccessUrl("/")
                     .failureUrl("/login?error=true")
                     //.usernameParameter("email")
-                    //.passwordParameter("password")
-                    //.permitAll()
                     .and()
                 .logout()
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

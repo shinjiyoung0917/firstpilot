@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main.vue'
-import SignUp from '@/components/signup/SignUp.vue';
-import LogIn from '@/components/login/LogIn.vue'
+import SignUp from '@/components/member/SignUp.vue';
+import LogIn from '@/components/member/LogIn.vue'
 import Board from '@/components/board/Board.vue'
 import UserList from '@/components/UserList.vue'; // 테스트
 
@@ -13,6 +13,11 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'main',
+      component: Main
+    },
+    {
+      path: '/main',
       name: 'main',
       component: Main
     },

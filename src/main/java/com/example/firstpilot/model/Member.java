@@ -16,7 +16,7 @@ import java.util.Collection;
 
 
 @Entity
-public class Member  { //implements UserDetails
+public class Member { //implements UserDetails
     @Id
     @GeneratedValue //(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
