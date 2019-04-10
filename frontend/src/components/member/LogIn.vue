@@ -48,7 +48,8 @@
       return {
         email: '',
         username: '',
-        password: ''
+        password: '',
+        nickname: ''
       }
     },
     methods: {
@@ -70,11 +71,9 @@
           http.post('/login', bodyFormData)
             .then((res) => {
               if(res.status === 200) {
+                this.getSession();
                 //this.$store.commit('loginFlush', res.data.email);
-                window.alert("1111");
-                BUS.$emit('bus:call');
-                window.alert("2222");
-                this.$router.replace('/');
+                //BUS.$emit('bus:call');
               } else {
                 window.alert("로그인에 실패하였습니다. 이메일과 비밀번호를 다시 한 번 확인해주세요.");
                 //window.alert(res.data.msg);
@@ -91,6 +90,24 @@
       },
       cancel() {
         this.$router.replace('/');
+      },
+      getSession() {
+        http.get("/nickname")
+          .then((res) => {
+            if (res.status === 200) {
+              this.nickname = res.data;
+
+              sessionStorage.setItem("nickname", this.nickname);
+              this.nickname = sessionStorage.getItem("nickname");
+
+              this.$router.replace('/');
+            } else {
+              window.alert(res.status + " 에러");
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
       }
     }
   }

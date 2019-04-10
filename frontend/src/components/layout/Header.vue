@@ -32,61 +32,39 @@
 </template>
 
 <script>
-  import http from "@/http-common";
-  import {BUS} from '@/EventBus'
+  //import {BUS} from '@/EventBus'
 
   export default {
     name: "Header",
     data() {
       return {
         session: false,
-        nickname: ''
+        nickname: sessionStorage.getItem("nickname")
       };
     },
     methods: {
-      /* 세션 얻기 */
-      /*session() {
-        if(this.session) {  // 세션 있는 경우
-          http.get("/nickname")
-            .then((res) => {
-              if (res.status === 200) {
-                window.alert("세션 가져오기 성공");
-                this.member = res.data;
-                this.session = true;
-              } else {
-                window.alert(res.status + " 에러");
-              }
-            }).catch((e) => {
-            window.alert(e);
-            console.log(e);
-          });
-        } else {            // 세션 없는 경우
-        }
-      }*/
-      // 로그아웃 구현 -> session = false; 로 세팅
-    },
-    mounted() {
-      //this.session();
-      BUS.$on('bus:call', function () {
-        window.alert("3333");
-        http.get("/nickname")
-          .then((res) => {
-            if (res.status === 200) {
-              window.alert("세션 가져오기 성공 " + res.data);
-              this.nickname = res.data;
-              this.session = true;
-            } else {
-              window.alert(res.status + " 에러");
-            }
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      })
+      logout() {
+        // sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+        // sessionStorage.clar(); // 저장된 모든 값 삭제, 세션 전체 삭제
+      }
 
+      /*setIsSession() {
+        BUS.$on('bus:call', function () {
+          window.alert("Login.vue에서 emit해서 이벤트 받은 함수");
+        })
+      },*/
+    }
+
+    /*watch: {
+     session: function () {
+       window.alert("this.session을 watch하는 함수");
+       this.nickname = sessionStorage.getItem("nickname");
+     }
+   },
+    created() {
     },
     beforeUpdate() {
-
-    }
+      this.nickname = sessionStorage.getItem("nickname");
+    }*/
   }
 </script>
