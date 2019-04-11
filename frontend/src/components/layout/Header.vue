@@ -94,10 +94,10 @@
         }
       },
       checkSession() {
-        http.get("/nickname")
+        http.get("/session")
           .then((res) => {
             if (res.status === 200) {
-              window.alert("// 세션값? " + res.data);
+              window.alert("// 세션값? " + JSON.stringify(res.data));
             } else {
               window.alert(res.status + " 에러");
             }

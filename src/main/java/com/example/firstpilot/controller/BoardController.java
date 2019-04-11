@@ -16,9 +16,18 @@ import java.util.List;
 public class BoardController {
     private static final Logger log = LoggerFactory.getLogger(BoardController.class);
 
+    @Autowired
+    private BoardService boardService;
     //@Autowired
-    //BoardRepository repo;
-    //private BoardService boardService;
+    //BoardRepository boardRepo;
+
+    /* 게시물 정보 삽입하기 */
+    @PostMapping("/boards")
+    public void postBoard(@RequestBody Board board) {
+        this.boardService.createBoard(board);
+    }
+
+
 
     /* 대시보드 (본인이 작성한 글 혹은 댓글) */
     /*@GetMapping(path = "/members/{nickname}")

@@ -4,6 +4,7 @@ import Main from '@/components/Main.vue'
 import SignUp from '@/components/member/SignUp.vue';
 import LogIn from '@/components/member/LogIn.vue'
 import Board from '@/components/board/Board.vue'
+import WriteBoard from '@/components/board/WriteBoard.vue'
 import Dashboard from '@/components/dashboard/Dashboard.vue'
 import UserList from '@/components/UserList.vue'; // 테스트
 
@@ -36,6 +37,11 @@ export default new Router({
       path: '/boards',
       name: 'board',
       component: Board
+    },
+    {
+      path: '/boards/write',
+      name: 'write-board',
+      component: WriteBoard
     },
     {
       path: '/dashboard',

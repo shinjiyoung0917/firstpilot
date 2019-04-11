@@ -6,29 +6,20 @@ import com.example.firstpilot.repository.MemberRepository;
 import com.example.firstpilot.service.MemberService;
 //import org.springframework.stereotype.Controller;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpSession;
-
 @RestController
 public class MemberController {
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
 
     @Autowired
-    private MemberRepository memberRepo;
-    @Autowired
     private MemberService memberService;
+    @Autowired
+    private MemberRepository memberRepo;
 
     /* 이메일 인증코드 생성하기 */
     @PostMapping("/auth")
@@ -59,11 +50,11 @@ public class MemberController {
         return this.memberRepo.findByMemberId(id);
     }
 
-  /* 세션의 닉네임 가져오기 */
-    @GetMapping("/nickname")
-    public String getNickname() {
-        log.info("getNickname 로그 - 진입");
-        return this.memberService.readSession().getNickname();
+  /* 세션 가져오기 */
+    @GetMapping("/session")
+    public Member getSession() {
+        log.info("getSession 로그 - 진입");
+        return this.memberService.readSession();
     }
 
 }

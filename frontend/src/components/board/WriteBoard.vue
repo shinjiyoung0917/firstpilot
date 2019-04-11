@@ -177,22 +177,10 @@
       'app-footer': Footer
     },
     methods: {
-      getBoards() {
-        http.get('/boards')
-          .then((res) => {
-            if(res.status === 200) {
 
-            }
-
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      }
     },
     mounted() {
-      //this.getBoards();
+
     }
   }
 </script>
-

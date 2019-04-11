@@ -49,7 +49,8 @@
         email: '',
         username: '',
         password: '',
-        nickname: ''
+        nickname: '',
+        memberId: ''
       }
     },
     methods: {
@@ -93,13 +94,16 @@
         this.$router.replace('/');
       },
       getSession() {
-        http.get("/nickname")
+        http.get("/session")
           .then((res) => {
             if (res.status === 200) {
-              this.nickname = res.data;
+              this.nickname = res.data.nickname;
+              this.memberId = res.data.memberId;
 
               sessionStorage.setItem("nickname", this.nickname);
               this.nickname = sessionStorage.getItem("nickname");
+              sessionStorage.setItem("memberId", this.memberId);
+              this.memberId = sessionStorage.getItem("memberId");
 
               this.$router.replace('/');
             } else {
