@@ -80,7 +80,8 @@
                 window.location.reload();
               }
             }).catch((e) => {
-              window.alert(e);
+              window.alert("로그인에 실패하였습니다. 이메일과 비밀번호를 다시 한 번 확인해주세요.");
+              //window.alert(e);
               console.log(e);
             });
         }

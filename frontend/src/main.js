@@ -7,10 +7,8 @@ import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import VueSessionStorage from 'vue-sessionstorage'
 
 Vue.use(BootstrapVue)
-Vue.use(VueSessionStorage)
 Vue.config.productionTip = false
 //Vue.prototype.$EventBus = new Vue();
 

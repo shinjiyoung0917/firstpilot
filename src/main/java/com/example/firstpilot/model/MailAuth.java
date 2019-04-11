@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @IdClass(MailAuthPK.class)
+@Table(name = "mail_auth")
 public class MailAuth {
     @Id
     @Column(name = "email", nullable = false)

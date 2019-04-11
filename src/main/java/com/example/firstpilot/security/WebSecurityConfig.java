@@ -52,7 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 // 인증 요청
                 .authorizeRequests()
-                    .antMatchers("/", "/main", "/members/**", "/auth", "/login/**", "/board", "/**").permitAll()
+                    .antMatchers("/", "/main", "/members/**", "/auth", "/login", "/logout").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .formLogin()
@@ -60,12 +60,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/login")
                     .defaultSuccessUrl("/")
                     .failureUrl("/login?error=true")
-                    //.usernameParameter("email")
                     .and()
                 .logout()
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                     .logoutSuccessUrl("/")
                     .invalidateHttpSession(true)
+                    //.deleteCookies(JSESSIONID)
                     .and()
                 .exceptionHandling();
     }
