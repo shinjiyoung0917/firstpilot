@@ -2,13 +2,13 @@ package com.example.firstpilot.controller;
 
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.model.MailAuth;
-import com.example.firstpilot.repository.MemberRepository;
 import com.example.firstpilot.service.MemberService;
-//import org.springframework.stereotype.Controller;
+import com.example.firstpilot.repository.MemberRepository;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

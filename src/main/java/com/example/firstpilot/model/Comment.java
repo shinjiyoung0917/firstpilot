@@ -7,17 +7,17 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "board")
-public class Board {
+@Table(name = "comment")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "board_id")
+    @Column(name = "comment_id")
     @Getter
-    private Long boardId;
+    private Long commentId;
 
-    @Column(name = "title")
+    @Column(name = "board_id")
     @Getter @Setter
-    private String title;
+    private Long boardId;
 
     @Column(name = "content")
     @Getter @Setter
@@ -26,6 +26,7 @@ public class Board {
     @Column(name = "member_id")
     @Getter @Setter
     private Long memberId;
+
 
     @Column(name = "nickname")
     @Getter @Setter
@@ -39,13 +40,13 @@ public class Board {
     @Getter @Setter
     private LocalDateTime updatedDate;
 
-    @Column(name = "like_count")
+    @Column(name = "parent_id")
     @Getter @Setter
-    private Long likeCount;
+    private Long parentId;
 
-    @Column(name = "comment_count")
+    @Column(name = "child_count")
     @Getter @Setter
-    private Long commentCount;
+    private Long childCount;
 
     @Column(name = "file_path")
     @Getter @Setter

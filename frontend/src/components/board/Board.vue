@@ -2,7 +2,6 @@
   <div>
     <app-header></app-header>
 
-
     <!-- Page Content -->
     <div class="container">
 
@@ -59,10 +58,12 @@
                 <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
                 <div class="card-body">
                   <h4 class="card-title">
-                    <a href="#">Item One</a>
+                    <router-link  to="/boards">Item One</router-link> <!-- :to="{ name: 'BoardDetails', params: { id: board.id }}" -->
+                    <router-view/>
                   </h4>
                   <h5>$24.99</h5>
                   <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur!</p>
+                  <a class="button" href="#">Read More <i class="ti-arrow-right"></i></a>
                 </div>
                 <div class="card-footer">
                   <small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small>
@@ -75,7 +76,8 @@
                 <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
                 <div class="card-body">
                   <h4 class="card-title">
-                    <a href="#">Item Two</a>
+                    <router-link  to="/boards">Item Two</router-link> <!-- :to="{ name: 'BoardDetails', params: { id: board.id }}" -->
+                    <router-view/>
                   </h4>
                   <h5>$24.99</h5>
                   <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur! Lorem ipsum dolor sit amet.</p>
@@ -91,7 +93,8 @@
                 <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
                 <div class="card-body">
                   <h4 class="card-title">
-                    <a href="#">Item Three</a>
+                    <router-link  to="/boards">Item Three</router-link> <!-- :to="{ name: 'BoardDetails', params: { id: board.id }}" -->
+                    <router-view/>
                   </h4>
                   <h5>$24.99</h5>
                   <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur!</p>

@@ -1,6 +1,8 @@
-package com.example.firstpilot.model;
+package com.example.firstpilot.util;
 
 import lombok.Getter;
+
+import com.example.firstpilot.model.Member;
 
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -14,7 +16,7 @@ public class LoginUserDetails extends User {
     private static final long serialVersionUID = 1L;
 
     @Getter
-    private long memberId;
+    private Long memberId;
 
     public LoginUserDetails(Member member) {
         // 일반적으로는 AuthorityUtils.createAuthorityList 에 다수의 룰을 넣고

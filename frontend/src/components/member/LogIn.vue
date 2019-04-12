@@ -1,6 +1,7 @@
 <template>
   <div>
     <app-header></app-header>
+
     <div class="login-row">
       <div class="login-form">
         <h1> 로 그 인 </h1>
@@ -27,6 +28,7 @@
         </form>
       </div>
     </div>
+
     <app-footer></app-footer>
   </div>
 </template>
@@ -66,7 +68,7 @@
             method: 'post',
             url: 'login',
             data: bodyFormData,
-            config: { headers: { 'Content-Type: 'multipart/form-data'' }}
+            config: { headers: { 'Content-Type': 'multipart/form-data' }}
           })
           */
           http.post('/login', bodyFormData)

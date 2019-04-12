@@ -1,14 +1,15 @@
 package com.example.firstpilot.service;
 
-import com.example.firstpilot.model.LoginUserDetails;
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.model.MailAuth;
 import com.example.firstpilot.model.MemberRole;
 import com.example.firstpilot.repository.MemberRepository;
 import com.example.firstpilot.repository.MailAuthRepository;
+import com.example.firstpilot.util.LoginUserDetails;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,10 +25,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.regex.Pattern;
 

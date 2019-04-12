@@ -1,4 +1,4 @@
-package com.example.firstpilot.model;
+package com.example.firstpilot.util;
 
 import lombok.Data;
 

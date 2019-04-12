@@ -1,8 +1,7 @@
 package com.example.firstpilot.model;
 
+import com.example.firstpilot.util.MailAuthPK;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

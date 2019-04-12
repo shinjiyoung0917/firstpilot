@@ -1,61 +1,73 @@
 <template>
-  <div class="signup-row">
-    <div class="signup-form">
-      <div v-if="this.isSignUp === 0">
-        <h1>회 원 가 입</h1>
-        <p>
-          이메일
-          <input type="text" placeholder="yourname@example.com" v-model="email" v-on:keyup="checkEmailPattern"> <!--  v-bind:memberEmail="email" -->
-          <button v-on:click="reqAuthKey"> 인증 </button>
-          <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
-        </p>
-        <p v-if="this.isCreatedAuthKey === 1">
-          인증코드
-          <input type="text" v-model="inputAuthKey">
-          <span id="countTime" style="color: #B94A48;"> {{ this.min }}:{{ this.sec }}} </span>
-          <button v-on:click="checkAuthKey"> 확인 </button>
-        </p>
-        <p>
-          비밀번호
-          <input type="password" placeholder="" v-model="password" v-on:keyup="checkPasswordPattern">
-          <br><span id="checkPasswordPatternResult" style="color: #B94A48;"></span>
-        </p>
-        <p>
-          비밀번호 재확인
-          <input type="password" placeholder="" v-model="passwordRepeat" v-on:keyup="checkPasswordRepeat">
-          <br><span id="checkPasswordRepeatResult" style="color: #B94A48;"></span>
-        </p>
-        <button v-on:click="signup"> 가입 </button>
-        <button v-on:click="cancel"> 취소 </button>
+  <div>
+    <app-header></app-header>
+
+    <div class="signup-row">
+      <div class="signup-form">
+        <div v-if="this.isSignUp === 0">
+          <h1>회 원 가 입</h1>
+          <p>
+            이메일
+            <input type="text" placeholder="yourname@example.com" v-model="email" v-on:keyup="checkEmailPattern"> <!--  v-bind:memberEmail="email" -->
+            <button v-on:click="reqAuthKey"> 인증 </button>
+            <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
+          </p>
+          <p v-if="this.isCreatedAuthKey === 1">
+            인증코드
+            <input type="text" v-model="inputAuthKey">
+            <span id="countTime" style="color: #B94A48;"> {{ this.min }} : {{ this.sec }} </span>
+            <button v-on:click="checkAuthKey"> 확인 </button>
+          </p>
+          <p>
+            비밀번호
+            <input type="password" placeholder="" v-model="password" v-on:keyup="checkPasswordPattern">
+            <br><span id="checkPasswordPatternResult" style="color: #B94A48;"></span>
+          </p>
+          <p>
+            비밀번호 재확인
+            <input type="password" placeholder="" v-model="passwordRepeat" v-on:keyup="checkPasswordRepeat">
+            <br><span id="checkPasswordRepeatResult" style="color: #B94A48;"></span>
+          </p>
+          <button v-on:click="signup"> 가입 </button>
+          <button v-on:click="cancel"> 취소 </button>
+        </div>
+        <div v-else>
+          <h1>회원이 되신 것을 축하드립니다 !</h1>
+          <p>
+            이메일 :
+            <span id="email"> {{ this.email }} </span>
+          </p>
+          <p>
+            닉네임 :
+            <span id="nickname"> {{ this.nickname }} </span>
+            <br><span style="color: #B94A48"> (* 위의 닉네임은 임시 닉네임이며, 변경이 가능합니다.) </span>
+          </p>
+          <p>
+            <router-link class="btn btn-primary" to="/"><button> 홈 </button></router-link>
+            <router-view/>
+            <router-link class="btn btn-primary" to="/login"><button> 로그인 </button></router-link>
+            <router-view/>
+          </p>
+        </div>
       </div>
-      <div v-else>
-        <h1>회원이 되신 것을 축하드립니다 !</h1>
-        <p>
-          이메일 :
-          <span id="email"> {{ this.email }} </span>
-        </p>
-        <p>
-          닉네임 :
-          <span id="nickname"> {{ this.nickname }} </span>
-          <br><span style="color: #B94A48"> (* 위의 닉네임은 임시 닉네임이며, 변경이 가능합니다.) </span>
-        </p>
-        <p>
-          <router-link class="btn btn-primary" to="/"><button> 홈 </button></router-link>
-          <router-view/>
-          <router-link class="btn btn-primary" to="/login"><button> 로그인 </button></router-link>
-          <router-view/>
-        </p>
-      </div>
+      <!-- <div class='toast' style='display:none' id="toast">토스트 띄우기 테스트</div> -->
     </div>
-    <!-- <div class='toast' style='display:none' id="toast">토스트 띄우기 테스트</div> -->
+
+    <app-footer></app-footer>
   </div>
 </template>
 
 
 <script>
   import http from "@/http-common"
+  import Header from '../layout/Header.vue'
+  import Footer from '../layout/Footer.vue'
 
   export default {
+    components: {
+      'app-header': Header,
+      'app-footer': Footer
+    },
     data() {
       return {
         email: '',
