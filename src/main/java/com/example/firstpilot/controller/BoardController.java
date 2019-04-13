@@ -29,22 +29,26 @@ public class BoardController {
 
     /* 게시물 정보 (파일 제외) 삽입하기 */
     @PostMapping("/boards")
-    public void postBoard(HttpServletRequest req, @RequestParam("file") MultipartFile uploadFile) {
+    public void postBoard(@RequestBody Board board) {
         log.info("postBoard 로그  - 진입");
-        log.info("postBoard 로그  - board title : " + req.getParameter("title"));
-        log.info("postBoard 로그  - board : " + uploadFile);
-        //this.boardService.createBoard(board);
-
-        //세션값 가져와서 닉네임이랑 시퀀스 파라미터로 보내기
+        log.info("postBoard 로그  - board title : " + board.getTitle());
+        this.boardService.createBoard(board);
     }
 
-    /* 파일 정보와 함께 삽입하기 */
+    /* 로컬 디렉토리(실제 상용화라고 생각하면 서버 디렉토리)에 저장  */
     @PostMapping("/boards/file")
-    public void postBoardFile() {
+    public String postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
         log.info("postBoardFile 로그  - 진입");
-        log.info("postBoardFile 로그  - board : " );
-        //this.boardService.createBoardFile();
+        log.info("postBoardFile 로그  - uploadFile : " + uploadFile);
+        String filePath = null;
+        try {
+            filePath = this.boardService.saveBoardFileInDir(uploadFile);
+        } catch(Exception e) {
+            log.info("postBoardFile 에러 로그  - " + e);
+            e.printStackTrace();
+        }
 
+        return filePath;
     }
 
 

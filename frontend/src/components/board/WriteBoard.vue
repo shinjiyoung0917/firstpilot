@@ -31,6 +31,7 @@
           <hr>
 
           <!-- File -->
+          <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
           <input type="file" id="fileUpload" name="fileUpload" @change="setFileData($event.target.files)">
 
           <hr>
@@ -108,7 +109,7 @@
 
 <script>
   import http from "@/http-common"
-  import axios from 'axios'
+  import httpFile from "@/http-fileUpload"
   import Header from '../layout/Header.vue'
   import Footer from '../layout/Footer.vue'
 
@@ -123,7 +124,8 @@
         nickname: sessionStorage.getItem("nickname"),
         title: '',
         content: '',
-        fileData: ''
+        fileData: '',
+        filePath: ''
       }
     },
     methods: {
@@ -133,82 +135,58 @@
         } else if(this.content === null || this.content === "") {
           window.alert("내용을 입력해주세요.")
         } else {
-          let data = {
-            memberId: this.memberId,
-            nickname: this.nickname,
-            title: this.title,
-            content: this.content,
-          }
-
           let bodyFormData = new FormData();
-          bodyFormData.set('memberId', this.memberId);
           bodyFormData.append('file', this.fileData);
 
-          // window.alert(this.memberId + ", " + this.nickname + ", " + this.title + ", " + this.content + ", " + this.fileData.name);
+          if(this.fileData !== '') {    // 업로드할 파일이 있을 경우
+            let bodyFormData = new FormData();
+            bodyFormData.set('uploadFile', this.fileData);
 
-
-          // 파일은 multipart/form-data로
-          // 나머진 json?
-
-          if(this.file !== '') {  // 업로드할 파일이 있을 경우
-            /*axios({
-              method: 'post',
-              url: 'boards',
-              data: data, bodyFormData,
-              config: { headers: { 'Content-Type': 'multipart/form-data' } }
-            }).then((res) => {
-              if(res.status === 200) {
-                window.alert("성공띠");
-
-
-              }
-            }).catch((e) => {
-              window.alert(e);
-              console.log(e);
-            });*/
-            http.post('/boards', )
+            // 파일 서버 디렉토리에 저장
+            httpFile.post('/boards/file', bodyFormData)
               .then((res) => {
-                if(res.status === 200) {
-                  // mutipart/form-data로 전송?
-                  window.alert("성공띠");
-
+                if (res.status === 200) {
+                  this.filePath = res.data;
+                  window.alert("//////// " + JSON.stringify(res));
+                  this.writeData();
                 }
               }).catch((e) => {
               window.alert(e);
               console.log(e);
             });
-          } else {                // 업로드할 파일이 없을 경우
-
+          } else {                      // 업로드할 파일이 없을 경우
+            this.writeData();
           }
-
-
-          /*http.post('/boards', bodyFormData,
-            {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            })
-          .then((res) => {
-            if(res.status === 200) {
-              // mutipart/form-data로 전송?
-
-            }
-            }).catch((e) => {
-            window.alert(e);
-            console.log(e);
-          });*/
-
         }
       },
+      /* 파일 데이터를 제외한 나머지 게시판 데이터 등록 요청 */
+      writeData() {
+        let data = {
+          memberId: this.memberId,
+          nickname: this.nickname,
+          title: this.title,
+          content: this.content,
+          filePath: this.filePath
+        }
+
+        http.post('/boards', data)
+          .then((res) => {
+            if(res.status === 200) {
+              window.alert("게시물 등록을 성공적으로 완료하였습니다.");
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 선택한 파일 데이터 가져오기 */
       setFileData(files) {
         if(files.length) {
           this.fileData = files[0];
         }
       }
-
     },
     mounted() {
-
     }
   }
 </script>
