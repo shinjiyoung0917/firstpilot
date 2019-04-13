@@ -80,7 +80,6 @@
             .then((res) => {
               if(res.status === 200) {
                 window.alert("로그아웃이 성공적으로 완료되었습니다. \n 좋은 하루 되세요!");
-                window.alert("=> " + JSON.stringify(res));
                 sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
                 sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
                 this.nickname = null;
@@ -97,7 +96,7 @@
         http.get("/session")
           .then((res) => {
             if (res.status === 200) {
-              window.alert("// 세션값? " + JSON.stringify(res.data));
+              window.alert("// 세션값: " + JSON.stringify(res.data));
             } else {
               window.alert(res.status + " 에러");
             }

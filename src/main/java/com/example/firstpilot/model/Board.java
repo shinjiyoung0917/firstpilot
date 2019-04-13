@@ -2,6 +2,7 @@ package com.example.firstpilot.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,23 +16,23 @@ public class Board {
     @Getter
     private Long boardId;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     @Getter @Setter
     private String title;
 
-    @Column(name = "content")
+    @Column(name = "content", nullable = false)
     @Getter @Setter
     private String content;
 
-    @Column(name = "member_id")
+    @Column(name = "member_id", nullable = false)
     @Getter @Setter
     private Long memberId;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", nullable = false)
     @Getter @Setter
     private String nickname;
 
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = false)
     @Getter @Setter
     private LocalDateTime createdDate;
 
@@ -39,11 +40,18 @@ public class Board {
     @Getter @Setter
     private LocalDateTime updatedDate;
 
-    @Column(name = "like_count")
+    @Column(name = "hit_count", nullable = false)
+    @ColumnDefault("0")
+    @Getter @Setter
+    private Long hitCount;
+
+    @Column(name = "like_count", nullable = false)
+    @ColumnDefault("0")
     @Getter @Setter
     private Long likeCount;
 
-    @Column(name = "comment_count")
+    @Column(name = "comment_count", nullable = false)
+    @ColumnDefault("0")
     @Getter @Setter
     private Long commentCount;
 
@@ -51,7 +59,8 @@ public class Board {
     @Getter @Setter
     private String filePath;
 
-    @Column(name = "is_valid")
+    @Column(name = "is_valid", nullable = false)
+    @ColumnDefault("1")
     @Getter @Setter
     private Integer isValid;
 }

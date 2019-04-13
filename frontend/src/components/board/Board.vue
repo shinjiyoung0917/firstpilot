@@ -51,104 +51,31 @@
             </a>
           </div>
 
+          <!-- 리스트 시작 -->
           <div class="row">
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-4" v-for="board in boards">
               <div class="card h-100">
                 <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
                 <div class="card-body">
+                  <h10> 등록날짜 {{ board.createdDate }} </h10>
                   <h4 class="card-title">
-                    <router-link  to="/boards">Item One</router-link> <!-- :to="{ name: 'BoardDetails', params: { id: board.id }}" -->
+                    <router-link  :to="{ name: 'BoardDetails', params: { id: board.boardId }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
-                  <h5>$24.99</h5>
-                  <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur!</p>
+                  <h7> {{ board.nickname }} </h7>
+                  <p class="card-text"> {{ board.content }} </p>
                   <a class="button" href="#">Read More <i class="ti-arrow-right"></i></a>
                 </div>
                 <div class="card-footer">
-                  <small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="card h-100">
-                <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-                <div class="card-body">
-                  <h4 class="card-title">
-                    <router-link  to="/boards">Item Two</router-link> <!-- :to="{ name: 'BoardDetails', params: { id: board.id }}" -->
-                    <router-view/>
-                  </h4>
-                  <h5>$24.99</h5>
-                  <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur! Lorem ipsum dolor sit amet.</p>
-                </div>
-                <div class="card-footer">
-                  <small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="card h-100">
-                <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-                <div class="card-body">
-                  <h4 class="card-title">
-                    <router-link  to="/boards">Item Three</router-link> <!-- :to="{ name: 'BoardDetails', params: { id: board.id }}" -->
-                    <router-view/>
-                  </h4>
-                  <h5>$24.99</h5>
-                  <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur!</p>
-                </div>
-                <div class="card-footer">
-                  <small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="card h-100">
-                <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-                <div class="card-body">
-                  <h4 class="card-title">
-                    <a href="#">Item Four</a>
-                  </h4>
-                  <h5>$24.99</h5>
-                  <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur!</p>
-                </div>
-                <div class="card-footer">
-                  <small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="card h-100">
-                <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-                <div class="card-body">
-                  <h4 class="card-title">
-                    <a href="#">Item Five</a>
-                  </h4>
-                  <h5>$24.99</h5>
-                  <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur! Lorem ipsum dolor sit amet.</p>
-                </div>
-                <div class="card-footer">
-                  <small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="card h-100">
-                <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
-                <div class="card-body">
-                  <h4 class="card-title">
-                    <a href="#">Item Six</a>
-                  </h4>
-                  <h5>$24.99</h5>
-                  <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur!</p>
-                </div>
-                <div class="card-footer">
-                  <small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small>
+                  <h6>
+                    <img src="../../assets/hit.png" width="30" height="30"> {{ board.hitCount }}
+                    <img v-if="board.like === 1" src="../../assets/like.png" width="30" height="30" @click="toUnlike">
+                    <img v-else src="../../assets/unlike.png" width="30" height="30" @click="toLike">
+                    {{ board.likeCount }}
+                    <img src="../../assets/comment.png" width="30" height="30" @click=""> {{ board.commentCount }}
+                  </h6>
+                  <!--<small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small> 별-->
                 </div>
               </div>
             </div>
@@ -179,23 +106,131 @@
       'app-header': Header,
       'app-footer': Footer
     },
+    data () {
+      return {
+        memberId: sessionStorage.getItem("memberId"),
+        bottom: false,
+        boards: [],
+        likeBoards: [],
+        page: 0,
+        loading: false
+      }
+    },
     methods: {
-      getBoards() {
-        http.get('/boards')
+      addBoards() {
+        let page = {
+          page: this.page
+        }
+        http.get('/boards', { params: page })
           .then((res) => {
             if(res.status === 200) {
+              //if (this.page !== 0) {
+                for (let i in res.data.content) {
+                  let board = res.data.content[i];
+                  if (board.isValid === 1) {
+                    let boardInfo = {
+                      boardId: board.boardId,
+                      title: board.title,
+                      content: board.content,
+                      nickname: board.nickname,
+                      createdDate: board.createdDate,
+                      updatedDate: board.updatedDate,
+                      hitCount: board.hitCount,
+                      likeCount: board.likeCount,
+                      commentCount: board.commentCount,
+                      filePath: board.filePath
+                    };
 
+                    for(let j in this.likeBoards) {
+                      if(boardInfo.boardId === this.likeBoards[j].boardId) {
+                        boardInfo['like'] = 1;
+                        //window.alert("boardInfo : " + JSON.stringify(boardInfo));
+                      }
+                    }
+                    this.boards.push(boardInfo);
+                  }
+                }
+              /*} else {
+                this.boards = res.data.content;
+              }*/
+              this.page = this.page + 1;
+
+              /*if(this.bottomVisible()) {
+                this.addBoards();
+              }*/
             }
 
           }).catch((e) => {
           window.alert(e);
           console.log(e);
         });
+      },
+      /* 스크롤이 최하단에 도착했는지 확인 */
+      bottomVisible() {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+          return true;
+        } else {
+          return false;
+        }
+        /*let scrollY = window.pageYOffset;
+        let visible = document.documentElement //document.documentElement.clientHeight;
+        let pageHeight = document.documentElement.scrollHeight;
+        let bottomOfPage = visible + scrollY >= pageHeight;
+        return bottomOfPage || pageHeight < visible;*/
+      },
+      /* 현재 로그인한 회원이 좋아요를 누른 게시물 목록 요청 */
+      getLikeBoards() {
+        let memberId = {
+          memberId: this.memberId
+        }
+        http.get('/boards/likes', { params: memberId })
+          .then((res) => {
+            this.likeBoards = res.data;
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      toUnlike() {
+
+      },
+      toLike() {
+       
+      }
+    },
+    created() {
+      this.getLikeBoards();
+      this.addBoards();
+    },
+    mounted() {
+      window.addEventListener('scroll', () => {
+        this.bottom = this.bottomVisible();
+      });
+    },
+    watch: {
+      bottom(bottom) {
+        if(bottom) {
+          this.addBoards();
+        }
+      }
+    }
+
+    /*created() {
+      window.addEventListener('scroll', () => {
+        this.bottom = this.bottomVisible();
+      });
+
+      this.addBoards();
+    },
+    watch: {
+      bottom(bottom) {
+        if(bottom) {
+          this.addBoards();
+        }
       }
     },
     mounted() {
-      //this.getBoards();
-    }
+    }*/
   }
 </script>
 

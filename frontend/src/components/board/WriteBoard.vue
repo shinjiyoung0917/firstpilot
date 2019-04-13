@@ -32,7 +32,6 @@
 
           <!-- File -->
           <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
-          <input type="file" id="fileUpload" name="fileUpload" @change="setFileData($event.target.files)">
 
           <hr>
 
@@ -147,7 +146,6 @@
               .then((res) => {
                 if (res.status === 200) {
                   this.filePath = res.data;
-                  window.alert("//////// " + JSON.stringify(res));
                   this.writeData();
                 }
               }).catch((e) => {
@@ -173,6 +171,7 @@
           .then((res) => {
             if(res.status === 200) {
               window.alert("게시물 등록을 성공적으로 완료하였습니다.");
+              this.$router.push('/boards');
             }
           }).catch((e) => {
           window.alert(e);

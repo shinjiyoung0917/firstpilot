@@ -1,29 +1,34 @@
 package com.example.firstpilot.service;
 
-import com.example.firstpilot.model.Board;
-import com.example.firstpilot.repository.BoardRepository;
-
-import com.example.firstpilot.util.LoginUserDetails;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.example.firstpilot.model.LikeBoard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
+import com.example.firstpilot.model.Board;
+import com.example.firstpilot.repository.BoardRepository;
+import com.example.firstpilot.repository.LikeBoardRepository;
+import com.example.firstpilot.util.LoginUserDetails;
+
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.springframework.data.domain.Pageable;
+
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.time.LocalDateTime;
+import javax.imageio.ImageIO;
 import java.io.File;
-
 import java.util.UUID;
-
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class BoardService {
@@ -31,6 +36,8 @@ public class BoardService {
 
     @Autowired
     private BoardRepository boardRepo;
+    @Autowired
+    private LikeBoardRepository likeBoardRepo;
 
     /* 게시물 정보 삽입 */
     public void createBoard(Board boardData) {
@@ -48,7 +55,11 @@ public class BoardService {
         board.setMemberId(memberId);
         board.setNickname(boardData.getNickname());
         board.setCreatedDate(LocalDateTime.now());
+        board.setHitCount((long)0);
+        board.setLikeCount((long)0);
+        board.setCommentCount((long)0);
         board.setFilePath(boardData.getFilePath());
+        board.setIsValid(1);
         this.boardRepo.save(board);
     }
 
@@ -97,8 +108,7 @@ public class BoardService {
 
         if(!(originalImg.getWidth() <= thumbnail_width && originalImg.getHeight() <= thumbnail_height)){
             //이미지 썸네일로 만들기(그릇 준비 -> 그래픽 만들기 -> 그리기 -> 데이터로 쓰기)
-            BufferedImage thumbImage =
-                    new BufferedImage(thumbnail_width, thumbnail_height, BufferedImage.TYPE_3BYTE_BGR);
+            BufferedImage thumbImage = new BufferedImage(thumbnail_width, thumbnail_height, BufferedImage.TYPE_3BYTE_BGR);
             Graphics2D graphic = thumbImage.createGraphics();
             graphic.drawImage(originalImg, 0, 0, thumbnail_width, thumbnail_height, null);
 
@@ -112,5 +122,27 @@ public class BoardService {
         String savedFilePath = fileName;
         return savedFilePath.replace(File.separatorChar, '/');
     }
+
+    /* 게시물 정보 가져오기 */
+    public Page<Board> readBoardList(Pageable pageable) {
+        log.info("readBoardList 로그  - 진입");
+
+        Page<Board> temp = this.boardRepo.findAll(pageable);
+        log.info("readBoardList 로그  - temp : " + temp);
+        //return this.boardRepo.findAll(pageable);
+        return temp;
+    }
+
+    /* 좋아요 게시물 목록 가져오기 */
+    public List<LikeBoard> readLikeBoardList(Long memberId) {
+        return this.likeBoardRepo.findByMemberId(memberId);
+    }
+
+    /* 상세 게시물 정보 가져오기 */
+    public Board readBoardDetails() {
+        Board board = null;
+        return board;
+    }
+
 
 }

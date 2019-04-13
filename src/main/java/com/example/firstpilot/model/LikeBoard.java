@@ -12,9 +12,9 @@ import javax.persistence.*;
 public class LikeBoard {
     @Id
     @Column(name = "member_id", nullable = false)
-    private String memberId;
+    private Long memberId;
 
     @Id
     @Column(name = "board_id", nullable = false)
-    private Integer boardId;
+    private Long boardId;
 }

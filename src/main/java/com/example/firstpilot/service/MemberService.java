@@ -1,5 +1,8 @@
 package com.example.firstpilot.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.model.MailAuth;
 import com.example.firstpilot.model.MemberRole;
@@ -22,9 +25,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -198,9 +198,6 @@ public class MemberService implements UserDetailsService {
             memberData.setEmail("Already-Exist");
             return memberData;
         }
-
-        // 이메일, 비밀번호 암호화
-
     }
 
     /* 세션 값 가져오기 */

@@ -1,5 +1,8 @@
 package com.example.firstpilot.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.model.MailAuth;
 import com.example.firstpilot.service.MemberService;
@@ -8,9 +11,6 @@ import com.example.firstpilot.repository.MemberRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 public class MemberController {
@@ -21,7 +21,7 @@ public class MemberController {
     @Autowired
     private MemberRepository memberRepo;
 
-    /* 이메일 인증코드 생성하기 */
+    /* 이메일 인증코드 생성 요청 */
     @PostMapping("/auth")
     @ResponseStatus(HttpStatus.CREATED)
     public MailAuth postAuthKey(@RequestBody MailAuth mailAuth) {
@@ -30,7 +30,7 @@ public class MemberController {
         return this.memberService.createAuthKey(mailAuth);
     }
 
-    /* 사용자 정보 삽입하기 */
+    /* 회원가입 요청 */
     @PostMapping("/members")
     @ResponseStatus(HttpStatus.CREATED)
     public Member postMember(@RequestBody Member member) {
@@ -40,7 +40,7 @@ public class MemberController {
         return this.memberService.createMember(member);
     }
 
-    /* 사용자 정보 가져오기 */
+    /* 사용자 정보 요청 */
     @GetMapping("/members")
     public Member getMember(@RequestParam Long id) {
         log.info("getMember 로그 - 진입");
@@ -50,7 +50,7 @@ public class MemberController {
         return this.memberRepo.findByMemberId(id);
     }
 
-  /* 세션 가져오기 */
+  /* 세션 값 요청 */
     @GetMapping("/session")
     public Member getSession() {
         log.info("getSession 로그 - 진입");
