@@ -108,13 +108,11 @@
     },
     data () {
       return {
-        boardSeq: 0,
         memberId: sessionStorage.getItem("memberId"),
         bottom: false,
         boards: [],
         likeBoards: [],
         page: 0,
-        loading: false
       }
     },
     methods: {
@@ -196,7 +194,7 @@
         this.boards[i].like = 0;
         this.boards[i].likeCount -= 1;
 
-        http.delete("/boards/" + this.boards[i].boardId + "/like")
+        http.delete('/boards/' + this.boards[i].boardId + '/like')
           .then((res) => {
 
           }).catch((e) => {
@@ -209,7 +207,7 @@
         this.boards[i].like = 1;
         this.boards[i].likeCount += 1;
 
-        http.post("/boards/" + this.boards[i].boardId + "/like")
+        http.post('/boards/' + this.boards[i].boardId + '/like')
           .then((res) => {
 
           }).catch((e) => {

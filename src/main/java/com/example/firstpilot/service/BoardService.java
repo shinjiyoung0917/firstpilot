@@ -5,19 +5,22 @@ import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.model.Board;
 import com.example.firstpilot.model.LikeBoard;
+import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.repository.BoardRepository;
 import com.example.firstpilot.repository.LikeBoardRepository;
+import com.example.firstpilot.repository.CommentRepository;
 import com.example.firstpilot.util.LikeBoardPK;
 import com.example.firstpilot.util.LoginUserDetails;
 
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.util.FileCopyUtils;
@@ -39,6 +42,8 @@ public class BoardService {
     private BoardRepository boardRepo;
     @Autowired
     private LikeBoardRepository likeBoardRepo;
+    @Autowired
+    private CommentRepository commentRepo;
 
     /* 로그인한 회원의 세션값 */
     public LoginUserDetails readSession() {
@@ -64,7 +69,11 @@ public class BoardService {
         board.setHitCount((long)0);
         board.setLikeCount((long)0);
         board.setCommentCount((long)0);
-        board.setFilePath(boardData.getFilePath());
+        if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
+            board.setFilePath(null);
+        } else {
+            board.setFilePath(boardData.getFilePath().substring(6));
+        }
         board.setIsValid(1);
         this.boardRepo.save(board);
     }
@@ -177,15 +186,44 @@ public class BoardService {
         }
     }
 
-
     /* 상세 게시물 정보 가져오기 */
     public Board readBoardDetails(Long boardId) {
-        Board board = null;
-        return board;
+        log.info("readBoardDetails 로그  - 진입");
+        return this.boardRepo.findByBoardId(boardId);
     }
 
     /* 게시물 조회수 업데이트 */
     public void updateHitCount(Long boardId) {
+        log.info("updateHitCount 로그  - 진입");
+    }
 
+    /* 댓글 정보 삽입 */
+    public Comment createComments(Long boardId, Comment commentData) {
+        log.info("createComments 로그  - 진입");
+        log.info("createComments 로그  - filePath : " + commentData.getFilePath());
+        Long memberId = readSession().getMemberId();
+        Comment comment = new Comment();
+        comment.setBoardId(boardId);
+        comment.setContent(commentData.getContent());
+        comment.setMemberId(memberId);
+        comment.setNickname(commentData.getNickname());
+        comment.setCreatedDate(LocalDateTime.now());
+        comment.setParentId(commentData.getParentId());
+        comment.setChildCount((long)0);
+        if(commentData.getFilePath().equals("") || commentData.getFilePath() == null) {
+            log.info("createComments 로그  - 파일을 선택하지 않음");
+            comment.setFilePath(null);
+        } else {
+            log.info("createComments 로그  - 파일 선택함");
+            comment.setFilePath(commentData.getFilePath().substring(6));
+        }
+        comment.setIsValid(1);
+        return this.commentRepo.save(comment);
+    }
+
+    /* 댓글 정보 가져오기 */
+    public List<Comment> readComments(Long boardId) {
+        log.info("readComments 로그  - 진입");
+        return this.commentRepo.findByBoardId(boardId, new Sort(Sort.Direction.DESC, "createdDate"));
     }
 }

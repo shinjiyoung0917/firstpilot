@@ -11,18 +11,17 @@
         <div class="col-lg-8">
 
           <!-- Title -->
-          <h1 class="mt-4">Post Title</h1>
+          <h1 class="mt-4"> {{ this.board.title }} </h1>
 
           <!-- Author -->
           <p class="lead">
-            by
-            <a href="#">Start Bootstrap</a>
+            by {{ this.board.nickname }}
           </p>
 
           <hr>
 
           <!-- Date/Time -->
-          <p>Posted on January 1, 2019 at 12:00 PM</p>
+          <p>Posted on {{ this.board.createdDate }} </p>
 
           <hr>
 
@@ -32,68 +31,66 @@
           <hr>
 
           <!-- Post Content -->
-          <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus, vero, obcaecati, aut, error quam sapiente nemo saepe quibusdam sit excepturi nam quia corporis eligendi eos magni recusandae laborum minus inventore?</p>
-
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut, tenetur natus doloremque laborum quos iste ipsum rerum obcaecati impedit odit illo dolorum ab tempora nihil dicta earum fugiat. Temporibus, voluptatibus.</p>
-
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eos, doloribus, dolorem iusto blanditiis unde eius illum consequuntur neque dicta incidunt ullam ea hic porro optio ratione repellat perspiciatis. Enim, iure!</p>
-
-          <blockquote class="blockquote">
-            <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-            <footer class="blockquote-footer">Someone famous in
-              <cite title="Source Title">Source Title</cite>
-            </footer>
-          </blockquote>
-
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error, nostrum, aliquid, animi, ut quas placeat totam sunt tempora commodi nihil ullam alias modi dicta saepe minima ab quo voluptatem obcaecati?</p>
-
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Harum, dolor quis. Sunt, ut, explicabo, aliquam tenetur ratione tempore quidem voluptates cupiditate voluptas illo saepe quaerat numquam recusandae? Qui, necessitatibus, est!</p>
+          <p class="lead">
+            {{ this.board.content }}
+          </p>
 
           <hr>
 
           <!-- Comments Form -->
           <div class="card my-4">
-            <h5 class="card-header">Leave a Comment:</h5>
+            <h5 class="card-header">댓글을 남겨주세요:</h5>
             <div class="card-body">
-              <form>
+              <!--<form>-->
                 <div class="form-group">
-                  <textarea class="form-control" rows="3"></textarea>
+                  <textarea class="form-control" rows="3" v-model="content"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </form>
+                <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
+                <button class="btn btn-primary" @click="write(null)">등록</button>
+              <!--</form>-->
             </div>
           </div>
 
-          <!-- Single Comment -->
-          <div class="media mb-4">
-            <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-            <div class="media-body">
-              <h5 class="mt-0">Commenter Name</h5>
-              Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-            </div>
-          </div>
-
-          <!-- Comment with nested comments -->
-          <div class="media mb-4">
-            <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-            <div class="media-body">
-              <h5 class="mt-0">Commenter Name</h5>
-              Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-
-              <div class="media mt-4">
-                <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                <div class="media-body">
-                  <h5 class="mt-0">Commenter Name</h5>
-                  Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                </div>
+          <!--<div v-for="comment in comments">
+            <div class="media mb-4" v-if="comment.parentId !== null">
+              <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+              <div class="media-body">
+                <h5 class="mt-0"> {{ comment.nickname }} </h5>
+                {{ comment.content }}
               </div>
+            </div>
+          </div>-->
 
-              <div class="media mt-4">
-                <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                <div class="media-body">
-                  <h5 class="mt-0">Commenter Name</h5>
-                  Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+          <!-- 댓글, 대댓글 -->
+          <div v-for="(comment, index) in comments">
+            <div class="media mb-4" > <!-- v-if="comment.parentId === null" -->
+              <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+              <div class="media-body" style="float: left">
+
+                <h5 class="mt-0"> {{ comment.nickname }} </h5>
+                {{ comment.content }}
+                <div v-if="isHidden === 1">
+                  <button @click=""> 대댓글 달기 </button>
                 </div>
+                <div v-else>
+                  <button @click=""> 취소 </button>
+                </div>
+                <!-- 대댓글 -->
+                <div v-for="childComment in childComments">
+                  <div class="media mt-4" v-else-if="childComment.parentId === comment.commentId">
+                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                    <div class="media-body">
+                      <h5 class="mt-0"> {{ childComment.nickname }} </h5>
+                      {{ childComment.content }}
+                    </div>
+                  </div>
+                </div>
+                <!-- 대댓글 입력창 -->
+                <div class="form-group" v-if="isHidden === 0">
+                  <textarea class="form-control" rows="3" v-model="childContent"></textarea>
+                  <button class="btn btn-primary" @click="write(comment.commentId)">등록</button>
+                </div>
+
               </div>
 
             </div>
@@ -152,14 +149,6 @@
             </div>
           </div>
 
-          <!-- Side Widget -->
-          <div class="card my-4">
-            <h5 class="card-header">Side Widget</h5>
-            <div class="card-body">
-              You can put anything you want inside of these side widgets. They are easy to use, and feature the new Bootstrap 4 card containers!
-            </div>
-          </div>
-
         </div>
 
       </div>
@@ -174,6 +163,7 @@
 
 <script>
   import http from "@/http-common"
+  import httpFile from "@/http-fileUpload"
   import Header from '../layout/Header.vue'
   import Footer from '../layout/Footer.vue'
 
@@ -182,8 +172,191 @@
       'app-header': Header,
       'app-footer': Footer
     },
+    data () {
+      return {
+        boardId: this.$route.params.id,
+        board: '',
+        comments: [],
+        childComments: [],
+        content: '',
+        childContent: '',
+        fileData: '',
+        filePath: '',
+        isHidden: 1
+      }
+    },
     methods: {
+      /* 해당 게시물 정보 요청 */
+      getBoardDetails() {
+        let boardId = {
+          boardId: this.boardId
+        }
+        http.get('/boards/details', { params: boardId })
+          .then((res) => {
+            this.board = res.data;
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 전체 댓글 정보 요청 */
+      getComments() {
+        http.get('/boards/' + this.boardId + '/comments')
+          .then((res) => {
+            if(res.status === 200) {
+              for(let i in res.data) {
+                let comment = res.data[i];
+                if (comment.isValid === 1) {
+                  if(comment.parentId === null) {  // 댓글일 경우
+                    let commentInfo = {
+                      commentId: comment.commentId,
+                      title: comment.title,
+                      content: comment.content,
+                      memberId: comment.memberId,
+                      nickname: comment.nickname,
+                      createdDate: comment.createdDate,
+                      updatedDate: comment.updatedDate,
+                      parentId: comment.parentId,
+                      childCount: comment.childCount,
+                      filePath: comment.filePath
+                    };
+                    this.comments.push(commentInfo);
+                  } else {                          // 대댓글일 경우
+                    let childCommentInfo = {
+                      commentId: comment.commentId,
+                      title: comment.title,
+                      content: comment.content,
+                      memberId: comment.memberId,
+                      nickname: comment.nickname,
+                      createdDate: comment.createdDate,
+                      updatedDate: comment.updatedDate,
+                      parentId: comment.parentId,
+                      childCount: comment.childCount,
+                      filePath: comment.filePath
+                    };
+                    this.childComments.push(childCommentInfo);
+                  }
+                }
+              }
+              //window.alert("/// 댓글리스트 : " + JSON.stringify(this.comments));
+              //window.alert("/// 대댓글리스트 : " + JSON.stringify(this.childComments));
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 댓글 등록 요청 (파일 먼저 서버에 저장) */
+      write(parent) {
+        if(parent === null) {
+          if (this.content === null || this.content === "") {
+            window.alert("내용을 입력해주세요.");
+            return;
+          }
+        } else {
+          if (this.childContent === null || this.childContent === "") {
+            window.alert("내용을 입력해주세요.");
+            return;
+          }
+        }
 
+        if(this.fileData !== '') {    // 업로드할 파일이 있을 경우
+          let bodyFormData = new FormData();
+          bodyFormData.set('uploadFile', this.fileData);
+
+          // 파일 서버 디렉토리에 저장
+          httpFile.post('/boards/file', bodyFormData)
+            .then((res) => {
+              if (res.status === 200) {
+                this.filePath = res.data;
+                window.alert("///1 res.data : " + res.data);
+                this.writeComment(parent);
+              }
+            }).catch((e) => {
+            window.alert(e);
+            console.log(e);
+          });
+        } else {                      // 업로드할 파일이 없을 경우
+          this.writeComment(parent);
+        }
+      },
+      /* 선택한 파일 데이터 가져오기 */
+      setFileData(files) {
+        if(files.length) {
+          this.fileData = files[0];
+        }
+      },
+      /* 파일 데이터를 제외한 나머지 게시판 데이터 등록 요청 */
+      writeComment(parent) {
+        window.alert("parent: " + parent);
+        if(parent === null) {
+          let data = {
+            content: this.content,
+            nickname: sessionStorage.getItem("nickname"),
+            parentId: parent,
+            filePath: this.filePath
+          }
+
+          http.post('/boards/' + this.boardId + '/comments', data)
+            .then((res) => {
+              if (res.status === 200) {
+                window.alert("댓글 등록을 성공적으로 완료하였습니다.");
+                this.$router.replace('/boards/' + this.boardId);
+                /*let comment = res.data;
+                let commentInfo = {
+                  commentId: comment.commentId,
+                  title: comment.title,
+                  content: comment.content,
+                  memberId: comment.memberId,
+                  nickname: comment.nickname,
+                  createdDate: comment.createdDate,
+                  updatedDate: comment.updatedDate,
+                  parentId: comment.parentId,
+                  childCount: comment.childCount,
+                  filePath: comment.filePath
+                };*/
+                //this.comments.push(commentInfo);
+              }
+            }).catch((e) => {
+            window.alert(e);
+            console.log(e);
+          });
+        } else {
+          let data = {
+            content: this.childContent,
+            nickname: sessionStorage.getItem("nickname"),
+            parentId: parent,
+            filePath: this.filePath
+          }
+          http.post('/boards/' + this.boardId + '/comments', data)
+            .then((res) => {
+              if (res.status === 200) {
+                window.alert("대댓글 등록을 성공적으로 완료하였습니다.");
+                let childComment = res.data;
+                let childCommentInfo = {
+                  commentId: childComment.commentId,
+                  title: childComment.title,
+                  content: childComment.content,
+                  memberId: childComment.memberId,
+                  nickname: childComment.nickname,
+                  createdDate: childComment.createdDate,
+                  updatedDate: childComment.updatedDate,
+                  parentId: childComment.parentId,
+                  childCount: childComment.childCount,
+                  filePath: childComment.filePath
+                };
+                this.childComments.push(childCommentInfo);
+              }
+            }).catch((e) => {
+            window.alert(e);
+            console.log(e);
+          });
+        }
+      }
+    },
+    created() {
+      this.getBoardDetails();
+      this.getComments();
     },
     mounted() {
 

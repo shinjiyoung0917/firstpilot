@@ -1,10 +1,11 @@
 package com.example.firstpilot.controller;
 
-import com.example.firstpilot.model.LikeBoard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.model.Board;
+import com.example.firstpilot.model.LikeBoard;
+import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.service.BoardService;
 
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +39,10 @@ public class BoardController {
     @PostMapping("/boards/file")
     public String postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
         log.info("postBoardFile 로그  - 진입");
-        log.info("postBoardFile 로그  - uploadFile : " + uploadFile);
         String filePath = null;
         try {
             filePath = this.boardService.saveBoardFileInDir(uploadFile);
+            log.info("postBoardFile 로그  - filePath : " + filePath);
         } catch(Exception e) {
             log.info("postBoardFile 에러 로그  - " + e);
             e.printStackTrace();
@@ -80,14 +81,30 @@ public class BoardController {
     /* 상세 게시물 정보 요청 */
     @GetMapping("/boards/details")
     public Board getBoardDetails(@RequestParam("boardId") Long boardId) {
+        log.info("getBoardDetails 로그  - 진입");
         return this.boardService.readBoardDetails(boardId);
     }
 
     /* 게시물 조회수 업데이트 */
     @PutMapping("/boards/{boardId}/hit")
     public void putHitCount(@PathVariable("boardId") Long boardId) {
+        log.info("putHitCount 로그  - 진입");
         this.boardService.updateHitCount(boardId);
 
+    }
+
+    /* 댓글 등록 요청 */
+    @PostMapping("/boards/{boardId}/comments")
+    public Comment postComments(@PathVariable("boardId") Long boardId, @RequestBody Comment commentData) {
+        log.info("postComments 로그  - 진입");
+        return this.boardService.createComments(boardId, commentData);
+    }
+
+    /* 댓글 정보 요청 */
+    @GetMapping("/boards/{boardId}/comments")
+    public List<Comment> getComments(@PathVariable("boardId") Long boardId) {
+        log.info("getComments 로그  - 진입");
+        return this.boardService.readComments(boardId);
     }
 
     /* 대시보드 (본인이 작성한 글 혹은 댓글) 정보 요청 */

@@ -41,7 +41,7 @@ public class Comment {
     @Getter @Setter
     private LocalDateTime updatedDate;
 
-    @Column(name = "parent_id", nullable = false)
+    @Column(name = "parent_id")
     @Getter @Setter
     private Long parentId;
 
