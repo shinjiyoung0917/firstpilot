@@ -60,7 +60,7 @@
                 <div class="card-body">
                   <h10> 등록날짜 {{ board.createdDate }} </h10>
                   <h4 class="card-title">
-                    <router-link  :to="{ name: 'BoardDetails', params: { id: board.boardId }}"> {{ board.title }} </router-link>
+                    <router-link  :to="{ name: 'board-details', params: { id: board.boardId }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
                   <h7> {{ board.nickname }} </h7>
