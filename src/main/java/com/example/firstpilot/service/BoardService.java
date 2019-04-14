@@ -1,12 +1,13 @@
 package com.example.firstpilot.service;
 
-import com.example.firstpilot.model.LikeBoard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.model.Board;
+import com.example.firstpilot.model.LikeBoard;
 import com.example.firstpilot.repository.BoardRepository;
 import com.example.firstpilot.repository.LikeBoardRepository;
+import com.example.firstpilot.util.LikeBoardPK;
 import com.example.firstpilot.util.LoginUserDetails;
 
 import org.springframework.data.domain.Page;
@@ -39,14 +40,19 @@ public class BoardService {
     @Autowired
     private LikeBoardRepository likeBoardRepo;
 
+    /* 로그인한 회원의 세션값 */
+    public LoginUserDetails readSession() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
+        return login;
+    }
+
     /* 게시물 정보 삽입 */
     public void createBoard(Board boardData) {
         log.info("createBoard 로그  - 진입");
 
-        // 세션값 가져와서 닉네임이랑 시퀀스 파라미터 저장 (프론트에서 바꾸는 것을 대비하기 위해)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
-        Long memberId = login.getMemberId();
+        // 세션값 가져와서 회원 시퀀스 번호 저장 (프론트에서 바꾸는 것을 대비하기 위해)
+        Long memberId = readSession().getMemberId();
         //Member member = this.memberRepo.findByMemberId(memberId);
 
         Board board = new Board();
@@ -126,23 +132,60 @@ public class BoardService {
     /* 게시물 정보 가져오기 */
     public Page<Board> readBoardList(Pageable pageable) {
         log.info("readBoardList 로그  - 진입");
-
-        Page<Board> temp = this.boardRepo.findAll(pageable);
-        log.info("readBoardList 로그  - temp : " + temp);
-        //return this.boardRepo.findAll(pageable);
-        return temp;
+        return this.boardRepo.findAll(pageable);
     }
 
     /* 좋아요 게시물 목록 가져오기 */
-    public List<LikeBoard> readLikeBoardList(Long memberId) {
+    public List<LikeBoard> readLikeBoardList() {
+        Long memberId = readSession().getMemberId();
         return this.likeBoardRepo.findByMemberId(memberId);
     }
 
+    /* 게시물 좋아요 생성 */
+    public void createLikeBoard(Long boardId) {
+        log.info("createLikeBoard 로그  - 진입");
+        Long memberId = readSession().getMemberId();
+        LikeBoard likeBoard = new LikeBoard();
+        likeBoard.setMemberId(memberId);
+        likeBoard.setBoardId(boardId);
+        this.likeBoardRepo.save(likeBoard);
+    }
+
+    /* 게시물 좋아요 삭제 */
+    public void deleteLikeBoard(Long boardId) {
+        log.info("deleteLikeBoard 로그  - 진입");
+        Long memberId = readSession().getMemberId();
+
+        LikeBoardPK pk = new LikeBoardPK();
+        pk.setMemberId(memberId);
+        pk.setBoardId(boardId);
+
+        this.likeBoardRepo.deleteById(pk);
+    }
+
+    /* 좋아요 및 해제로 게시물의 좋아요 수 업데이트 */
+    public void updateLikeCount(Long boardId, Integer status) {
+        log.info("updateLikeCount 로그  - 진입");
+        if(status == 0) {
+            Board board = this.boardRepo.findByBoardId(boardId);
+            board.setLikeCount(board.getLikeCount() + 1);
+            this.boardRepo.save(board);
+        } else {
+            Board board = this.boardRepo.findByBoardId(boardId);
+            board.setLikeCount(board.getLikeCount() - 1);
+            this.boardRepo.save(board);
+        }
+    }
+
+
     /* 상세 게시물 정보 가져오기 */
-    public Board readBoardDetails() {
+    public Board readBoardDetails(Long boardId) {
         Board board = null;
         return board;
     }
 
+    /* 게시물 조회수 업데이트 */
+    public void updateHitCount(Long boardId) {
 
+    }
 }

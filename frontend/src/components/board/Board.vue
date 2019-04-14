@@ -54,7 +54,7 @@
           <!-- 리스트 시작 -->
           <div class="row">
 
-            <div class="col-lg-4 col-md-6 mb-4" v-for="board in boards">
+            <div class="col-lg-4 col-md-6 mb-4" v-for="(board, index) in boards">
               <div class="card h-100">
                 <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
                 <div class="card-body">
@@ -70,8 +70,8 @@
                 <div class="card-footer">
                   <h6>
                     <img src="../../assets/hit.png" width="30" height="30"> {{ board.hitCount }}
-                    <img v-if="board.like === 1" src="../../assets/like.png" width="30" height="30" @click="toUnlike">
-                    <img v-else src="../../assets/unlike.png" width="30" height="30" @click="toLike">
+                    <img v-if="board.like === 1" src="../../assets/like.png" width="30" height="30" @click="toUnlike(index)">
+                    <img v-else src="../../assets/unlike.png" width="30" height="30" @click="toLike(index)">
                     {{ board.likeCount }}
                     <img src="../../assets/comment.png" width="30" height="30" @click=""> {{ board.commentCount }}
                   </h6>
@@ -108,6 +108,7 @@
     },
     data () {
       return {
+        boardSeq: 0,
         memberId: sessionStorage.getItem("memberId"),
         bottom: false,
         boards: [],
@@ -153,7 +154,7 @@
               /*} else {
                 this.boards = res.data.content;
               }*/
-              this.page = this.page + 1;
+              this.page += 1;
 
               /*if(this.bottomVisible()) {
                 this.addBoards();
@@ -180,10 +181,10 @@
       },
       /* 현재 로그인한 회원이 좋아요를 누른 게시물 목록 요청 */
       getLikeBoards() {
-        let memberId = {
+        /*let memberId = {
           memberId: this.memberId
-        }
-        http.get('/boards/likes', { params: memberId })
+        }*/
+        http.get('/boards/likes') //{ params: memberId }
           .then((res) => {
             this.likeBoards = res.data;
           }).catch((e) => {
@@ -191,11 +192,30 @@
           console.log(e);
         });
       },
-      toUnlike() {
+      toUnlike(i) {
+        this.boards[i].like = 0;
+        this.boards[i].likeCount -= 1;
+
+        http.delete("/boards/" + this.boards[i].boardId + "/like")
+          .then((res) => {
+
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
 
       },
-      toLike() {
-       
+      toLike(i) {
+        this.boards[i].like = 1;
+        this.boards[i].likeCount += 1;
+
+        http.post("/boards/" + this.boards[i].boardId + "/like")
+          .then((res) => {
+
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
       }
     },
     created() {

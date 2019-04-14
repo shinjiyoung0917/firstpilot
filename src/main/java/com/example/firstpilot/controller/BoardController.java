@@ -25,8 +25,6 @@ public class BoardController {
 
     @Autowired
     private BoardService boardService;
-    //@Autowired
-    //BoardRepository boardRepo;
 
     /* 게시물 (파일 제외) 등록 요청 */
     @PostMapping("/boards")
@@ -59,16 +57,38 @@ public class BoardController {
 
     /* 로그인한 회원이 좋아요 누른 게시물 목록 요청 */
     @GetMapping("/boards/likes")
-    public List<LikeBoard> getLikeBoardList(@RequestParam("memberId") Long memberId) {
-        return this.boardService.readLikeBoardList(memberId);
+    public List<LikeBoard> getLikeBoardList() { //@RequestParam("memberId") Long memberId
+        return this.boardService.readLikeBoardList();
+    }
+
+    /* 게시물 좋아요 요청 */
+    @PostMapping("/boards/{boardId}/like")
+    public void postLikeBoard(@PathVariable("boardId") Long boardId) {
+        log.info("postLikeBoard 로그  - 진입");
+        this.boardService.createLikeBoard(boardId);
+        this.boardService.updateLikeCount(boardId, 0);
+    }
+
+    /* 게시물 좋아요 해제 요청 */
+    @DeleteMapping("/boards/{boardId}/like")
+    public void deleteLikeBoard(@PathVariable("boardId") Long boardId) {
+        log.info("deleteLikeBoard 로그  - 진입");
+        this.boardService.deleteLikeBoard(boardId);
+        this.boardService.updateLikeCount(boardId, 1);
     }
 
     /* 상세 게시물 정보 요청 */
-    @GetMapping("boards/details")
+    @GetMapping("/boards/details")
     public Board getBoardDetails(@RequestParam("boardId") Long boardId) {
-        return this.boardService.readBoardDetails();
+        return this.boardService.readBoardDetails(boardId);
     }
 
+    /* 게시물 조회수 업데이트 */
+    @PutMapping("/boards/{boardId}/hit")
+    public void putHitCount(@PathVariable("boardId") Long boardId) {
+        this.boardService.updateHitCount(boardId);
+
+    }
 
     /* 대시보드 (본인이 작성한 글 혹은 댓글) 정보 요청 */
     /*@GetMapping(path = "/members/{nickname}")
