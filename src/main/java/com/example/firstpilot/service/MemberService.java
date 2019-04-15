@@ -81,6 +81,28 @@ public class MemberService implements UserDetailsService {
         return SHA;
     }
 
+    /* 인증코드 생성 */
+    public String getKey(int size, boolean lowerCheck) {
+        this.size = size;
+        this.lowerCheck = lowerCheck;
+
+        Random randoms = new Random();
+        StringBuffer strBuff = new StringBuffer();
+        int num = 0;
+        do {
+            num = randoms.nextInt(75)+48;
+            if((num>=48 && num<=57) || (num>=65 && num<=90) || (num>=97 && num<=122)) {
+                strBuff.append((char)num);
+            }else {
+                continue;
+            }
+        } while (strBuff.length() < size);
+        if(lowerCheck) {
+            return strBuff.toString().toLowerCase();
+        }
+        return strBuff.toString();
+    }
+
     /* 이메일 인증코드 삽입 */
     public MailAuth createAuthKey(MailAuth mailAuthData) {
         log.info("createAuthKey 로그 - 진입");
@@ -112,27 +134,6 @@ public class MemberService implements UserDetailsService {
         }
     }
 
-    /* 인증코드 생성 */
-    public String getKey(int size, boolean lowerCheck) {
-        this.size = size;
-        this.lowerCheck = lowerCheck;
-
-        Random randoms = new Random();
-        StringBuffer strBuff = new StringBuffer();
-        int num = 0;
-        do {
-            num = randoms.nextInt(75)+48;
-            if((num>=48 && num<=57) || (num>=65 && num<=90) || (num>=97 && num<=122)) {
-                strBuff.append((char)num);
-            }else {
-                continue;
-            }
-        } while (strBuff.length() < size);
-        if(lowerCheck) {
-            return strBuff.toString().toLowerCase();
-        }
-        return strBuff.toString();
-    }
 
     /* 회원가입 */
     public Member createMember(Member memberData) {

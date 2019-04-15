@@ -8,28 +8,28 @@
           <h1>회 원 가 입</h1>
           <p>
             이메일
-            <input type="text" placeholder="yourname@example.com" v-model="email" v-on:keyup="checkEmailPattern"> <!--  v-bind:memberEmail="email" -->
-            <button v-on:click="reqAuthKey"> 인증 </button>
+            <input type="text" placeholder="yourname@example.com" v-model="email" @keyup="checkEmailPattern"> <!--  v-bind:memberEmail="email" -->
+            <button @click="reqAuthKey"> 인증 </button>
             <br><span id="checkEmailPatternResult" style="color: #B94A48;"></span>
           </p>
           <p v-if="this.isCreatedAuthKey === 1">
             인증코드
             <input type="text" v-model="inputAuthKey">
             <span id="countTime" style="color: #B94A48;"> {{ this.min }} : {{ this.sec }} </span>
-            <button v-on:click="checkAuthKey"> 확인 </button>
+            <button @click="checkAuthKey"> 확인 </button>
           </p>
           <p>
             비밀번호
-            <input type="password" placeholder="" v-model="password" v-on:keyup="checkPasswordPattern">
+            <input type="password" placeholder="" v-model="password" @keyup="checkPasswordPattern">
             <br><span id="checkPasswordPatternResult" style="color: #B94A48;"></span>
           </p>
           <p>
             비밀번호 재확인
-            <input type="password" placeholder="" v-model="passwordRepeat" v-on:keyup="checkPasswordRepeat">
+            <input type="password" placeholder="" v-model="passwordRepeat" @keyup="checkPasswordRepeat">
             <br><span id="checkPasswordRepeatResult" style="color: #B94A48;"></span>
           </p>
-          <button v-on:click="signup"> 가입 </button>
-          <button v-on:click="cancel"> 취소 </button>
+          <button @click="signup"> 가입 </button>
+          <button @click="cancel"> 취소 </button>
         </div>
         <div v-else>
           <h1>회원이 되신 것을 축하드립니다 !</h1>

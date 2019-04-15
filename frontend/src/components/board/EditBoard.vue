@@ -11,7 +11,7 @@
         <div class="col-lg-8">
 
           <!-- Title -->
-          <input type="text" class="mt-4 form-control" placeholder="제목을 입력해주세요." v-model="title" />
+          <input type="text" class="mt-4 form-control" v-model="board.title"/>
 
           <!-- Author -->
           <p class="lead">
@@ -21,12 +21,12 @@
           <hr>
 
           <!-- Preview Image -->
-          <img class="img-fluid rounded" src="http://placehold.it/900x300" alt=""> <!-- 기본 이미지 넣기 -->
+          <img class="img-fluid rounded" src="http://placehold.it/900x300" alt="">
 
           <hr>
 
           <!-- Post Content -->
-          <textarea class="mt-4 form-control" rows="5" placeholder="내용을 입력해주세요." v-model="content"></textarea>
+          <textarea class="mt-4 form-control" rows="5" v-model="board.content"></textarea>
 
           <hr>
 
@@ -37,8 +37,8 @@
 
           <!-- Write Button -->
           <div style="padding-bottom: 50px;">
-            <button class="btn btn-primary" @click="write"> 등록 </button>
-            <router-link to="/boards" class="btn btn-primary"> 취소 </router-link>
+            <button class="btn btn-primary" @click="edit"> 수정 </button>
+            <router-link class="btn btn-primary" :to="{ name: 'board-details', params: { id: this.boardId }}" > 취소 </router-link>
           </div>
 
         </div>
@@ -119,20 +119,29 @@
     },
     data() {
       return {
+        boardId: this.$route.params.id,
         memberId: sessionStorage.getItem("memberId"),
         nickname: sessionStorage.getItem("nickname"),
-        title: '',
-        content: '',
-        fileData: '',
-        filePath: ''
+        board: '',
+        fileData: ''
       }
     },
     methods: {
-      /* 게시물 등록 요청 (파일 먼저 서버에 저장) */
-      write() {
-        if(this.title === null || this.title === "") {
+      /* 수정할 해당 게시물의 정보 요청 */
+      getBoardData() {
+        http.get('/boards/' + this.boardId)
+          .then((res) => {
+            this.board = res.data;
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 게시물 수정 요청 (파일 먼저 서버에 저장) */
+      edit() {
+        if(this.board.title === null || this.board.title === "") {
           window.alert("제목을 입력해주세요.")
-        } else if(this.content === null || this.content === "") {
+        } else if(this.board.content === null || this.board.content === "") {
           window.alert("내용을 입력해주세요.")
         } else {
           if(this.fileData !== '') {    // 업로드할 파일이 있을 경우
@@ -143,15 +152,15 @@
             httpFile.post('/boards/file', bodyFormData)
               .then((res) => {
                 if (res.status === 200) {
-                  this.filePath = res.data;
-                  this.writeData();
+                  this.board.filePath = res.data;
+                  this.editData();
                 }
               }).catch((e) => {
               window.alert(e);
               console.log(e);
             });
           } else {                      // 업로드할 파일이 없을 경우
-            this.writeData();
+            this.editData();
           }
         }
       },
@@ -162,20 +171,25 @@
         }
       },
       /* 파일 데이터를 제외한 나머지 게시판 데이터 등록 요청 */
-      writeData() {
+      editData() {
         let data = {
           memberId: this.memberId,
           nickname: this.nickname,
-          title: this.title,
-          content: this.content,
-          filePath: this.filePath
+          title: this.board.title,
+          content: this.board.content,
+          filePath: this.board.filePath,
+          likeCount: this.board.likeCount,
+          commentCount: this.board.commentCount,
+          hitCount: this.board.hitCount,
+          createdDate: this.board.createdDate,
+          isValid: this.board.isValid
         }
 
-        http.post('/boards', data)
+        http.put('/boards/' + this.boardId, data)
           .then((res) => {
             if(res.status === 200) {
-              window.alert("게시물 등록을 성공적으로 완료하였습니다.");
-              this.$router.push('/boards');
+              window.alert("게시물 수정을 성공적으로 완료하였습니다.");
+              this.$router.push('/boards/' + this.boardId);
             }
           }).catch((e) => {
           window.alert(e);
@@ -187,6 +201,8 @@
       if (!sessionStorage.getItem("memberId")) {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
+      } else {
+        this.getBoardData();
       }
     }
   }

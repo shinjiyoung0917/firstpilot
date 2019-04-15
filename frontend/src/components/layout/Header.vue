@@ -70,7 +70,7 @@
     name: "Header",
     data() {
       return {
-        nickname: sessionStorage.getItem("nickname")
+        nickname:  sessionStorage.getItem("nickname")
       };
     },
     methods: {
@@ -81,6 +81,7 @@
               if(res.status === 200) {
                 window.alert("로그아웃이 성공적으로 완료되었습니다. \n 좋은 하루 되세요!");
                 sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+                sessionStorage.removeItem("memberId");
                 sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
                 this.nickname = null;
               }
@@ -92,38 +93,33 @@
           window.alert("이미 로그아웃 처리 완료되었습니다.");
         }
       },
-      checkSession() {
-        http.get("/session")
-          .then((res) => {
-            if (res.status === 200) {
-              window.alert("// 세션값: " + JSON.stringify(res.data));
-            } else {
-              window.alert(res.status + " 에러");
-            }
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      }
 
       /*setIsSession() {
         BUS.$on('bus:call', function () {
           window.alert("Login.vue에서 emit해서 이벤트 받은 함수");
         })
-      },*/
+      }*/
+    },
+    beforeCreate() {
+      http.get("/session")
+        .then((res) => {
+          if (res.status === 200) {
+            sessionStorage.setItem("nickname", res.data.nickname);
+            sessionStorage.setItem("memberId", res.data.memberId);
+          }
+        }).catch((e) => {
+          // 세션 초기화?
+          sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+          sessionStorage.removeItem("memberId");
+          sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
+      });
     }
-
     /*watch: {
      session: function () {
        window.alert("this.session을 watch하는 함수");
        this.nickname = sessionStorage.getItem("nickname");
      }
-   },
-    created() {
-    },
-    beforeUpdate() {
-      this.nickname = sessionStorage.getItem("nickname");
-    }*/
+   }*/
   }
 </script>
 

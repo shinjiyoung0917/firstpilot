@@ -58,12 +58,12 @@
               <div class="card h-100">
                 <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
                 <div class="card-body">
-                  <h10> 등록날짜 {{ board.createdDate }} </h10>
+                  <span style="font-size: 10px"> {{ board.createdDate }} </span>
                   <h4 class="card-title">
                     <router-link  :to="{ name: 'board-details', params: { id: board.boardId, like: board.like }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
-                  <h7> {{ board.nickname }} </h7>
+                  <h7> by {{ board.nickname }} </h7>
                   <p class="card-text"> {{ board.content }} </p>
                   <a class="button" href="#">Read More <i class="ti-arrow-right"></i></a>
                 </div>
@@ -127,6 +127,9 @@
                 for (let i in res.data.content) {
                   let board = res.data.content[i];
                   if (board.isValid === 1) {
+                    this.snippet(board, 1);
+                    this.snippet(board, 2);
+
                     let boardInfo = {
                       boardId: board.boardId,
                       title: board.title,
@@ -143,7 +146,6 @@
                     for(let j in this.likeBoards) {
                       if(boardInfo.boardId === this.likeBoards[j].boardId) {
                         boardInfo['like'] = 1;
-                        //window.alert("boardInfo : " + JSON.stringify(boardInfo));
                       }
                     }
                     this.boards.push(boardInfo);
@@ -164,6 +166,26 @@
           console.log(e);
         });
       },
+      /* 제목 및 내용 일부분만 보이도록 */
+      snippet(board, TitleOrContent) {
+        if(TitleOrContent === 1) {
+          if (board.title.length > 15) {
+            board.title = board.title.substring(0, 15) + "...";
+          }
+        } else if(TitleOrContent === 2) {
+          if (board.content.length > 30) {
+            board.content = board.content.substring(0, 30) + "...";
+          }
+        }
+      },
+      /* 썸네일 보여줌 */
+      /*showThumbnail (contents) {
+        if (contents.imgSource) {
+          contents.imgSource = "data:image/jpg;base64," + contents.imgSource
+        } else {
+          //contents.imgSource = require("../../assets/default.png")
+        }
+      },*/
       /* 스크롤이 최하단에 도착했는지 확인 */
       bottomVisible() {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
@@ -171,18 +193,10 @@
         } else {
           return false;
         }
-        /*let scrollY = window.pageYOffset;
-        let visible = document.documentElement //document.documentElement.clientHeight;
-        let pageHeight = document.documentElement.scrollHeight;
-        let bottomOfPage = visible + scrollY >= pageHeight;
-        return bottomOfPage || pageHeight < visible;*/
       },
       /* 현재 로그인한 회원이 좋아요를 누른 게시물 목록 요청 */
       getLikeBoards() {
-        /*let memberId = {
-          memberId: this.memberId
-        }*/
-        http.get('/boards/likes') //{ params: memberId }
+        http.get('/boards/likes')
           .then((res) => {
             this.likeBoards = res.data;
           }).catch((e) => {
@@ -219,8 +233,13 @@
       }
     },
     created() {
-      this.getLikeBoards();
-      this.addBoards();
+      if (!sessionStorage.getItem("memberId")) {
+        window.alert("로그인이 필요한 서비스입니다.");
+        this.$router.push('/login');
+      } else {
+        this.getLikeBoards();
+        this.addBoards();
+      }
     },
     mounted() {
       window.addEventListener('scroll', () => {

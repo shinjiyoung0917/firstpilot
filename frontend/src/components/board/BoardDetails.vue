@@ -9,6 +9,13 @@
 
         <!-- Post Content Column -->
         <div class="col-lg-8">
+          <div style="text-align: right">
+            <router-link class="btn btn-primary" :to="{ name: 'edit-board', params: { id: this.boardId }}">  수정 </router-link>
+            <router-view/>
+            <div v-if="this.memberId === this.board.memberId" >
+              <button class="btn btn-primary" @click="deleteBoard"> 삭제 </button>
+            </div>
+          </div>
 
           <!-- Title -->
           <h1 class="mt-4"> {{ this.board.title }} </h1>
@@ -76,7 +83,7 @@
                 <h5 class="mt-0"> {{ comment.nickname }} </h5>
                 {{ comment.content }}
                 <br>
-                <h10 class="mt-0"> {{ comment.createdDate }} </h10>
+                <span class="mt-0" style="font-size: 10px"> {{ comment.createdDate }} </span>
 
                 <button class="btn btn-group-toggle" @click="showChildCommentInputArea(index)" style="font-size: small"> 대댓글 달기 </button>
                 <!-- 본인 댓글이면 삭제 버튼 보여주기 -->
@@ -90,7 +97,7 @@
                         <h5 class="mt-0"> {{ childComment.nickname }} </h5>
                         {{ childComment.content }}
                         <br>
-                        <h10 class="mt-0"> {{ childComment.createdDate }} </h10>
+                        <span class="mt-0" style="font-size: 10px"> {{ childComment.createdDate }} </span>
                       </div>
                     </div>
                   </div>
@@ -187,6 +194,7 @@
     },
     data () {
       return {
+        memberId: sessionStorage.getItem("memberId"),
         boardId: this.$route.params.id,
         board: '',
         likeBoard: this.$route.params.like,
@@ -199,12 +207,19 @@
       }
     },
     methods: {
+      /* 조회수 증가 */
+      increaseHitCount() {
+        http.put('/boards/' + this.boardId + '/hit')
+          .then((res) => {
+            //this.board.hitCount += 1;
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
       /* 해당 게시물 정보 요청 */
       getBoardDetails() {
-        let boardId = {
-          boardId: this.boardId
-        }
-        http.get('/boards/details', { params: boardId })
+        http.get('/boards/' + this.boardId)
           .then((res) => {
             this.board = res.data;
           }).catch((e) => {
@@ -369,6 +384,10 @@
           console.log(e);
         });
       },
+      /* 게시물 삭제 요청 */
+      deleteBoard() {
+
+      },
       /* 좋아요 해제 */
       toUnlike() {
         this.likeBoard = 0;
@@ -398,11 +417,14 @@
       }
     },
     created() {
-      this.getBoardDetails();
-      this.getComments();
-    },
-    mounted() {
-
+      if (!sessionStorage.getItem("memberId")) {
+        window.alert("로그인이 필요한 서비스입니다.");
+        this.$router.push('/login');
+      } else {
+        this.increaseHitCount();
+        this.getBoardDetails();
+        this.getComments();
+      }
     }
   }
 </script>

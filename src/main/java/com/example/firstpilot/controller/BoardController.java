@@ -79,18 +79,25 @@ public class BoardController {
     }
 
     /* 상세 게시물 정보 요청 */
-    @GetMapping("/boards/details")
-    public Board getBoardDetails(@RequestParam("boardId") Long boardId) {
+    @GetMapping("/boards/{boardId}")
+    public Board getBoardDetails(@PathVariable("boardId") Long boardId) {
         log.info("getBoardDetails 로그  - 진입");
         return this.boardService.readBoardDetails(boardId);
     }
 
-    /* 게시물 조회수 업데이트 */
+    /* 게시물 조회수 업데이트 요청 */
     @PutMapping("/boards/{boardId}/hit")
     public void putHitCount(@PathVariable("boardId") Long boardId) {
         log.info("putHitCount 로그  - 진입");
         this.boardService.updateHitCount(boardId);
 
+    }
+
+    /* 게시물 업데이트 요청 */
+    @PutMapping("/boards/{boardId}")
+    public void putBoard(@PathVariable("boardId") Long boardId, @RequestBody Board boardData) {
+        log.info("putBoard 로그  - 진입");
+        this.boardService.updateBoard(boardId, boardData);
     }
 
     /* 댓글 등록 요청 */

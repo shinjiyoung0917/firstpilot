@@ -52,32 +52,6 @@ public class BoardService {
         return login;
     }
 
-    /* 게시물 정보 삽입 */
-    public void createBoard(Board boardData) {
-        log.info("createBoard 로그  - 진입");
-
-        // 세션값 가져와서 회원 시퀀스 번호 저장 (프론트에서 바꾸는 것을 대비하기 위해)
-        Long memberId = readSession().getMemberId();
-        //Member member = this.memberRepo.findByMemberId(memberId);
-
-        Board board = new Board();
-        board.setTitle(boardData.getTitle());
-        board.setContent(boardData.getContent());
-        board.setMemberId(memberId);
-        board.setNickname(boardData.getNickname());
-        board.setCreatedDate(LocalDateTime.now());
-        board.setHitCount((long)0);
-        board.setLikeCount((long)0);
-        board.setCommentCount((long)0);
-        if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
-            board.setFilePath(null);
-        } else {
-            board.setFilePath(boardData.getFilePath().substring(6));
-        }
-        board.setIsValid(1);
-        this.boardRepo.save(board);
-    }
-
     /* 서버에 파일 업로드 */
     public String saveBoardFileInDir(MultipartFile uploadFile) throws Exception {
         log.info("saveBoardFileInDir 로그  - 진입");
@@ -138,6 +112,34 @@ public class BoardService {
         return savedFilePath.replace(File.separatorChar, '/');
     }
 
+    /* 게시물 정보 삽입 */
+    public void createBoard(Board boardData) {
+        log.info("createBoard 로그  - 진입");
+
+        // 세션값 가져와서 회원 시퀀스 번호 저장 (프론트에서 바꾸는 것을 대비하기 위해)
+        Long memberId = readSession().getMemberId();
+        //Member member = this.memberRepo.findByMemberId(memberId);
+
+        Board board = new Board();
+        board.setTitle(boardData.getTitle());
+        board.setContent(boardData.getContent());
+        board.setMemberId(memberId);
+        board.setNickname(boardData.getNickname());
+        board.setCreatedDate(LocalDateTime.now());
+        board.setHitCount((long)0);
+        board.setLikeCount((long)0);
+        board.setCommentCount((long)0);
+        if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
+            board.setFilePath(null);
+        } else {
+            board.setFilePath(boardData.getFilePath().substring(6));
+        }
+        board.setIsValid(1);
+        this.boardRepo.save(board);
+    }
+
+
+
     /* 게시물 정보 가져오기 */
     public Page<Board> readBoardList(Pageable pageable) {
         log.info("readBoardList 로그  - 진입");
@@ -195,6 +197,29 @@ public class BoardService {
     /* 게시물 조회수 업데이트 */
     public void updateHitCount(Long boardId) {
         log.info("updateHitCount 로그  - 진입");
+        Board board = this.boardRepo.findByBoardId(boardId);
+        board.setHitCount(board.getHitCount() + 1);
+        this.boardRepo.save(board);
+    }
+
+    /* 게시물 업데이트 요청 */
+    public void updateBoard(Long boardId, Board boardData) {
+        log.info("updateBoard 로그  - 진입");
+        Board board = boardRepo.findByBoardId(boardId);
+        board.setTitle(boardData.getTitle());
+        board.setContent(boardData.getContent());
+        board.setCreatedDate(boardData.getCreatedDate());
+        board.setUpdatedDate(LocalDateTime.now() );
+        board.setLikeCount(boardData.getLikeCount());
+        board.setCommentCount(boardData.getCommentCount());
+        board.setHitCount(boardData.getHitCount());
+        if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
+            board.setFilePath(null);
+        } else {
+            board.setFilePath(boardData.getFilePath().substring(6));
+        }
+        board.setIsValid(boardData.getIsValid());
+        this.boardRepo.save(board);
     }
 
     /* 댓글 정보 삽입 */

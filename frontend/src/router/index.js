@@ -5,8 +5,10 @@ import SignUp from '@/components/member/SignUp.vue'
 import LogIn from '@/components/member/LogIn.vue'
 import Board from '@/components/board/Board.vue'
 import WriteBoard from '@/components/board/WriteBoard.vue'
+import EditBoard from '@/components/board/EditBoard.vue'
 import BoardDetails from '@/components/board/BoardDetails.vue'
 import Dashboard from '@/components/dashboard/Dashboard.vue'
+import ErrorPage from '@/components/ErrorPage.vue'
 import UserList from '@/components/UserList.vue' // 테스트
 
 Vue.use(Router)
@@ -45,6 +47,11 @@ export default new Router({
       component: WriteBoard
     },
     {
+      path: '/boards/:id/edit',
+      name: 'edit-board',
+      component: EditBoard
+    },
+    {
       path: '/boards/:id',
       name: 'board-details',
       component: BoardDetails
@@ -53,6 +60,15 @@ export default new Router({
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard
+    },
+    {
+      path: '/404',
+      name: 'error-page',
+      component: ErrorPage
+    },
+    {
+      path: '*',
+      redirect: '/404'
     },
     {
       path: '/members',
