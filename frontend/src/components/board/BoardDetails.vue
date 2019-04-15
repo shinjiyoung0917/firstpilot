@@ -58,7 +58,7 @@
                 </div>
                 <div style="text-align: right">
                   <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
-                  <button class="btn btn-primary" @click="write(null)">등록</button>
+                  <button class="btn btn-primary" @click="write(null, null)">등록</button>
                 </div>
               <!--</form>-->
             </div>
@@ -68,35 +68,42 @@
 
           <!-- 댓글, 대댓글 -->
           <div v-for="(comment, index) in comments">
-            <div class="media mb-4" > <!-- v-if="comment.parentId === null" -->
+            <div class="media mb-4" >
               <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
 
               <div class="media-body" style="text-align: left">
 
                 <h5 class="mt-0"> {{ comment.nickname }} </h5>
                 {{ comment.content }}
+                <br>
+                <h10 class="mt-0"> {{ comment.createdDate }} </h10>
 
                 <button class="btn btn-group-toggle" @click="showChildCommentInputArea(index)" style="font-size: small"> 대댓글 달기 </button>
                 <!-- 본인 댓글이면 삭제 버튼 보여주기 -->
 
-                <!-- 대댓글 -->
-                <div v-for="childComment in childComments">
-                  <div class="media mt-4" v-else-if="childComment.parentId === comment.commentId">
-                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-                    <div class="media-body">
-                      <h5 class="mt-0"> {{ childComment.nickname }} </h5>
-                      {{ childComment.content }}
+                <div>
+                  <!-- 대댓글 -->
+                  <div v-for="childComment in childComments">
+                    <div class="media mt-4" v-if="childComment.parentId === comment.commentId">
+                      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                      <div class="media-body">
+                        <h5 class="mt-0"> {{ childComment.nickname }} </h5>
+                        {{ childComment.content }}
+                        <br>
+                        <h10 class="mt-0"> {{ childComment.createdDate }} </h10>
+                      </div>
                     </div>
                   </div>
+
+                  <!-- 대댓글 입력창 -->
+                  <div :id="index" style="display: none">
+                    <textarea v-model="childContent" :id="index" rows="3" style="width: 100%"></textarea>
+                    <button class="btn btn-dark" @click="write(comment.commentId, index)"> 등록 </button>
+                    <button class="btn btn-dark" @click="hideChildCommentInputArea(index)"> 취소 </button>
+                  </div>
+
                 </div>
 
-              </div>
-
-              <!-- 대댓글 입력창 -->
-              <div :id="index" style="display: none">
-                <textarea v-model="childComment" :id="index" rows="3"></textarea>
-                <button class="btn btn-dark" @click="writeChildComment(comment.commentId, index)"> 등록 </button>
-                <button class="btn btn-dark" @click="hideChildCommentInputArea(index)"> 취소 </button>
               </div>
 
             </div>
@@ -189,7 +196,6 @@
         childContent: '',
         fileData: '',
         filePath: '',
-        isHidden: 1
       }
     },
     methods: {
@@ -241,31 +247,36 @@
                       childCount: comment.childCount,
                       filePath: comment.filePath
                     };
-                    this.childComments.push(childCommentInfo);
+                    this.childComments.unshift(childCommentInfo);
                   }
                 }
               }
-              //window.alert("/// 대댓글리스트 : " + JSON.stringify(this.childComments));
             }
           }).catch((e) => {
           window.alert(e);
           console.log(e);
         });
       },
+      /* 등록한 댓글들 보여줌 */
       showComments(comments) {
-        this.comments.push(comments);
+        // 최신순일 경우
+        this.comments.unshift(comments);
       },
+      /* 등록한 대댓글들 보여줌 */
       showChildComments(comments) {
+        // 대댓글은 시간순 고정
         this.childComments.push(comments);
       },
+      /* 대댓글 입력창 보여줌 */
       showChildCommentInputArea(index) {
         document.getElementById(index).style.display = 'block';
       },
+      /* 대댓글 입력창 숨김 */
       hideChildCommentInputArea(index) {
         document.getElementById(index).style.display = 'none';
       },
       /* 댓글 등록 요청 (파일 먼저 서버에 저장) */
-      write(parent) {
+      write(parent, index) {
         if(parent === null) {
           if (this.content === null || this.content === "") {
             window.alert("내용을 입력해주세요.");
@@ -287,11 +298,11 @@
             .then((res) => {
               if (res.status === 200) {
                 this.filePath = res.data;
-                window.alert("///1 res.data : " + res.data);
+                window.alert("/// 파일 디렉토리에 저장 완료 res.data : " + res.data);
                 if(parent === null) {
                   this.writeComment();
                 } else {
-                  this.writeChildComment(parent);
+                  this.writeChildComment(parent, index);
                 }
               }
             }).catch((e) => {
@@ -302,7 +313,7 @@
           if(parent === null) {
             this.writeComment();
           } else {
-            this.writeChildComment(parent);
+            this.writeChildComment(parent, index);
           }
         }
       },
@@ -325,7 +336,8 @@
           .then((res) => {
             if (res.status === 200) {
               window.alert("댓글 등록을 성공적으로 완료하였습니다.");
-              this.$router.replace('/boards/' + this.boardId);
+              this.content = '';
+              this.board.commentCount += 1;
               this.showComments(res.data);
             }
           }).catch((e) => {
@@ -334,7 +346,8 @@
         });
       },
       /* 파일 데이터를 제외한 나머지 대댓글 정보 등록 요청 */
-      writeChildComment(parent) {
+      writeChildComment(parent, index) {
+        window.alert("this.childContent : " + this.childContent);
         let data = {
           content: this.childContent,
           nickname: sessionStorage.getItem("nickname"),
@@ -346,21 +359,10 @@
           .then((res) => {
             if (res.status === 200) {
               window.alert("대댓글 등록을 성공적으로 완료하였습니다.");
+              this.childContent = '';
+              document.getElementById(index).style.display = 'none';
+              this.board.commentCount += 1;
               this.showChildComments(res.data);
-              /*let childComment = res.data;
-              let childCommentInfo = {
-                commentId: childComment.commentId,
-                title: childComment.title,
-                content: childComment.content,
-                memberId: childComment.memberId,
-                nickname: childComment.nickname,
-                createdDate: childComment.createdDate,
-                updatedDate: childComment.updatedDate,
-                parentId: childComment.parentId,
-                childCount: childComment.childCount,
-                filePath: childComment.filePath
-              };
-              this.childComments.push(childCommentInfo);*/
             }
           }).catch((e) => {
           window.alert(e);
