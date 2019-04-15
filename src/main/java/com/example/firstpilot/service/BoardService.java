@@ -221,6 +221,13 @@ public class BoardService {
         return this.commentRepo.save(comment);
     }
 
+    /* 댓글 수 업데이트 */
+    public void updateCommentCount(Long boardId) {
+        Board board = this.boardRepo.findByBoardId(boardId);
+        board.setCommentCount(board.getCommentCount() + 1);
+        this.boardRepo.save(board);
+    }
+
     /* 댓글 정보 가져오기 */
     public List<Comment> readComments(Long boardId) {
         log.info("readComments 로그  - 진입");

@@ -97,6 +97,7 @@ public class BoardController {
     @PostMapping("/boards/{boardId}/comments")
     public Comment postComments(@PathVariable("boardId") Long boardId, @RequestBody Comment commentData) {
         log.info("postComments 로그  - 진입");
+        this.boardService.updateCommentCount(boardId);
         return this.boardService.createComments(boardId, commentData);
     }
 

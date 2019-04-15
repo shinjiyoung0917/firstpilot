@@ -60,7 +60,7 @@
                 <div class="card-body">
                   <h10> 등록날짜 {{ board.createdDate }} </h10>
                   <h4 class="card-title">
-                    <router-link  :to="{ name: 'board-details', params: { id: board.boardId }}"> {{ board.title }} </router-link>
+                    <router-link  :to="{ name: 'board-details', params: { id: board.boardId, like: board.like }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
                   <h7> {{ board.nickname }} </h7>
@@ -190,6 +190,7 @@
           console.log(e);
         });
       },
+      /* 좋아요 해제 */
       toUnlike(i) {
         this.boards[i].like = 0;
         this.boards[i].likeCount -= 1;
@@ -203,6 +204,7 @@
         });
 
       },
+      /* 좋아요 */
       toLike(i) {
         this.boards[i].like = 1;
         this.boards[i].likeCount += 1;

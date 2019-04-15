@@ -37,44 +37,48 @@
 
           <hr>
 
+          <div>
+            <h6>
+              <img src="../../assets/hit.png" width="30" height="30"> {{ this.board.hitCount }}
+              <img v-if="this.likeBoard === 1" src="../../assets/like.png" width="30" height="30" @click="toUnlike">
+              <img v-else src="../../assets/unlike.png" width="30" height="30" @click="toLike">
+              {{ this.board.likeCount }}
+              <img src="../../assets/comment.png" width="30" height="30"> {{ this.board.commentCount }}
+            </h6>
+          </div>
+
           <!-- Comments Form -->
           <div class="card my-4">
             <h5 class="card-header">댓글을 남겨주세요:</h5>
+
             <div class="card-body">
               <!--<form>-->
                 <div class="form-group">
                   <textarea class="form-control" rows="3" v-model="content"></textarea>
                 </div>
-                <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
-                <button class="btn btn-primary" @click="write(null)">등록</button>
+                <div style="text-align: right">
+                  <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
+                  <button class="btn btn-primary" @click="write(null)">등록</button>
+                </div>
               <!--</form>-->
             </div>
+
           </div>
 
-          <!--<div v-for="comment in comments">
-            <div class="media mb-4" v-if="comment.parentId !== null">
-              <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-              <div class="media-body">
-                <h5 class="mt-0"> {{ comment.nickname }} </h5>
-                {{ comment.content }}
-              </div>
-            </div>
-          </div>-->
 
           <!-- 댓글, 대댓글 -->
           <div v-for="(comment, index) in comments">
             <div class="media mb-4" > <!-- v-if="comment.parentId === null" -->
               <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
-              <div class="media-body" style="float: left">
+
+              <div class="media-body" style="text-align: left">
 
                 <h5 class="mt-0"> {{ comment.nickname }} </h5>
                 {{ comment.content }}
-                <div v-if="isHidden === 1">
-                  <button @click=""> 대댓글 달기 </button>
-                </div>
-                <div v-else>
-                  <button @click=""> 취소 </button>
-                </div>
+
+                <button class="btn btn-group-toggle" @click="showChildCommentInputArea(index)" style="font-size: small"> 대댓글 달기 </button>
+                <!-- 본인 댓글이면 삭제 버튼 보여주기 -->
+
                 <!-- 대댓글 -->
                 <div v-for="childComment in childComments">
                   <div class="media mt-4" v-else-if="childComment.parentId === comment.commentId">
@@ -85,12 +89,14 @@
                     </div>
                   </div>
                 </div>
-                <!-- 대댓글 입력창 -->
-                <div class="form-group" v-if="isHidden === 0">
-                  <textarea class="form-control" rows="3" v-model="childContent"></textarea>
-                  <button class="btn btn-primary" @click="write(comment.commentId)">등록</button>
-                </div>
 
+              </div>
+
+              <!-- 대댓글 입력창 -->
+              <div :id="index" style="display: none">
+                <textarea v-model="childComment" :id="index" rows="3"></textarea>
+                <button class="btn btn-dark" @click="writeChildComment(comment.commentId, index)"> 등록 </button>
+                <button class="btn btn-dark" @click="hideChildCommentInputArea(index)"> 취소 </button>
               </div>
 
             </div>
@@ -176,6 +182,7 @@
       return {
         boardId: this.$route.params.id,
         board: '',
+        likeBoard: this.$route.params.like,
         comments: [],
         childComments: [],
         content: '',
@@ -238,13 +245,24 @@
                   }
                 }
               }
-              //window.alert("/// 댓글리스트 : " + JSON.stringify(this.comments));
               //window.alert("/// 대댓글리스트 : " + JSON.stringify(this.childComments));
             }
           }).catch((e) => {
           window.alert(e);
           console.log(e);
         });
+      },
+      showComments(comments) {
+        this.comments.push(comments);
+      },
+      showChildComments(comments) {
+        this.childComments.push(comments);
+      },
+      showChildCommentInputArea(index) {
+        document.getElementById(index).style.display = 'block';
+      },
+      hideChildCommentInputArea(index) {
+        document.getElementById(index).style.display = 'none';
       },
       /* 댓글 등록 요청 (파일 먼저 서버에 저장) */
       write(parent) {
@@ -270,14 +288,22 @@
               if (res.status === 200) {
                 this.filePath = res.data;
                 window.alert("///1 res.data : " + res.data);
-                this.writeComment(parent);
+                if(parent === null) {
+                  this.writeComment();
+                } else {
+                  this.writeChildComment(parent);
+                }
               }
             }).catch((e) => {
             window.alert(e);
             console.log(e);
           });
         } else {                      // 업로드할 파일이 없을 경우
-          this.writeComment(parent);
+          if(parent === null) {
+            this.writeComment();
+          } else {
+            this.writeChildComment(parent);
+          }
         }
       },
       /* 선택한 파일 데이터 가져오기 */
@@ -286,72 +312,87 @@
           this.fileData = files[0];
         }
       },
-      /* 파일 데이터를 제외한 나머지 게시판 데이터 등록 요청 */
-      writeComment(parent) {
-        window.alert("parent: " + parent);
-        if(parent === null) {
-          let data = {
-            content: this.content,
-            nickname: sessionStorage.getItem("nickname"),
-            parentId: parent,
-            filePath: this.filePath
-          }
-
-          http.post('/boards/' + this.boardId + '/comments', data)
-            .then((res) => {
-              if (res.status === 200) {
-                window.alert("댓글 등록을 성공적으로 완료하였습니다.");
-                this.$router.replace('/boards/' + this.boardId);
-                /*let comment = res.data;
-                let commentInfo = {
-                  commentId: comment.commentId,
-                  title: comment.title,
-                  content: comment.content,
-                  memberId: comment.memberId,
-                  nickname: comment.nickname,
-                  createdDate: comment.createdDate,
-                  updatedDate: comment.updatedDate,
-                  parentId: comment.parentId,
-                  childCount: comment.childCount,
-                  filePath: comment.filePath
-                };*/
-                //this.comments.push(commentInfo);
-              }
-            }).catch((e) => {
-            window.alert(e);
-            console.log(e);
-          });
-        } else {
-          let data = {
-            content: this.childContent,
-            nickname: sessionStorage.getItem("nickname"),
-            parentId: parent,
-            filePath: this.filePath
-          }
-          http.post('/boards/' + this.boardId + '/comments', data)
-            .then((res) => {
-              if (res.status === 200) {
-                window.alert("대댓글 등록을 성공적으로 완료하였습니다.");
-                let childComment = res.data;
-                let childCommentInfo = {
-                  commentId: childComment.commentId,
-                  title: childComment.title,
-                  content: childComment.content,
-                  memberId: childComment.memberId,
-                  nickname: childComment.nickname,
-                  createdDate: childComment.createdDate,
-                  updatedDate: childComment.updatedDate,
-                  parentId: childComment.parentId,
-                  childCount: childComment.childCount,
-                  filePath: childComment.filePath
-                };
-                this.childComments.push(childCommentInfo);
-              }
-            }).catch((e) => {
-            window.alert(e);
-            console.log(e);
-          });
+      /* 파일 데이터를 제외한 나머지 댓글 정보 등록 요청 */
+      writeComment() {
+        let data = {
+          content: this.content,
+          nickname: sessionStorage.getItem("nickname"),
+          parentId: null,
+          filePath: this.filePath
         }
+
+        http.post('/boards/' + this.boardId + '/comments', data)
+          .then((res) => {
+            if (res.status === 200) {
+              window.alert("댓글 등록을 성공적으로 완료하였습니다.");
+              this.$router.replace('/boards/' + this.boardId);
+              this.showComments(res.data);
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 파일 데이터를 제외한 나머지 대댓글 정보 등록 요청 */
+      writeChildComment(parent) {
+        let data = {
+          content: this.childContent,
+          nickname: sessionStorage.getItem("nickname"),
+          parentId: parent,
+          filePath: this.filePath
+        }
+
+        http.post('/boards/' + this.boardId + '/comments', data)
+          .then((res) => {
+            if (res.status === 200) {
+              window.alert("대댓글 등록을 성공적으로 완료하였습니다.");
+              this.showChildComments(res.data);
+              /*let childComment = res.data;
+              let childCommentInfo = {
+                commentId: childComment.commentId,
+                title: childComment.title,
+                content: childComment.content,
+                memberId: childComment.memberId,
+                nickname: childComment.nickname,
+                createdDate: childComment.createdDate,
+                updatedDate: childComment.updatedDate,
+                parentId: childComment.parentId,
+                childCount: childComment.childCount,
+                filePath: childComment.filePath
+              };
+              this.childComments.push(childCommentInfo);*/
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 좋아요 해제 */
+      toUnlike() {
+        this.likeBoard = 0;
+        this.board.likeCount -= 1;
+
+        http.delete('/boards/' + this.boardId + '/like')
+          .then((res) => {
+
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+
+      },
+      /* 좋아요 */
+      toLike() {
+        this.likeBoard = 1;
+        this.board.likeCount += 1;
+
+        http.post('/boards/' + this.boardId + '/like')
+          .then((res) => {
+
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
       }
     },
     created() {
