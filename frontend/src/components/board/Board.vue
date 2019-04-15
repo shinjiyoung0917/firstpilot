@@ -56,11 +56,11 @@
 
             <div class="col-lg-4 col-md-6 mb-4" v-for="(board, index) in boards">
               <div class="card h-100">
-                <a href="#"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+                <img :src="board.fileSrc"> <!--class="card-img-top" -->
                 <div class="card-body">
                   <span style="font-size: 10px"> {{ board.createdDate }} </span>
                   <h4 class="card-title">
-                    <router-link  :to="{ name: 'board-details', params: { id: board.boardId, like: board.like }}"> {{ board.title }} </router-link>
+                    <router-link  :to="{ name: 'board-details', params: { id: board.boardId, like: board.like, memberId: board.memberId }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
                   <h7> by {{ board.nickname }} </h7>
@@ -112,7 +112,7 @@
         bottom: false,
         boards: [],
         likeBoards: [],
-        page: 0,
+        page: 0
       }
     },
     methods: {
@@ -134,6 +134,7 @@
                       boardId: board.boardId,
                       title: board.title,
                       content: board.content,
+                      memberId: board.memberId,
                       nickname: board.nickname,
                       createdDate: board.createdDate,
                       updatedDate: board.updatedDate,
@@ -142,6 +143,14 @@
                       commentCount: board.commentCount,
                       filePath: board.filePath
                     };
+                    if(board.filePath === "" || board.filePath === null) {
+                      let fileSrc = "../../assets/default.jpg";
+                      boardInfo['fileSrc'] = fileSrc;
+                    } else {
+                      let src = "../../../../src/main/resources/uploads/thumb_";
+                      let fileSrc = src + board.filePath;
+                      boardInfo['fileSrc'] = fileSrc;
+                    }
 
                     for(let j in this.likeBoards) {
                       if(boardInfo.boardId === this.likeBoards[j].boardId) {

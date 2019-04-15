@@ -100,6 +100,13 @@ public class BoardController {
         this.boardService.updateBoard(boardId, boardData);
     }
 
+    /* 게시물 삭제 요청 */
+    @DeleteMapping("/boards/{boardId}")
+    public void deleteBoard(@PathVariable("boardId") Long boardId) {
+        log.info("deleteBoard 로그  - 진입");
+        this.boardService.deleteBoard(boardId);
+    }
+
     /* 댓글 등록 요청 */
     @PostMapping("/boards/{boardId}/comments")
     public Comment postComments(@PathVariable("boardId") Long boardId, @RequestBody Comment commentData) {

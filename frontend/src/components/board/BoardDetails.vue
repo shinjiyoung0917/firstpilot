@@ -9,12 +9,13 @@
 
         <!-- Post Content Column -->
         <div class="col-lg-8">
-          <div style="text-align: right">
+          <div style="text-align: right" v-if="this.isHiddenButton === 0">
             <router-link class="btn btn-primary" :to="{ name: 'edit-board', params: { id: this.boardId }}">  수정 </router-link>
             <router-view/>
-            <div v-if="this.memberId === this.board.memberId" >
-              <button class="btn btn-primary" @click="deleteBoard"> 삭제 </button>
-            </div>
+            <button class="btn btn-primary" @click="deleteBoard"> 삭제 </button>
+          </div>
+          <div v-else>
+            <button class="btn btn-primary" @click=""> 나오면안됑 {{memberId}} {{this.memberId}} {{board.memberId}} {{this.board.memberId}}</button>
           </div>
 
           <!-- Title -->
@@ -194,7 +195,8 @@
     },
     data () {
       return {
-        memberId: sessionStorage.getItem("memberId"),
+        memberId: this.$route.params.memberId, //sessionStorage.getItem("memberId"),
+        isHiddenButton: 1,
         boardId: this.$route.params.id,
         board: '',
         likeBoard: this.$route.params.like,
@@ -222,6 +224,9 @@
         http.get('/boards/' + this.boardId)
           .then((res) => {
             this.board = res.data;
+            if(sessionStorage.getItem("memberId") === res.data.memberId.toString()) {
+              this.isHiddenButton = 0;
+            }
           }).catch((e) => {
           window.alert(e);
           console.log(e);
@@ -386,7 +391,15 @@
       },
       /* 게시물 삭제 요청 */
       deleteBoard() {
+        http.delete('/boards/' + this.boardId)
+          .then((res) => {
+            if(res.status === 200) {
+              window.alert("게시물을 성공적으로 삭제하였습니다.");
+              this.$router.replace('/boards');
+            }
+          }).catch((e) => {
 
+        });
       },
       /* 좋아요 해제 */
       toUnlike() {

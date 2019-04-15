@@ -202,7 +202,7 @@ public class BoardService {
         this.boardRepo.save(board);
     }
 
-    /* 게시물 업데이트 요청 */
+    /* 게시물 업데이트 */
     public void updateBoard(Long boardId, Board boardData) {
         log.info("updateBoard 로그  - 진입");
         Board board = boardRepo.findByBoardId(boardId);
@@ -220,6 +220,14 @@ public class BoardService {
         }
         board.setIsValid(boardData.getIsValid());
         this.boardRepo.save(board);
+    }
+
+    /* 게시물 삭제 */
+    public void deleteBoard(Long boardId) {
+        //this.boardRepo.deleteByBoardId(boardId); // 댓글, 대댓글도 삭제하도록 (cascade)
+        /*Board board = this.boardRepo.findByBoardId(boardId);
+        board.setIsValid(0);
+        this.boardRepo.save(board);*/
     }
 
     /* 댓글 정보 삽입 */
