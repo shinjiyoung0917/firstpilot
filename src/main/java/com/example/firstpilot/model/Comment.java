@@ -21,7 +21,8 @@ public class Comment {
     @JoinColumn(name = "board_id")
     //@Column(name = "board_id", nullable = false)
     @Getter @Setter
-    private Long boardId;
+    private Board board;
+    //private Long boardId;
 
     @Column(name = "content", nullable = false)
     @Getter @Setter

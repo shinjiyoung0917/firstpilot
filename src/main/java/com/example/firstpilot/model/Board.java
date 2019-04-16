@@ -67,6 +67,6 @@ public class Board {
     @Getter @Setter
     private Integer isValid;
 
-    /*@OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private List<Comment> comment = new ArrayList<Comment>();*/
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    private List<Comment> comment = new ArrayList<Comment>();
 }
