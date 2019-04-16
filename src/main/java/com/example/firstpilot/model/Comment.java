@@ -17,7 +17,9 @@ public class Comment {
     @Getter
     private Long commentId;
 
-    @Column(name = "board_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "board_id")
+    //@Column(name = "board_id", nullable = false)
     @Getter @Setter
     private Long boardId;
 
