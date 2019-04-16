@@ -8,6 +8,7 @@ import com.example.firstpilot.model.LikeBoard;
 import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.service.BoardService;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,7 +28,7 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
 
-    /* 게시물 (파일 제외) 등록 요청 */
+    /* 게시물 등록 요청 */
     @PostMapping("/boards")
     public void postBoard(@RequestBody Board board) {
         log.info("postBoard 로그  - 진입");
@@ -39,15 +40,18 @@ public class BoardController {
     @PostMapping("/boards/file")
     public String postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
         log.info("postBoardFile 로그  - 진입");
-        String filePath = null;
+        String fileName = null;
         try {
-            filePath = this.boardService.saveBoardFileInDir(uploadFile);
-            log.info("postBoardFile 로그  - filePath : " + filePath);
+            fileName = this.boardService.saveBoardFileInDir(uploadFile);
+            log.info("postBoardFile 로그  - fileName : " + fileName);
         } catch(Exception e) {
             log.info("postBoardFile 에러 로그  - " + e);
             e.printStackTrace();
         }
-        return filePath;
+
+        log.info("postBoardFile 로그  - fixedFilePath : " + fileName);
+
+        return fileName;
     }
 
     /* 게시물 정보 요청 */

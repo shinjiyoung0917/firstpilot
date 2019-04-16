@@ -98,6 +98,7 @@
 
 <script>
   import http from "@/http-common"
+  import httpFile from "@/http-fileUpload"
   import Header from '../layout/Header.vue'
   import Footer from '../layout/Footer.vue'
 
@@ -143,14 +144,26 @@
                       commentCount: board.commentCount,
                       filePath: board.filePath
                     };
+
                     if(board.filePath === "" || board.filePath === null) {
-                      let fileSrc = "../../assets/default.jpg";
-                      boardInfo['fileSrc'] = fileSrc;
+                      boardInfo['fileSrc'] = require("../../assets/default.jpg");
                     } else {
+                      let fileSrc = board.filePath;
+                      boardInfo['fileSrc'] = fileSrc;
+
+                      //let fileSrc = 'data:image/jpg;base64,'+ board.filePath;
+                      //boardInfo['fileSrc'] = board.filePath;
+                    }
+
+                    //boardInfo['fileSrc'] = require("../../assets/default.jpg");
+
+                    /*else {
+                      window.alert("/// " + boardInfo.filePath);
                       let src = "../../../../src/main/resources/uploads/thumb_";
                       let fileSrc = src + board.filePath;
-                      boardInfo['fileSrc'] = fileSrc;
-                    }
+                      let datauri = 'data:image/jpg;base64,'+fileSrc;
+                      boardInfo['fileSrc'] = datauri; // JSON 타입으로 저장돼있어서 파일 타입(.png, .jpg등)으로 변경하는 작업 필요?
+                    }*/
 
                     for(let j in this.likeBoards) {
                       if(boardInfo.boardId === this.likeBoards[j].boardId) {

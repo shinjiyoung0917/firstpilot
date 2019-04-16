@@ -1,5 +1,6 @@
 package com.example.firstpilot.service;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,7 @@ import com.example.firstpilot.repository.CommentRepository;
 import com.example.firstpilot.util.LikeBoardPK;
 import com.example.firstpilot.util.LoginUserDetails;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,14 +31,23 @@ import org.springframework.web.multipart.MultipartFile;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Service
 public class BoardService {
     private static final Logger log = LoggerFactory.getLogger(BoardService.class);
+    //private final static String savedPath = "./src/main/resources/uploads";
+
+    @Value("${file.upload.directory}")
+    String ABSOLUTE_FILEPATH;           // 파일 업로드 경로
 
     @Autowired
     private BoardRepository boardRepo;
@@ -52,31 +63,45 @@ public class BoardService {
         return login;
     }
 
-    /* 서버에 파일 업로드 */
+    /* 서버 디렉토리에 파일 업로드 */
     public String saveBoardFileInDir(MultipartFile uploadFile) throws Exception {
         log.info("saveBoardFileInDir 로그  - 진입");
 
         String originalFileName = uploadFile.getOriginalFilename();
-        byte[] fileData = uploadFile.getBytes();
+        byte[] bytes = uploadFile.getBytes();
 
         // 파일명 중복 방지
         String uuidFileName = getUuidFileName(originalFileName);
+        StringBuffer stringBuffer = new StringBuffer();
+        String fileName = stringBuffer.append(new SimpleDateFormat("yyyyMMddHHmmss")
+                .format(System.currentTimeMillis())).append(uuidFileName).toString();
 
-        // 파일 업로드 경로 설정
-        String rootPath = "./src/main/resources/uploads";
+        log.info("saveBoardFileInDir 로그  - fileName : " + fileName);
 
-        // 서버에 파일 저장
-        File target = new File(rootPath, uuidFileName); // 파일 객체 생성
-        FileCopyUtils.copy(fileData, target);
+        /*// 디렉토리에 파일 저장
+        Path path = Paths.get(ABSOLUTE_FILEPATH + fileName);
+        Files.write(path, bytes);
+        */
+
+        // 디렉토리에 파일 저장
+        File target = new File(ABSOLUTE_FILEPATH, fileName); // 파일 객체 생성
+        FileCopyUtils.copy(bytes, target);
 
         // 이미지 파일은 썸네일 이미지 생성
         if(uploadFile.getContentType().substring(0, 5).equals("image")) {
             log.info("saveBoardFileInDir 로그  - image 파일입니다");
-            uuidFileName = makeThumbnail(rootPath, uuidFileName, originalFileName);
+            makeThumbnail(ABSOLUTE_FILEPATH, fileName, originalFileName);
         }
 
-        // 파일 저장 경로 치환
-        return replaceSavedFilePath(uuidFileName);
+        return fileName;
+
+        /*byte[] fileData = uploadFile.getBytes();
+        log.info("saveBoardFileInDir 로그  - fileData : " + fileData);*/
+
+
+        //return fileName;
+        // 파일 저장 경로에서 구분자 치환
+        //return replaceSavedFilePath(fileName);
 
     }
 
@@ -85,8 +110,11 @@ public class BoardService {
     }
 
     private static String makeThumbnail(String uploadRootPath, String fileName, String oriFileName) throws Exception {
-        int thumbnail_width = 20;
-        int thumbnail_height = 30;
+        log.info("makeThumbnail 로그  - uploadRootPath : " + uploadRootPath);
+        log.info("makeThumbnail 로그  - fileName : " + fileName);
+        log.info("makeThumbnail 로그  - oriFileName : " + oriFileName);
+        int thumbnail_width = 700;
+        int thumbnail_height = 400;
 
         // 원본이미지 메모리에 로드
         BufferedImage originalImg = ImageIO.read(new File(uploadRootPath, fileName));
@@ -107,10 +135,65 @@ public class BoardService {
         return thumbnailName;
     }
 
-    private static String replaceSavedFilePath(String fileName) {
-        String savedFilePath = fileName;
-        return savedFilePath.replace(File.separatorChar, '/');
+    public  static String replaceSavedFilePath(String filePath) {
+        String savedFilePath = filePath;
+        return savedFilePath.replace(File.separatorChar, '/');  // \를 /로 치환
     }
+
+    /*public static String getBase64String(String filePath) {
+        log.info("getBase64String 로그  - 진입");
+        String fileExt = filePath.substring(filePath.lastIndexOf('.') + 1);
+        String result = "data:image/" + fileExt + ";base64," + filePath;
+
+        log.info("getBase64String 로그  - result : " + result);
+
+        String imageString;
+        String fileExt = filePath.substring(filePath.lastIndexOf('.') + 1);
+
+        log.info("getBase64String 로그  - fileExt : " + fileExt);
+
+        FileInputStream inputStream = null;
+        ByteArrayOutputStream byteOutStream = null;
+
+        try {
+            File file = new File(filePath);
+
+            log.info("getBase64String 로그  - 1111");
+
+            if( file.exists() ) {
+                inputStream = new FileInputStream(file);
+                byteOutStream = new ByteArrayOutputStream();
+
+                int len = 0;
+                byte[] buf = new byte[1024];
+                while((len = inputStream.read(buf)) != -1) {
+                    byteOutStream.write( buf, 0, len);
+                }
+
+                log.info("getBase64String 로그  - 222");
+
+                byte[] fileArray = byteOutStream.toByteArray();
+                imageString = new String(Base64.encodeBase64(fileArray));
+
+                log.info("getBase64String 로그  - 333");
+
+                String changeString = "data:image/" + fileExt + ";base64," + imageString;
+                result = result.replace(filePath, changeString);
+
+                log.info("getBase64String 로그  - changeString : " + changeString);
+                log.info("getBase64String 로그  - result : " + result);
+            }
+
+            inputStream.close();
+            byteOutStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+        }
+
+        return result;
+    }*/
 
     /* 게시물 정보 삽입 */
     public void createBoard(Board boardData) {
@@ -118,7 +201,6 @@ public class BoardService {
 
         // 세션값 가져와서 회원 시퀀스 번호 저장 (프론트에서 바꾸는 것을 대비하기 위해)
         Long memberId = readSession().getMemberId();
-        //Member member = this.memberRepo.findByMemberId(memberId);
 
         Board board = new Board();
         board.setTitle(boardData.getTitle());
@@ -132,13 +214,11 @@ public class BoardService {
         if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
             board.setFilePath(null);
         } else {
-            board.setFilePath(boardData.getFilePath().substring(6));
+            board.setFilePath(boardData.getFilePath());
         }
         board.setIsValid(1);
         this.boardRepo.save(board);
     }
-
-
 
     /* 게시물 정보 가져오기 */
     public Page<Board> readBoardList(Pageable pageable) {

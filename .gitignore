@@ -5,7 +5,8 @@ HELP.md
 *.map
 node_modules/
 package-lock.json
-src/main/resources/application.properties
+/src/main/resources/uploads/
+/uploads/
 
 ### STS ###
 .apt_generated
