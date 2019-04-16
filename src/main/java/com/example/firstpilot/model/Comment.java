@@ -3,6 +3,7 @@ package com.example.firstpilot.model;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.ManyToAny;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -58,4 +59,8 @@ public class Comment {
     @ColumnDefault("1")
     @Getter @Setter
     private Integer isValid;
+
+    /*@ManyToOne
+    @JoinColumn(name = "board_id")
+    private Board board;*/
 }

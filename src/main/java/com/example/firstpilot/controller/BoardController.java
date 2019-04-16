@@ -126,6 +126,21 @@ public class BoardController {
         return this.boardService.readComments(boardId);
     }
 
+    /* 댓글 업데이트 요청 */
+    @PutMapping("/boards/{boardId}/comments/{commentId}")
+    public void putComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId, @RequestBody Comment commentData) {
+        log.info("putComment 로그  - 진입");
+        this.boardService.updateComment(boardId, commentId, commentData);
+    }
+
+    /* 게시물 삭제 요청 */
+    @DeleteMapping("/boards/{boardId}/comments/{commentId}")
+    public void deleteComment(@PathVariable("commentId") Long commentId) {
+        log.info("deleteComment 로그  - 진입");
+        this.boardService.deleteComment(commentId);
+    }
+
+
     /* 대시보드 (본인이 작성한 글 혹은 댓글) 정보 요청 */
     /*@GetMapping(path = "/members/{nickname}")
     public List<Board> getMyBoard(@PathVariable("nickname") String  nickname) {

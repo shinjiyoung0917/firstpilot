@@ -5,7 +5,10 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "board")
@@ -63,4 +66,7 @@ public class Board {
     @ColumnDefault("1")
     @Getter @Setter
     private Integer isValid;
+
+    /*@OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    private List<Comment> comment = new ArrayList<Comment>();*/
 }

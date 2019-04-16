@@ -296,7 +296,7 @@ public class BoardService {
         if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
             board.setFilePath(null);
         } else {
-            board.setFilePath(boardData.getFilePath().substring(6));
+            board.setFilePath(boardData.getFilePath());
         }
         board.setIsValid(boardData.getIsValid());
         this.boardRepo.save(board);
@@ -304,10 +304,12 @@ public class BoardService {
 
     /* 게시물 삭제 */
     public void deleteBoard(Long boardId) {
-        //this.boardRepo.deleteByBoardId(boardId); // 댓글, 대댓글도 삭제하도록 (cascade)
-        /*Board board = this.boardRepo.findByBoardId(boardId);
-        board.setIsValid(0);
-        this.boardRepo.save(board);*/
+        Board board = this.boardRepo.findByBoardId(boardId);
+        board.setIsValid(0);        // 블라인드 되도록 유효상태 변경
+        this.boardRepo.save(board);
+
+        // board랑 comment 조인해서 나오는 컬럼들 전부 isValid 0으로 업데이트
+
     }
 
     /* 댓글 정보 삽입 */
@@ -345,5 +347,28 @@ public class BoardService {
     public List<Comment> readComments(Long boardId) {
         log.info("readComments 로그  - 진입");
         return this.commentRepo.findByBoardId(boardId, new Sort(Sort.Direction.DESC, "createdDate"));
+    }
+
+    /* 댓글 업데이트 */
+    public void updateComment(Long boardId, Long commentId, Comment commentData) {
+        log.info("updateComment 로그  - 진입");
+        Comment comment = commentRepo.findByCommentId(commentId);
+        comment.setContent(commentData.getContent());
+        comment.setUpdatedDate(LocalDateTime.now() );
+        if(commentData.getFilePath().equals("") || commentData.getFilePath() == null) {
+            comment.setFilePath(null);
+        } else {
+            comment.setFilePath(commentData.getFilePath());
+        }
+        comment.setIsValid(commentData.getIsValid());
+        this.commentRepo.save(comment);
+    }
+
+    /* 댓글 삭제 */
+    public void deleteComment(Long commentId) {
+        log.info("deleteComment 로그  - 진입");
+        Comment comment = this.commentRepo.findByCommentId(commentId);
+        comment.setIsValid(0);        // 블라인드 되도록 유효상태 변경
+        this.commentRepo.save(comment);
     }
 }
