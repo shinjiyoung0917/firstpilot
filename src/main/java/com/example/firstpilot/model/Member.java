@@ -14,42 +14,38 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+@Getter
+@Setter
 @Entity
 @Table(name = "member")
 public class Member { //implements UserDetails
     @Id
     @GeneratedValue //(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
-    @Getter
     private Long memberId;
 
     @Column(name = "email", nullable = false)
-    @Getter
-    @Setter
     private String email;
 
     @Column(name = "password", nullable = false)
-    @Getter
-    @Setter
     private String password;
 
     @Column(name = "nickname")
-    @Getter
-    @Setter
     private String nickname;
 
     @Column(name = "nickname_change_date")
-    @Getter
-    @Setter
     private LocalDateTime nickChange_date;
 
-    @Getter
-    @Setter
     private String role;
    /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "email")
     private List<MemberRole> role;*/
+
+    /*@OneToMany(mappedBy = "member") //cascade = CascadeType.ALL
+    private List<Comment> comments = new ArrayList<Comment>();
+    */
+
+
 
 
     /* 시큐리티 제공

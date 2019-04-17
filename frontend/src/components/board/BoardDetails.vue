@@ -223,22 +223,12 @@
       getBoardDetails() {
         http.get('/boards/' + this.boardId)
           .then((res) => {
-            this.board = res.data;
-            if(sessionStorage.getItem("memberId") === res.data.memberId.toString()) {
-              this.isHiddenButton = 0;
-            }
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      },
-      /* 전체 댓글 정보 요청 */
-      getComments() {
-        http.get('/boards/' + this.boardId + '/comments')
-          .then((res) => {
             if(res.status === 200) {
-              for(let i in res.data) {
-                let comment = res.data[i];
+              this.board = res.data;
+              window.alert(JSON.stringify(res.data));
+
+              for(let i in this.board.comments) {
+                let comment = this.board.comments[i];
                 if (comment.isValid === 1) {
                   if(comment.parentId === null) {  // 댓글일 경우
                     let commentInfo = {
@@ -271,29 +261,15 @@
                   }
                 }
               }
+
+              if (sessionStorage.getItem("memberId") === res.data.memberId.toString()) {
+                this.isHiddenButton = 0;
+              }
             }
           }).catch((e) => {
           window.alert(e);
           console.log(e);
         });
-      },
-      /* 등록한 댓글들 보여줌 */
-      showComments(comments) {
-        // 최신순일 경우
-        this.comments.unshift(comments);
-      },
-      /* 등록한 대댓글들 보여줌 */
-      showChildComments(comments) {
-        // 대댓글은 시간순 고정
-        this.childComments.push(comments);
-      },
-      /* 대댓글 입력창 보여줌 */
-      showChildCommentInputArea(index) {
-        document.getElementById(index).style.display = 'block';
-      },
-      /* 대댓글 입력창 숨김 */
-      hideChildCommentInputArea(index) {
-        document.getElementById(index).style.display = 'none';
       },
       /* 댓글 등록 요청 (파일 먼저 서버에 저장) */
       write(parent, index) {
@@ -389,6 +365,30 @@
           console.log(e);
         });
       },
+      /* 등록한 댓글들 보여줌 */
+      showComments(comments) {
+        // 시간순일 경우
+        this.comments.push(comments);
+        // 최신순일 경우
+        // this.comments.unshift(comments);
+      },
+      /* 등록한 대댓글들 보여줌 */
+      showChildComments(comments) {
+        // 대댓글은 시간순 고정
+        this.childComments.push(comments);
+      },
+      /* 대댓글 입력창 보여줌 */
+      showChildCommentInputArea(index) {
+        document.getElementById(index).style.display = 'block';
+      },
+      /* 대댓글 입력창 숨김 */
+      hideChildCommentInputArea(index) {
+        document.getElementById(index).style.display = 'none';
+      },
+      /* 댓글 수정 요청 */
+      updateComment() {
+
+      },
       /* 게시물 삭제 요청 */
       deleteBoard() {
         http.delete('/boards/' + this.boardId)
@@ -436,7 +436,7 @@
       } else {
         this.increaseHitCount();
         this.getBoardDetails();
-        this.getComments();
+        //this.getComments();
       }
     }
   }

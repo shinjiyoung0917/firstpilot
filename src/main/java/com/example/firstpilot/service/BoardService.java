@@ -1,6 +1,5 @@
 package com.example.firstpilot.service;
 
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +12,9 @@ import com.example.firstpilot.repository.CommentRepository;
 import com.example.firstpilot.util.LikeBoardPK;
 import com.example.firstpilot.util.LoginUserDetails;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,14 +54,8 @@ public class BoardService {
     @Autowired
     private LikeBoardRepository likeBoardRepo;
     @Autowired
-    private CommentRepository commentRepo;
+    private MemberService memberService;
 
-    /* 로그인한 회원의 세션값 */
-    public LoginUserDetails readSession() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
-        return login;
-    }
 
     /* 서버 디렉토리에 파일 업로드 */
     public String saveBoardFileInDir(MultipartFile uploadFile) throws Exception {
@@ -200,7 +194,7 @@ public class BoardService {
         log.info("createBoard 로그  - 진입");
 
         // 세션값 가져와서 회원 시퀀스 번호 저장 (프론트에서 바꾸는 것을 대비하기 위해)
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
 
         Board board = new Board();
         board.setTitle(boardData.getTitle());
@@ -220,7 +214,7 @@ public class BoardService {
         this.boardRepo.save(board);
     }
 
-    /* 게시물 정보 가져오기 */
+    /* 전체 게시물 정보 가져오기 */
     public Page<Board> readBoardList(Pageable pageable) {
         log.info("readBoardList 로그  - 진입");
         return this.boardRepo.findAll(pageable);
@@ -228,14 +222,14 @@ public class BoardService {
 
     /* 좋아요 게시물 목록 가져오기 */
     public List<LikeBoard> readLikeBoardList() {
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
         return this.likeBoardRepo.findByMemberId(memberId);
     }
 
     /* 게시물 좋아요 생성 */
     public void createLikeBoard(Long boardId) {
         log.info("createLikeBoard 로그  - 진입");
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
         LikeBoard likeBoard = new LikeBoard();
         likeBoard.setMemberId(memberId);
         likeBoard.setBoardId(boardId);
@@ -245,7 +239,7 @@ public class BoardService {
     /* 게시물 좋아요 삭제 */
     public void deleteLikeBoard(Long boardId) {
         log.info("deleteLikeBoard 로그  - 진입");
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
 
         LikeBoardPK pk = new LikeBoardPK();
         pk.setMemberId(memberId);
@@ -268,7 +262,7 @@ public class BoardService {
         }
     }
 
-    /* 상세 게시물 정보 가져오기 */
+    /* 상세 게시물 및 댓글 정보 가져오기 */
     public Board readBoardDetails(Long boardId) {
         log.info("readBoardDetails 로그  - 진입");
         return this.boardRepo.findByBoardId(boardId);
@@ -308,32 +302,8 @@ public class BoardService {
         board.setIsValid(0);        // 블라인드 되도록 유효상태 변경
         this.boardRepo.save(board);
 
-        // board랑 comment 조인해서 나오는 컬럼들 전부 isValid 0으로 업데이트
+        // board랑 comment 조인해서 나오는 comment 컬럼들 전부 isValid 0으로 업데이트
 
-    }
-
-    /* 댓글 정보 삽입 */
-    public Comment createComments(Long boardId, Comment commentData) {
-        log.info("createComments 로그  - 진입");
-        log.info("createComments 로그  - filePath : " + commentData.getFilePath());
-        Long memberId = readSession().getMemberId();
-        Comment comment = new Comment();
-        comment.setBoardId(boardId);
-        comment.setContent(commentData.getContent());
-        comment.setMemberId(memberId);
-        comment.setNickname(commentData.getNickname());
-        comment.setCreatedDate(LocalDateTime.now());
-        comment.setParentId(commentData.getParentId());
-        comment.setChildCount((long)0);
-        if(commentData.getFilePath().equals("") || commentData.getFilePath() == null) {
-            log.info("createComments 로그  - 파일을 선택하지 않음");
-            comment.setFilePath(null);
-        } else {
-            log.info("createComments 로그  - 파일 선택함");
-            comment.setFilePath(commentData.getFilePath().substring(6));
-        }
-        comment.setIsValid(1);
-        return this.commentRepo.save(comment);
     }
 
     /* 댓글 수 업데이트 */
@@ -341,34 +311,5 @@ public class BoardService {
         Board board = this.boardRepo.findByBoardId(boardId);
         board.setCommentCount(board.getCommentCount() + 1);
         this.boardRepo.save(board);
-    }
-
-    /* 댓글 정보 가져오기 */
-    public List<Comment> readComments(Long boardId) {
-        log.info("readComments 로그  - 진입");
-        return this.commentRepo.findByBoardId(boardId, new Sort(Sort.Direction.DESC, "createdDate"));
-    }
-
-    /* 댓글 업데이트 */
-    public void updateComment(Long boardId, Long commentId, Comment commentData) {
-        log.info("updateComment 로그  - 진입");
-        Comment comment = commentRepo.findByCommentId(commentId);
-        comment.setContent(commentData.getContent());
-        comment.setUpdatedDate(LocalDateTime.now() );
-        if(commentData.getFilePath().equals("") || commentData.getFilePath() == null) {
-            comment.setFilePath(null);
-        } else {
-            comment.setFilePath(commentData.getFilePath());
-        }
-        comment.setIsValid(commentData.getIsValid());
-        this.commentRepo.save(comment);
-    }
-
-    /* 댓글 삭제 */
-    public void deleteComment(Long commentId) {
-        log.info("deleteComment 로그  - 진입");
-        Comment comment = this.commentRepo.findByCommentId(commentId);
-        comment.setIsValid(0);        // 블라인드 되도록 유효상태 변경
-        this.commentRepo.save(comment);
     }
 }
