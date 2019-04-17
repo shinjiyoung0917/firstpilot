@@ -1,11 +1,13 @@
 package com.example.firstpilot.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+
+import org.hibernate.annotations.ColumnDefault;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,11 +56,12 @@ public class Board {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "is_valid", nullable = false)
+    @Column(name = "is_Not_Blocked", nullable = false)
     @ColumnDefault("1")
-    private Integer isValid;
+    private Integer isNotBlocked;
 
     @OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
+    @JsonManagedReference
     @OrderBy("createdDate ASC")
     private List<Comment> comments = new ArrayList<>();
 }

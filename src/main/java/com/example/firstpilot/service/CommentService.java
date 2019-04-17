@@ -35,7 +35,7 @@ public class CommentService {
         log.info("createComments 로그  - 진입");
         log.info("createComments 로그  - filePath : " + commentData.getFilePath());
 
-        Board board = boardRepo.findByBoardId(boardId);
+        Board board = boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
         Member member = memberService.readSession();
 
         Comment comment;
@@ -60,7 +60,7 @@ public class CommentService {
             log.info("createComments 로그  - 파일 선택함");
             comment.setFilePath(commentData.getFilePath().substring(6));
         }
-        comment.setIsValid(1);
+        comment.setIsNotBlocked(1);
 
 
         try {
@@ -68,6 +68,14 @@ public class CommentService {
         } catch(DataAccessException e) {
             throw new Error("Comment Insert Error");
         }
+    }
+
+    /* 댓글 삭제 */
+    public void deleteComment(Long commentId) {
+        log.info("deleteComment 로그  - 진입");
+        Comment comment = this.commentRepo.findByCommentId(commentId);
+        comment.setIsNotBlocked(0);        // 블라인드 되도록 유효상태 변경
+        this.commentRepo.save(comment);
     }
 
     /* // 댓글 정보 가져오기
@@ -92,12 +100,4 @@ public class CommentService {
         this.commentRepo.save(comment);
     }
     */
-
-    /* 댓글 삭제 */
-    public void deleteComment(Long boardId, Long commentId) {
-        log.info("deleteComment 로그  - 진입");
-        Comment comment = this.commentRepo.findByCommentId(commentId);
-        comment.setIsValid(0);        // 블라인드 되도록 유효상태 변경
-        this.commentRepo.save(comment);
-    }
 }

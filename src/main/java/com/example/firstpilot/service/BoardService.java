@@ -210,14 +210,14 @@ public class BoardService {
         } else {
             board.setFilePath(boardData.getFilePath());
         }
-        board.setIsValid(1);
+        board.setIsNotBlocked(1);
         this.boardRepo.save(board);
     }
 
     /* 전체 게시물 정보 가져오기 */
     public Page<Board> readBoardList(Pageable pageable) {
         log.info("readBoardList 로그  - 진입");
-        return this.boardRepo.findAll(pageable);
+        return this.boardRepo.findAllByIsNotBlocked(pageable, 1);
     }
 
     /* 좋아요 게시물 목록 가져오기 */
@@ -252,11 +252,11 @@ public class BoardService {
     public void updateLikeCount(Long boardId, Integer status) {
         log.info("updateLikeCount 로그  - 진입");
         if(status == 0) {
-            Board board = this.boardRepo.findByBoardId(boardId);
+            Board board = this.boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
             board.setLikeCount(board.getLikeCount() + 1);
             this.boardRepo.save(board);
         } else {
-            Board board = this.boardRepo.findByBoardId(boardId);
+            Board board = this.boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
             board.setLikeCount(board.getLikeCount() - 1);
             this.boardRepo.save(board);
         }
@@ -265,13 +265,13 @@ public class BoardService {
     /* 상세 게시물 및 댓글 정보 가져오기 */
     public Board readBoardDetails(Long boardId) {
         log.info("readBoardDetails 로그  - 진입");
-        return this.boardRepo.findByBoardId(boardId);
+        return this.boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
     }
 
     /* 게시물 조회수 업데이트 */
     public void updateHitCount(Long boardId) {
         log.info("updateHitCount 로그  - 진입");
-        Board board = this.boardRepo.findByBoardId(boardId);
+        Board board = this.boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
         board.setHitCount(board.getHitCount() + 1);
         this.boardRepo.save(board);
     }
@@ -279,7 +279,7 @@ public class BoardService {
     /* 게시물 업데이트 */
     public void updateBoard(Long boardId, Board boardData) {
         log.info("updateBoard 로그  - 진입");
-        Board board = boardRepo.findByBoardId(boardId);
+        Board board = boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
         board.setTitle(boardData.getTitle());
         board.setContent(boardData.getContent());
         board.setCreatedDate(boardData.getCreatedDate());
@@ -292,23 +292,24 @@ public class BoardService {
         } else {
             board.setFilePath(boardData.getFilePath());
         }
-        board.setIsValid(boardData.getIsValid());
+        board.setIsNotBlocked(boardData.getIsNotBlocked());
         this.boardRepo.save(board);
     }
 
     /* 게시물 삭제 */
     public void deleteBoard(Long boardId) {
-        Board board = this.boardRepo.findByBoardId(boardId);
-        board.setIsValid(0);        // 블라인드 되도록 유효상태 변경
+        Board board = this.boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
+        board.setIsNotBlocked(0);        // 블라인드 되도록 유효상태 변경
+
+        for(Comment comment : board.getComments()) {
+            comment.setIsNotBlocked(0);
+        }
         this.boardRepo.save(board);
-
-        // board랑 comment 조인해서 나오는 comment 컬럼들 전부 isValid 0으로 업데이트
-
     }
 
     /* 댓글 수 업데이트 */
     public void updateCommentCount(Long boardId) {
-        Board board = this.boardRepo.findByBoardId(boardId);
+        Board board = this.boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
         board.setCommentCount(board.getCommentCount() + 1);
         this.boardRepo.save(board);
     }

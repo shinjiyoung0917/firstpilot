@@ -30,14 +30,6 @@ public class CommentController {
         return this.commentService.createOrUpdateComments(boardId, null, commentData);
     }
 
-    /* // 댓글 정보 요청
-    @GetMapping("/boards/{boardId}/comments")
-    public List<Comment> getComments(@PathVariable("boardId") Long boardId) {
-        log.info("getComments 로그  - 진입");
-        return this.commentService.readComments(boardId);
-    }
-    */
-
     /* 댓글 업데이트 요청 */
     @PutMapping("/boards/{boardId}/comments/{commentId}")
     public void putComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId, @RequestBody Comment commentData) {
@@ -47,10 +39,17 @@ public class CommentController {
 
     /* 댓글 삭제 요청 */
     @DeleteMapping("/boards/{boardId}/comments/{commentId}")
-    public void deleteComment(@PathVariable("commentId") Long boardId, @PathVariable("commentId") Long commentId) {
+    public void deleteComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId) {
         log.info("deleteComment 로그  - 진입");
         this.boardService.updateCommentCount(boardId);
-        this.commentService.deleteComment(boardId, commentId);
+        this.commentService.deleteComment(commentId);
     }
 
+     /* // 댓글 정보 요청
+    @GetMapping("/boards/{boardId}/comments")
+    public List<Comment> getComments(@PathVariable("boardId") Long boardId) {
+        log.info("getComments 로그  - 진입");
+        return this.commentService.readComments(boardId);
+    }
+    */
 }

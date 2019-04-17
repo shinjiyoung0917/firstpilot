@@ -1,14 +1,16 @@
 package com.example.firstpilot.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.*;
+
 import org.hibernate.annotations.ColumnDefault;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -23,7 +25,8 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    @JsonBackReference
+    //@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@Id")
     private Board board;
     /*@Column(name = "board_id", nullable = false)
     private Long boardId;
@@ -59,9 +62,9 @@ public class Comment {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "is_valid", nullable = false)
+    @Column(name = "is_Not_Blocked", nullable = false)
     @ColumnDefault("1")
-    private Integer isValid;
+    private Integer isNotBlocked;
 
     /*public void setMember(Member member) {
     if(this.member != null) {

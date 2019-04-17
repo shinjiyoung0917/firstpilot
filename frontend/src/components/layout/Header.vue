@@ -84,6 +84,7 @@
                 sessionStorage.removeItem("memberId");
                 sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
                 this.nickname = null;
+                this.$router.replace('/');
               }
             }).catch((e) => {
             window.alert(e);
