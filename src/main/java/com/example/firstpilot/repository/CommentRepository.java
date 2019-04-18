@@ -13,4 +13,5 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     // List<Comment> findByBoardId(Long boardId, Sort sort);
     Comment findByCommentId(Long commentId);
+    List<Comment> findByMemberIdAndUnblocked(Long memberId, Integer unblocked);
 }

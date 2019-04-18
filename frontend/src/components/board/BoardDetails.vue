@@ -26,7 +26,8 @@
           <hr>
 
           <!-- Date/Time -->
-          <p>Posted on {{ this.board.createdDate }} </p>
+          <p v-if="this.board.updatedDate === null">Posted on {{ this.board.createdDate }} </p>
+          <p v-else>Posted on {{ this.board.updatedDate }} 수정됨 </p>
 
           <hr>
 
@@ -58,73 +59,104 @@
 
             <div class="card-body">
               <!--<form>-->
-                <div class="form-group">
-                  <textarea class="form-control" rows="3" v-model="content"></textarea>
-                </div>
-                <div style="text-align: right">
-                  <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
-                  <button class="btn btn-primary" @click="write(null, null)">등록</button>
-                </div>
+              <div class="form-group">
+                <textarea class="form-control" rows="3" v-model="content"></textarea>
+              </div>
+              <div style="text-align: right">
+                <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
+                <button class="btn btn-primary" @click="write(null, null)">등록</button>
+              </div>
               <!--</form>-->
             </div>
 
           </div>
 
+          <div v-if="this.comments.length !== 0">
+            <div><button class="list-group-item" @click="resortComments()" style="color: #2e2e2e"> 시간순 </button></div>
+            <div><button class="list-group-item" @click="resortComments()" style="color: #2e2e2e"> 최신순 </button></div>
+          </div>
 
           <!-- 댓글, 대댓글 -->
+          <!-- 댓글 -->
           <div v-for="(comment, index) in comments">
             <div class="media mb-4" >
+
               <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
 
               <div class="media-body" style="text-align: left">
 
                 <h5 class="mt-0"> {{ comment.nickname }} </h5>
-                <span v-if="comment.isNotBlocked === 1" :id="index" style="display: block">
-                  {{ comment.content }}
-                </span>
-                <span v-else>
-                  삭제된 댓글입니다.
-                </span>
-                
-<!-- span :id값 다른거로?????? -->
+                <div :id="'existedComment' + index" style="display: block">
+                  <div>
+                    <span v-if="comment.unblocked === 1">  <!-- 대댓글 없으면 안보이게? -->
+                      {{ comment.content }}
+                    </span>
+                    <span v-else>
+                      삭제된 댓글입니다.
+                    </span>
+
+                    <br>
+
+                    <span v-if="comment.updatedDate === null" class="mt-0" style="font-size: 10px"> {{ comment.createdDate }} </span>
+                    <span v-else class="mt-0" style="font-size: 10px"> {{ comment.updatedDate }} 수정됨 </span>
+
+                    <button class="btn btn-group-toggle" @click="showChildCommentInputArea(index)" style="font-size: small"> 대댓글 달기 </button>
+                  </div>
+
+                  <div style="text-align: right" v-if="comment.memberId === memberId">
+                    <button class="btn btn-dark" @click="showCommentEditArea(index, comment.content, null)"> 수정 </button>
+                    <button class="btn btn-dark" @click="deleteComment(index, comment.commentId, null)"> 삭제 </button>
+                  </div>
+                </div>
 
                 <!-- 댓글 수정란 -->
-                <div :id="index" style="display: none">
-                  <textarea v-model="content" :id="index" rows="3" style="width: 100%"></textarea>
-                  <button class="btn btn-dark" @click="editComment(index, comment.commentId, null)"> 확인 </button>
-                  <button class="btn btn-dark" @click=""> 취소 </button>
+                <div :id="'editComment' + index" style="display: none">
+                  <textarea v-model="editContent" rows="3" style="width: 100%"></textarea>
+                  <input type="file" id="uploadFileForEditComment" name="uploadFile" @change="setFileData($event.target.files)">
+                  <button class="btn btn-dark" @click="editComment(index, comment.commentId, null)"> 수정 </button>
+                  <button class="btn btn-dark" @click="hideCommentEditArea(index, null)"> 취소 </button>
                 </div>
 
 
-                <br>
-                <span class="mt-0" style="font-size: 10px"> {{ comment.createdDate }} </span>
-
-                <button class="btn btn-group-toggle" @click="showChildCommentInputArea(index)" style="font-size: small"> 대댓글 달기 </button>
-
-                <div style="text-align: right" v-if="comment.memberId === memberId">
-                  <button class="btn btn-dark" @click="showCommentEditArea(index)"> 수정 </button>
-                  <button class="btn btn-dark" @click="deleteComment(comment.commentId)"> 삭제 </button>
-                </div>
-
+                <!-- 대댓글 -->
                 <div>
-                  <!-- 대댓글 -->
                   <div v-for="(childComment, index) in childComments">
-                    <div class="media mt-4" v-if="childComment.parentId === comment.commentId">
+                    <div class="media mt-4" v-if="childComment.parentId === comment.commentId"> <!-- 이 부분에 이전 댓글 더 보기 버튼 만들기 -->
+                      <div v-if="comment.childCount > 3">
+                        <button class="list-group-item" @click="addChildComments(index, comment.commentId)" style="color: rgb(46, 46, 46);"> 이전 댓글 더보기 </button>
+                      </div>
+
                       <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
                       <div class="media-body">
                         <h5 class="mt-0"> {{ childComment.nickname }} </h5>
-                        <span v-if="childComment.isNotBlocked === 1">
-                        {{ childComment.content }}
-                        </span>
-                        <span v-else>
-                          삭제된 댓글입니다.
-                        </span>
-                        <br>
-                        <span class="mt-0" style="font-size: 10px"> {{ childComment.createdDate }} </span>
-                      </div>
-                      <div style="text-align: right" v-if="childComment.memberId === memberId">
-                        <button class="btn btn-dark" @click="editComment(index, childComment.commentId, childComment.parentId)"> 수정 </button>
-                        <button class="btn btn-dark" @click="deleteComment(childComment.commentId)"> 삭제 </button>
+                        <div :id="'existedChildComment' + index" style="display: block">
+                          <div>
+                            <span v-if="childComment.unblocked === 1">
+                            {{ childComment.content }}
+                            </span>
+                            <span v-else>
+                              삭제된 댓글입니다.
+                            </span>
+
+                            <br>
+
+                            <span v-if="childContent.updatedDate === null" class="mt-0" style="font-size: 10px"> {{ childComment.createdDate }} </span>
+                            <span v-else class="mt-0" style="font-size: 10px"> {{ childComment.updatedDate }} 수정됨 </span>
+                          </div>
+                          <div style="text-align: right" v-if="childComment.memberId === memberId">
+                            <button class="btn btn-dark" @click="showCommentEditArea(index, childComment.content, childComment.parentId)"> 수정 </button>
+                            <button class="btn btn-dark" @click="deleteComment(index, childComment.commentId, childComment.parentId)"> 삭제 </button>
+                          </div>
+                        </div>
+
+                        <!-- 대댓글 수정란 -->
+                        <div :id="'editChildComment' + index" style="display: none">
+                          <textarea v-model="editContent" rows="3" style="width: 100%"></textarea>
+                          <input type="file" id="uploadFileForEditChildComment" name="uploadFile" @change="setFileData($event.target.files)">
+                          <button class="btn btn-dark" @click="editComment(index, childComment.commentId, childComment.parentId)"> 수정 </button>
+                          <button class="btn btn-dark" @click="hideCommentEditArea(index, childComment.parentId)"> 취소 </button>
+                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -229,8 +261,10 @@
         childComments: [],
         content: '',
         childContent: '',
+        editContent: '',
+        isEditing: 0,
         fileData: '',
-        filePath: '',
+        filePath: ''
       }
     },
     methods: {
@@ -250,7 +284,6 @@
           .then((res) => {
             if(res.status === 200) {
               this.board = res.data;
-              window.alert(JSON.stringify(res.data));
 
               for(let i in this.board.comments) {
                 let comment = this.board.comments[i];
@@ -266,7 +299,7 @@
                     parentId: comment.parentId,
                     childCount: comment.childCount,
                     filePath: comment.filePath,
-                    isNotBlocked: comment.isNotBlocked
+                    unblocked: comment.unblocked
                   };
                   this.comments.push(commentInfo);
                 } else {                          // 대댓글일 경우
@@ -281,7 +314,7 @@
                     parentId: comment.parentId,
                     childCount: comment.childCount,
                     filePath: comment.filePath,
-                    isNotBlocked: comment.isNotBlocked
+                    unblocked: comment.unblocked
                   };
                   this.childComments.unshift(childCommentInfo);
                 }
@@ -291,6 +324,49 @@
               /*if (sessionStorage.getItem("memberId") === this.board.memberId.toString()) {
               }*/
             }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 게시물 삭제 요청 */
+      deleteBoard() {
+        let confirmFlag = confirm("해당 게시물을 삭제하시겠습니까?");
+
+        if(confirmFlag) {
+          http.delete('/boards/' + this.boardId)
+            .then((res) => {
+              if (res.status === 200) {
+                window.alert("게시물을 성공적으로 삭제하였습니다.");
+                this.$router.replace('/boards');
+              }
+            }).catch((e) => {
+
+          });
+        } else {
+        }
+      },
+      /* 좋아요 해제 */
+      toUnlike() {
+        this.likeBoard = 0;
+        this.board.likeCount -= 1;
+
+        http.delete('/boards/' + this.boardId + '/like')
+          .then((res) => {
+
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 좋아요 */
+      toLike() {
+        this.likeBoard = 1;
+        this.board.likeCount += 1;
+
+        http.post('/boards/' + this.boardId + '/like')
+          .then((res) => {
+
           }).catch((e) => {
           window.alert(e);
           console.log(e);
@@ -392,15 +468,16 @@
       },
       /* 등록한 댓글들 보여줌 */
       showComments(comments) {
-        // 시간순일 경우
-        this.comments.push(comments);
-        // 최신순일 경우
-        // this.comments.unshift(comments);
+        this.comments.push(comments);       // 시간순
+        //this.comments.unshift(comments);  // 최신순
       },
-      /* 등록한 대댓글들 보여줌 */
+      /* 등록한 대댓글들 보여줌 (시간순 고정) */
       showChildComments(comments) {
-        // 대댓글은 시간순 고정
         this.childComments.push(comments);
+      },
+      /* 댓글 정렬 형태 바꿈 */
+      resortComments() {
+        this.comments.reverse();
       },
       /* 대댓글 입력창 보여줌 */
       showChildCommentInputArea(index) {
@@ -412,15 +489,31 @@
       },
       /* 댓글 수정 요청 */
       editComment(index, commentId, parent) {
-        http.put('/boards/' + this.boardId + '/comments/' + commentId)
+        window.alert(index + ", " + commentId + ", " + parent);
+        let data = {
+          memberId: this.memberId,
+          nickname: sessionStorage.getItem("nickname"),
+          content: this.editContent,
+          filePath: this.comments[index].filePath,
+          parentId: this.comments[index].parentId,
+          childCount: this.comments[index].childCount,
+          createdDate: this.comments[index].createdDate,
+          unblocked: this.comments[index].unblocked
+        }
+        window.alert(JSON.stringify(data));
+
+        http.put('/boards/' + this.boardId + '/comments/' + commentId, data)
           .then((res) => {
             if(res.status === 200) {
+              window.alert("=> " + JSON.stringify(res));
+
               window.alert('댓글이 성공적으로 수정되었습니다.');
               if(parent === null) {
-                this.comments[index].content = res.data.content;
+                this.comments[index].content = this.editContent;
               } else {
-                this.childComments[index].content = res.data.content;
+                this.childComments[index].content = this.editContent;
               }
+              this.hideCommentEditArea(index, parent);
             }
           }).catch((e) => {
           window.alert(e);
@@ -428,59 +521,60 @@
         });
       },
       /* 댓글 수정란 보여줌 */
-      showCommentEditArea(index) {
-        document.getElementById(index).style.display = 'none';
+      showCommentEditArea(index, content, parent) {
+        if(this.isEditing !== 1) {
+          this.isEditing = 1;
+          this.editContent = content;
+          if (parent === null) {
+            document.getElementById("existedComment" + index).style.display = 'none';
+            document.getElementById("editComment" + index).style.display = 'block';
+          } else {
+            document.getElementById("existedChildComment" + index).style.display = 'none';
+            document.getElementById("editChildComment" + index).style.display = 'block';
+          }
+        } else {
+          window.alert("현재 수정중인 댓글이 존재합니다.");
+        }
+      },
+      /* 댓글 수정란 숨김 */
+      hideCommentEditArea(index, parent) {
+        this.isEditing = 0;
+        this.editContent = '';
+        if(parent === null) {
+          document.getElementById("existedComment" + index).style.display = 'block';
+          document.getElementById("editComment" + index).style.display = 'none';
+        } else {
+          document.getElementById("existedChildComment" + index).style.display = 'block';
+          document.getElementById("editChildComment" + index).style.display = 'none';
+        }
       },
       /* 댓글 삭제 요청 */
-      deleteComment(commentId) {
-        http.delete('/boards/' + this.boardId + '/comments/' + commentId)
-          .then((res) => {
-            if(res.status === 200) {
-              window.alert('댓글이 성공적으로 삭제되었습니다.');
-            }
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
+      deleteComment(index, commentId, parent) {
+        let confirmFlag = confirm("해당 게시물을 삭제하시겠습니까?");
+
+        if(confirmFlag){
+          http.delete('/boards/' + this.boardId + '/comments/' + commentId)
+            .then((res) => {
+              if(res.status === 200) {
+                window.alert('댓글이 성공적으로 삭제되었습니다.');
+                if(parent === null) {
+                  this.comments[index].content = "삭제된 댓글입니다.";
+                  //this.comments.splice(index, 1);
+                } else {
+                  this.childComments[index].content = "삭제된 댓글입니다.";
+                  //this.childComments.splice(index, 1)
+                }
+                this.board.commentCount -= 1;
+              }
+            }).catch((e) => {
+            window.alert(e);
+            console.log(e);
+          });
+        } else{
+        }
       },
-      /* 게시물 삭제 요청 */
-      deleteBoard() {
-        http.delete('/boards/' + this.boardId)
-          .then((res) => {
-            if(res.status === 200) {
-              window.alert("게시물을 성공적으로 삭제하였습니다.");
-              this.$router.replace('/boards');
-            }
-          }).catch((e) => {
+      addChildComments(index, parent) {
 
-        });
-      },
-      /* 좋아요 해제 */
-      toUnlike() {
-        this.likeBoard = 0;
-        this.board.likeCount -= 1;
-
-        http.delete('/boards/' + this.boardId + '/like')
-          .then((res) => {
-
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-
-      },
-      /* 좋아요 */
-      toLike() {
-        this.likeBoard = 1;
-        this.board.likeCount += 1;
-
-        http.post('/boards/' + this.boardId + '/like')
-          .then((res) => {
-
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
       }
     },
     created() {

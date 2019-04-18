@@ -84,12 +84,12 @@
                 sessionStorage.removeItem("memberId");
                 sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
                 this.nickname = null;
-                this.$router.replace('/');
               }
             }).catch((e) => {
             window.alert(e);
             console.log(e);
           });
+          this.$router.replace('/');
         } else {
           window.alert("이미 로그아웃 처리 완료되었습니다.");
         }
@@ -107,6 +107,11 @@
           if (res.status === 200) {
             sessionStorage.setItem("nickname", res.data.nickname);
             sessionStorage.setItem("memberId", res.data.memberId);
+          } else {
+            // 세션 초기화?
+            sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+            sessionStorage.removeItem("memberId");
+            sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
           }
         }).catch((e) => {
           // 세션 초기화?

@@ -111,17 +111,10 @@ public class BoardController {
         this.boardService.deleteBoard(boardId);
     }
 
-
-
-    /* 대시보드 (본인이 작성한 글 혹은 댓글) 정보 요청 */
-    /*@GetMapping(path = "/members/{nickname}")
-    public List<Board> getMyBoard(@PathVariable("nickname") String  nickname) {
-        log.info("컨트롤러 로그 - 내가 쓴 게시물 및 댓글 정보 가져오기");
-
-        List<Board> board = new ArrayList<>();
-        repo.findAll().forEach(board::add);
-
-        return board;
+    /* 대시보드 (본인이 작성한 글) 정보 요청 */
+    @GetMapping("/dashboards/boards")
+    public Page<Board> getMyBoard(@PageableDefault(size = 6, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        log.info("getMyBoard 로그 - 진입");
+        return this.boardService.readMyBoard(pageable);
     }
-    */
 }

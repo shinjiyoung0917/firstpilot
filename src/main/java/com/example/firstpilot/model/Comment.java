@@ -7,6 +7,7 @@ import javax.persistence.*;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -23,25 +24,14 @@ public class Comment {
     @Column(name = "comment_id")
     private Long commentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    @JsonBackReference
-    //@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@Id")
-    private Board board;
-    /*@Column(name = "board_id", nullable = false)
+    @Column(name = "board_id", nullable = false, insertable = false, updatable = false)
     private Long boardId;
-    */
 
     @Column(name = "content", nullable = false)
     private String content;
 
-    /*@ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
-    */
     @Column(name = "member_id", nullable = false)
     private Long memberId;
-
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -62,17 +52,20 @@ public class Comment {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "is_Not_Blocked", nullable = false)
+    @Column(name = "unblocked", nullable = false)
     @ColumnDefault("1")
-    private Integer isNotBlocked;
+    private Integer unblocked;
 
-    /*public void setMember(Member member) {
-    if(this.member != null) {
-            this.member.getComments().remove(this);
-        }
-        this.member = member;
-        member.getComments().add(this);
-    }*/
+    @ManyToOne
+    @JoinColumn(name = "member_id", insertable = false, updatable = false)
+    private Member member;
+
+    @ManyToOne
+    @JoinColumn(name = "board_id")
+    @JsonBackReference
+    //@JsonManagedReference
+    //@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@Id")
+    private Board board;
 
     public void setBoard(Board board) {
         // 무한루프 발생 방지

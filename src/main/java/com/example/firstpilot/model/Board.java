@@ -7,6 +7,7 @@ import javax.persistence.*;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.LocalDateTime;
@@ -56,12 +57,21 @@ public class Board {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "is_Not_Blocked", nullable = false)
+    @Column(name = "unblocked", nullable = false)
     @ColumnDefault("1")
-    private Integer isNotBlocked;
+    private Integer unblocked;
+
+    /*@OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
+    private List<LikeBoard> likeBoards = new ArrayList<>();
+    */
 
     @OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
     @JsonManagedReference
-    @OrderBy("createdDate ASC")
+    //@JsonBackReference
+    @OrderBy("createdDate, parentId ASC")
     private List<Comment> comments = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "member_id", insertable = false, updatable = false)
+    private Member member;
 }

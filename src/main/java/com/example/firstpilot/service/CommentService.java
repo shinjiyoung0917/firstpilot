@@ -35,7 +35,7 @@ public class CommentService {
         log.info("createComments 로그  - 진입");
         log.info("createComments 로그  - filePath : " + commentData.getFilePath());
 
-        Board board = boardRepo.findByBoardIdAndIsNotBlocked(boardId, 1);
+        Board board = boardRepo.findByBoardIdAndUnblocked(boardId, 1);
         Member member = memberService.readSession();
 
         Comment comment;
@@ -60,7 +60,7 @@ public class CommentService {
             log.info("createComments 로그  - 파일 선택함");
             comment.setFilePath(commentData.getFilePath().substring(6));
         }
-        comment.setIsNotBlocked(1);
+        comment.setUnblocked(1);
 
 
         try {
@@ -74,16 +74,18 @@ public class CommentService {
     public void deleteComment(Long commentId) {
         log.info("deleteComment 로그  - 진입");
         Comment comment = this.commentRepo.findByCommentId(commentId);
-        comment.setIsNotBlocked(0);        // 블라인드 되도록 유효상태 변경
+        comment.getBoard().setCommentCount(comment.getBoard().getCommentCount() - 1);
+        comment.setUnblocked(0);        // 블라인드 되도록 상태 변경
         this.commentRepo.save(comment);
     }
 
-    /* // 댓글 정보 가져오기
-    public List<Comment> readComments(Long boardId) {
-        log.info("readComments 로그  - 진입");
-        return this.commentRepo.findByBoardId(boardId, new Sort(Sort.Direction.DESC, "createdDate"));
+    /* 대시보드 댓글 */
+    public List<Comment> readMyComments() {
+        log.info("readMyComments 로그  - 진입");
+        Long memberId = memberService.readSession().getMemberId();
+        return this.commentRepo.findByMemberIdAndUnblocked(memberId, 1);
     }
-    */
+
 
     /* // 댓글 업데이트
     public void updateComment(Long boardId, Long commentId, Comment commentData) {

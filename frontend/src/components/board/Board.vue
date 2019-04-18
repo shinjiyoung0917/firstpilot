@@ -58,9 +58,10 @@
               <div class="card h-100">
                 <img :src="board.fileSrc"> <!--class="card-img-top" -->
                 <div class="card-body">
-                  <span style="font-size: 10px"> {{ board.createdDate }} </span>
+                  <span v-if="board.updatedDate === null" style="font-size: 10px"> {{ board.createdDate }} </span>
+                  <span v-else style="font-size: 10px"> {{ board.updatedDate }} 수정됨 </span>
                   <h4 class="card-title">
-                    <router-link  :to="{ name: 'board-details', params: { id: board.boardId, like: board.like, memberId: board.memberId }}"> {{ board.title }} </router-link>
+                    <router-link :to="{ name: 'board-details', params: { id: board.boardId, like: board.like, memberId: board.memberId }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
                   <h7> by {{ board.nickname }} </h7>
@@ -125,54 +126,54 @@
           .then((res) => {
             if(res.status === 200) {
               //if (this.page !== 0) {
-                for (let i in res.data.content) {
-                  let board = res.data.content[i];
-                  if (board.isNotBlocked === 1) {
-                    this.snippet(board, 1);
-                    this.snippet(board, 2);
+              for (let i in res.data.content) {
+                let board = res.data.content[i];
+                if (board.unblocked === 1) {
+                  this.snippet(board, 1);
+                  this.snippet(board, 2);
 
-                    let boardInfo = {
-                      boardId: board.boardId,
-                      title: board.title,
-                      content: board.content,
-                      memberId: board.memberId,
-                      nickname: board.nickname,
-                      createdDate: board.createdDate,
-                      updatedDate: board.updatedDate,
-                      hitCount: board.hitCount,
-                      likeCount: board.likeCount,
-                      commentCount: board.commentCount,
-                      filePath: board.filePath
-                    };
+                  let boardInfo = {
+                    boardId: board.boardId,
+                    title: board.title,
+                    content: board.content,
+                    memberId: board.memberId,
+                    nickname: board.nickname,
+                    createdDate: board.createdDate,
+                    updatedDate: board.updatedDate,
+                    hitCount: board.hitCount,
+                    likeCount: board.likeCount,
+                    commentCount: board.commentCount,
+                    filePath: board.filePath
+                  };
 
-                    if(board.filePath === "" || board.filePath === null) {
-                      boardInfo['fileSrc'] = require("../../assets/default.jpg");
-                    } else {
-                      let fileSrc = board.filePath;
-                      boardInfo['fileSrc'] = fileSrc;
+                  if(board.filePath === "" || board.filePath === null) {
+                    boardInfo['fileSrc'] = require("../../assets/default.jpg");
+                  } else {
+                    let fileSrc = board.filePath;
+                    boardInfo['fileSrc'] = fileSrc;
 
-                      //let fileSrc = 'data:image/jpg;base64,'+ board.filePath;
-                      //boardInfo['fileSrc'] = board.filePath;
-                    }
-
-                    //boardInfo['fileSrc'] = require("../../assets/default.jpg");
-
-                    /*else {
-                      window.alert("/// " + boardInfo.filePath);
-                      let src = "../../../../src/main/resources/uploads/thumb_";
-                      let fileSrc = src + board.filePath;
-                      let datauri = 'data:image/jpg;base64,'+fileSrc;
-                      boardInfo['fileSrc'] = datauri; // JSON 타입으로 저장돼있어서 파일 타입(.png, .jpg등)으로 변경하는 작업 필요?
-                    }*/
-
-                    for(let j in this.likeBoards) {
-                      if(boardInfo.boardId === this.likeBoards[j].boardId) {
-                        boardInfo['like'] = 1;
-                      }
-                    }
-                    this.boards.push(boardInfo);
+                    //let fileSrc = 'data:image/jpg;base64,'+ board.filePath;
+                    //boardInfo['fileSrc'] = board.filePath;
                   }
+
+                  //boardInfo['fileSrc'] = require("../../assets/default.jpg");
+
+                  /*else {
+                    window.alert("/// " + boardInfo.filePath);
+                    let src = "../../../../src/main/resources/uploads/thumb_";
+                    let fileSrc = src + board.filePath;
+                    let datauri = 'data:image/jpg;base64,'+fileSrc;
+                    boardInfo['fileSrc'] = datauri; // JSON 타입으로 저장돼있어서 파일 타입(.png, .jpg등)으로 변경하는 작업 필요?
+                  }*/
+
+                  for(let j in this.likeBoards) {
+                    if(boardInfo.boardId === this.likeBoards[j].boardId) {
+                      boardInfo['like'] = 1;
+                    }
+                  }
+                  this.boards.push(boardInfo);
                 }
+              }
               /*} else {
                 this.boards = res.data.content;
               }*/
@@ -294,4 +295,3 @@
     }*/
   }
 </script>
-

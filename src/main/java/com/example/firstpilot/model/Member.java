@@ -1,5 +1,6 @@
 package com.example.firstpilot.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,51 +44,9 @@ public class Member { //implements UserDetails
     @JoinColumn(name = "email")
     private List<MemberRole> role;*/
 
-    /*@OneToMany(mappedBy = "member") //cascade = CascadeType.ALL
-    private List<Comment> comments = new ArrayList<Comment>();
-    */
-
-
-
-
-    /* 시큐리티 제공
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.getPassword();
-    }
-
-    @Override
-    public String getUsername() {
-        return this.getEmail();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    /*@OneToMany(mappedBy = "member")
+    //@JsonManagedReference
+    @OrderBy("createdDate DESC ")
+    private List<Board> boards = new ArrayList<>();
     */
 }
-
-

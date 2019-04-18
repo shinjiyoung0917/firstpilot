@@ -45,11 +45,10 @@ public class CommentController {
         this.commentService.deleteComment(commentId);
     }
 
-     /* // 댓글 정보 요청
-    @GetMapping("/boards/{boardId}/comments")
-    public List<Comment> getComments(@PathVariable("boardId") Long boardId) {
-        log.info("getComments 로그  - 진입");
-        return this.commentService.readComments(boardId);
+    /* 대시보드 (본인이 작성한 글) 정보 요청 */
+    @GetMapping("/dashboards/comments")
+    public List<Comment> getMyComments() {
+        log.info("getMyBoard 로그 - 진입");
+        return this.commentService.readMyComments();
     }
-    */
 }

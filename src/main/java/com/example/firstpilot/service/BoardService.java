@@ -1,37 +1,44 @@
 package com.example.firstpilot.service;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.example.firstpilot.model.Board;
+import com.example.firstpilot.model.LikeBoard;
+import com.example.firstpilot.model.Comment;
+import com.example.firstpilot.repository.BoardRepository;
+import com.example.firstpilot.repository.LikeBoardRepository;
+import com.example.firstpilot.repository.CommentRepository;
+import com.example.firstpilot.util.LikeBoardPK;
+import com.example.firstpilot.util.LoginUserDetails;
+
+import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.firstpilot.model.Board;
-import com.example.firstpilot.model.Comment;
-import com.example.firstpilot.model.LikeBoard;
-import com.example.firstpilot.repository.BoardRepository;
-import com.example.firstpilot.repository.CommentRepository;
-import com.example.firstpilot.repository.LikeBoardRepository;
-import com.example.firstpilot.util.LikeBoardPK;
-import com.example.firstpilot.util.LoginUserDetails;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Service
@@ -47,14 +54,8 @@ public class BoardService {
     @Autowired
     private LikeBoardRepository likeBoardRepo;
     @Autowired
-    private CommentRepository commentRepo;
+    private MemberService memberService;
 
-    /* 로그인한 회원의 세션값 */
-    public LoginUserDetails readSession() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
-        return login;
-    }
 
     /* 서버 디렉토리에 파일 업로드 */
     public String saveBoardFileInDir(MultipartFile uploadFile) throws Exception {
@@ -193,7 +194,7 @@ public class BoardService {
         log.info("createBoard 로그  - 진입");
 
         // 세션값 가져와서 회원 시퀀스 번호 저장 (프론트에서 바꾸는 것을 대비하기 위해)
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
 
         Board board = new Board();
         board.setTitle(boardData.getTitle());
@@ -209,26 +210,26 @@ public class BoardService {
         } else {
             board.setFilePath(boardData.getFilePath());
         }
-        board.setIsValid(1);
+        board.setUnblocked(1);
         this.boardRepo.save(board);
     }
 
-    /* 게시물 정보 가져오기 */
+    /* 전체 게시물 정보 가져오기 */
     public Page<Board> readBoardList(Pageable pageable) {
         log.info("readBoardList 로그  - 진입");
-        return this.boardRepo.findAll(pageable);
+        return this.boardRepo.findAllByUnblocked(pageable, 1);
     }
 
     /* 좋아요 게시물 목록 가져오기 */
     public List<LikeBoard> readLikeBoardList() {
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
         return this.likeBoardRepo.findByMemberId(memberId);
     }
 
     /* 게시물 좋아요 생성 */
     public void createLikeBoard(Long boardId) {
         log.info("createLikeBoard 로그  - 진입");
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
         LikeBoard likeBoard = new LikeBoard();
         likeBoard.setMemberId(memberId);
         likeBoard.setBoardId(boardId);
@@ -238,7 +239,7 @@ public class BoardService {
     /* 게시물 좋아요 삭제 */
     public void deleteLikeBoard(Long boardId) {
         log.info("deleteLikeBoard 로그  - 진입");
-        Long memberId = readSession().getMemberId();
+        Long memberId = memberService.readSession().getMemberId();
 
         LikeBoardPK pk = new LikeBoardPK();
         pk.setMemberId(memberId);
@@ -251,26 +252,26 @@ public class BoardService {
     public void updateLikeCount(Long boardId, Integer status) {
         log.info("updateLikeCount 로그  - 진입");
         if(status == 0) {
-            Board board = this.boardRepo.findByBoardId(boardId);
+            Board board = this.boardRepo.findByBoardIdAndUnblocked(boardId, 1);
             board.setLikeCount(board.getLikeCount() + 1);
             this.boardRepo.save(board);
         } else {
-            Board board = this.boardRepo.findByBoardId(boardId);
+            Board board = this.boardRepo.findByBoardIdAndUnblocked(boardId, 1);
             board.setLikeCount(board.getLikeCount() - 1);
             this.boardRepo.save(board);
         }
     }
 
-    /* 상세 게시물 정보 가져오기 */
+    /* 상세 게시물 및 댓글 정보 가져오기 */
     public Board readBoardDetails(Long boardId) {
         log.info("readBoardDetails 로그  - 진입");
-        return this.boardRepo.findByBoardId(boardId);
+        return this.boardRepo.findByBoardIdAndUnblocked(boardId, 1);
     }
 
     /* 게시물 조회수 업데이트 */
     public void updateHitCount(Long boardId) {
         log.info("updateHitCount 로그  - 진입");
-        Board board = this.boardRepo.findByBoardId(boardId);
+        Board board = this.boardRepo.findByBoardIdAndUnblocked(boardId, 1);
         board.setHitCount(board.getHitCount() + 1);
         this.boardRepo.save(board);
     }
@@ -278,7 +279,7 @@ public class BoardService {
     /* 게시물 업데이트 */
     public void updateBoard(Long boardId, Board boardData) {
         log.info("updateBoard 로그  - 진입");
-        Board board = boardRepo.findByBoardId(boardId);
+        Board board = boardRepo.findByBoardIdAndUnblocked(boardId, 1);
         board.setTitle(boardData.getTitle());
         board.setContent(boardData.getContent());
         board.setCreatedDate(boardData.getCreatedDate());
@@ -289,54 +290,34 @@ public class BoardService {
         if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
             board.setFilePath(null);
         } else {
-            board.setFilePath(boardData.getFilePath().substring(6));
+            board.setFilePath(boardData.getFilePath());
         }
-        board.setIsValid(boardData.getIsValid());
+        board.setUnblocked(boardData.getUnblocked());
         this.boardRepo.save(board);
     }
 
     /* 게시물 삭제 */
     public void deleteBoard(Long boardId) {
-        //this.boardRepo.deleteByBoardId(boardId); // 댓글, 대댓글도 삭제하도록 (cascade)
-        /*Board board = this.boardRepo.findByBoardId(boardId);
-        board.setIsValid(0);
-        this.boardRepo.save(board);*/
-    }
+        Board board = this.boardRepo.findByBoardIdAndUnblocked(boardId, 1);
+        board.setUnblocked(0);        // 블라인드 되도록 상태 변경
 
-    /* 댓글 정보 삽입 */
-    public Comment createComments(Long boardId, Comment commentData) {
-        log.info("createComments 로그  - 진입");
-        log.info("createComments 로그  - filePath : " + commentData.getFilePath());
-        Long memberId = readSession().getMemberId();
-        Comment comment = new Comment();
-        comment.setBoardId(boardId);
-        comment.setContent(commentData.getContent());
-        comment.setMemberId(memberId);
-        comment.setNickname(commentData.getNickname());
-        comment.setCreatedDate(LocalDateTime.now());
-        comment.setParentId(commentData.getParentId());
-        comment.setChildCount((long)0);
-        if(commentData.getFilePath().equals("") || commentData.getFilePath() == null) {
-            log.info("createComments 로그  - 파일을 선택하지 않음");
-            comment.setFilePath(null);
-        } else {
-            log.info("createComments 로그  - 파일 선택함");
-            comment.setFilePath(commentData.getFilePath().substring(6));
+        for(Comment comment : board.getComments()) {
+            comment.setUnblocked(0);
         }
-        comment.setIsValid(1);
-        return this.commentRepo.save(comment);
+        this.boardRepo.save(board);
     }
 
     /* 댓글 수 업데이트 */
     public void updateCommentCount(Long boardId) {
-        Board board = this.boardRepo.findByBoardId(boardId);
+        Board board = this.boardRepo.findByBoardIdAndUnblocked(boardId, 1);
         board.setCommentCount(board.getCommentCount() + 1);
         this.boardRepo.save(board);
     }
 
-    /* 댓글 정보 가져오기 */
-    public List<Comment> readComments(Long boardId) {
-        log.info("readComments 로그  - 진입");
-        return this.commentRepo.findByBoardId(boardId, new Sort(Sort.Direction.DESC, "createdDate"));
+    /* 대시보드 게시물 */
+    public Page<Board> readMyBoard(Pageable pageable) {
+        log.info("readDashboard 로그  - 진입");
+        Long memberId = memberService.readSession().getMemberId();
+        return this.boardRepo.findByMemberIdAndUnblocked(pageable, memberId, 1);
     }
 }
