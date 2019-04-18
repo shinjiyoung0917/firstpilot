@@ -215,10 +215,18 @@ public class MemberService implements UserDetailsService {
     }
 
     /* 닉네임 변경 */
-    public void updateNickname() {
+    public void updateMember(Member memberData) {
         // 닉네임 중복 불가
         // 이전에 변경 후 1주일 이내 변경 불가
-
+        LocalDateTime now = LocalDateTime.now();
+        // 7일이내에 변경했는지 검사
+        //if(now < ) { }
+        // else { }
+        Long memberId = readSession().getMemberId();
+        Member member = new Member();
+        member.setNickname(memberData.getNickname());
+        member.setUpdatedDate(LocalDateTime.now());
+        this.memberRepo.save(member);
     }
 
 

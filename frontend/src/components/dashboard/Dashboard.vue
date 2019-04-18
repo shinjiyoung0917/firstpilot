@@ -17,7 +17,7 @@
             <button @click="addComments" class="list-group-item" style="background-color: #AEBDCC; color: #2e2e2e"> 내가 작성한 댓글 </button>
           </div>
           <div class="list-group" style="margin-top: 20px;">
-            <button @click="changeNickname" class="list-group-item" style="background-color: #AEBDCC; color: #2e2e2e"> 닉네임 수정 </button>
+            <button @click="showNicknameEditArea" class="list-group-item" style="background-color: #AEBDCC; color: #2e2e2e"> 닉네임 수정 </button>
           </div>
           <div class="list-group" style="margin-top: 20px;">
             <button @click="withdrawal" class="list-group-item" style="background-color: #AEBDCC; color: #2e2e2e"> 회원탈퇴 </button>
@@ -26,11 +26,23 @@
         </div>
         <!-- /.col-lg-3 -->
 
-        <div class="col-lg-9">
+        <div class="col-lg-9" style="padding-top: 30px;">
 
-          <div id="carouselExampleIndicators" class="carousel slide my-4" data-ride="carousel">
-            <b style="font-size: 20px"> 회원 닉네임 :  {{ this.member.nickname }} </b>
+          <div id="carouselExampleIndicators" class="carousel slide my-4" data-ride="carousel" id="nicknameField" style="display: block">
+            <div class="form-group has-success">
+              <h2 class="text-center text-uppercase text-secondary mb-0"> 나의 닉네임  {{ this.member.nickname }}</h2>
+              <!-- <input type="text" class="form-control" id="inputSuccess4"> -->
+            </div>
           </div>
+
+          <div class="form-group floating-label-form-group controls mb-0 pb-2" id="nicknameEditField" style="display: none">
+            <input class="form-control" id="name" aria-invalid="false" required="required" type="text" v-model="this.member.nickname" data-validation-required-message="닉네임을 입력해주세요.">
+            <p class="help-block text-danger"></p>
+            <button class="btn btn-dark" @click="editNickname"> 수정 </button>
+            <button class="btn btn-dark" @click="hideNicknameEditArea"> 취소 </button>
+          </div>
+
+          <hr class="star-dark mb-5">
 
           <!-- 게시물 리스트 시작 -->
           <div class="row" v-if="this.boardsOrComments === 1">
@@ -116,13 +128,14 @@
     data () {
       return {
         memberId: sessionStorage.getItem("memberId"),
-        bottom: false,
+        member: '',
         boards: [],
         likeBoards: [],
+        bottom: false,
+        page: 0,
         comments: [],
-        member: '',
         boardsOrComments: 1,
-        page: 0
+        editNickname: 0
       }
     },
     methods: {
@@ -287,9 +300,29 @@
           console.log(e);
         });
       },
+      /* 닉네임 수정 필드 보여줌 */
+      showNicknameEditArea() {
+        document.getElementById("nicknameField").style.display = 'none';
+        document.getElementById("nicknameEditField").style.display = 'block';
+      },
+      /* 닉네임 수정 필드 숨김 */
+      hideNicknameEditArea() {
+        document.getElementById("nicknameField").style.display = 'block';
+        document.getElementById("nicknameEditField").style.display = 'none';
+      },
       /* 닉네임 수정 요청 */
-      changeNickname() {
+      editNickname() {
+        let data = {
+          nickname: this.member.nickname
+        };
+        http.put('/members', data)
+          .then((res) => {
+            if(res.status === 200) {
+              window.alert("닉네임 수정이 성공적으로 완료되었습니다.");
+            }
+          }).catch((e) => {
 
+        });
       },
       /* 회원탈퇴 요청 */
       withdrawal() {

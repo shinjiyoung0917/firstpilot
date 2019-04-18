@@ -36,8 +36,8 @@ public class Member { //implements UserDetails
     @Column(name = "nickname")
     private String nickname;
 
-    @Column(name = "nickname_change_date")
-    private LocalDateTime nickChange_date;
+    @Column(name = "updated_date")
+    private LocalDateTime updatedDate;
 
     private String role;
    /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

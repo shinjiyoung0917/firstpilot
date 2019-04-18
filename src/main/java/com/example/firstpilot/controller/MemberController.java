@@ -33,14 +33,14 @@ public class MemberController {
     /* 회원가입 요청 */
     @PostMapping("/members")
     @ResponseStatus(HttpStatus.CREATED)
-    public Member postMember(@RequestBody Member member) {
+    public Member postMember(@RequestBody Member memberData) {
         log.info("postMember 로그 - 진입");
-        log.info("postMember 로그 - data1 : " + member.getEmail());
-        log.info("postMember 로그 - data2 : " + member.getPassword());
-        return this.memberService.createMember(member);
+        log.info("postMember 로그 - data1 : " + memberData.getEmail());
+        log.info("postMember 로그 - data2 : " + memberData.getPassword());
+        return this.memberService.createMember(memberData);
     }
 
-    /* 사용자 정보 요청 */
+    /* 회원정보 요청 */
     @GetMapping("/members")
     public Member getMember(@RequestParam Long id) {
         log.info("getMember 로그 - 진입");
@@ -50,7 +50,14 @@ public class MemberController {
         return this.memberRepo.findByMemberId(id);
     }
 
-  /* 세션 값 요청 */
+    /* 회원정보(닉네임) 수정 요청 */
+    @PutMapping("/members")
+    public void putMember(@RequestBody Member memberData) {
+        log.info("putMember 로그 - 진입");
+        this.memberService.updateMember(memberData);
+    }
+
+    /* 세션 값 요청 */
     @GetMapping("/session")
     public Member getSession() {
         log.info("getSession 로그 - 진입");
@@ -58,4 +65,3 @@ public class MemberController {
     }
 
 }
-
