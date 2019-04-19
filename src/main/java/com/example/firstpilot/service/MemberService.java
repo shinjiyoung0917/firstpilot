@@ -136,16 +136,13 @@ public class MemberService implements UserDetailsService {
         Member isMailExist = this.memberRepo.findByEmail(encodedEmail);
         if(isMailExist == null) {
             String key = getKey(50, false);
-            StringBuffer text = new StringBuffer().append("<h1>회원가입 인증코드입니다.</h1>")
+            StringBuffer text = new StringBuffer().append("회원가입 인증코드입니다.\n")
                                                 .append(key);
 
-            //SimpleMailMessage message = new SimpleMailMessage();
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
             messageHelper.setFrom(SENDER_EMAIL);
             messageHelper.setTo(email);
-            /*message.setSender(new InternetAddress(SENDER_EMAIL));
-            message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));*/
             message.setSubject("[익명게시판] 회원가입용 인증 코드 발송");
             message.setText(text.toString());
             message.setSentDate(new Date());
@@ -159,7 +156,7 @@ public class MemberService implements UserDetailsService {
             mailAuth.setCreatedDate(currentTimeString);
             return this.authRepo.save(mailAuth);
         } else {
-            mailAuthData.setEmail("Already-Exist");
+            mailAuthData.setEmail("Already-Exist"); // 바꾸기
             return mailAuthData;
         }
     }
@@ -236,23 +233,27 @@ public class MemberService implements UserDetailsService {
         log.info("readSession 로그 - 진입");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
-        log.info("readSession 로그 - member : " + login);
-        log.info("readSession 로그 - member id : " + login.getMemberId());
-        Long memberId = login.getMemberId();
-        Member member = this.memberRepo.findByMemberId(memberId);
-        return member;
+        if(authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
+        } else {
+            LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
+            log.info("readSession 로그 - member : " + login);
+            log.info("readSession 로그 - member id : " + login.getMemberId());
+            Long memberId = login.getMemberId();
+            Member member = this.memberRepo.findByMemberId(memberId);
+            return member;
+        }
     }
 
     /* 닉네임 변경 */
-    public void updateMember(Member memberData) throws ParseException {
+    public Member updateMember(Member memberData) throws ParseException {
         log.info("updateMember 로그 - 진입");
 
         // 닉네임 중복 불가
         Member isNicknameExist = this.memberRepo.findByNickname(memberData.getNickname());
         if(isNicknameExist != null) {
             log.info("updateMember 로그 - 중복으로 인해 닉네임 변경 불가");
-            return; // throw로 바꾸기
+            return null; // throw로 바꾸기
         }
         log.info("updateMember 로그 - 닉네임 중복 아님");
 
@@ -270,7 +271,7 @@ public class MemberService implements UserDetailsService {
             long diffDay = (current.getTime() - past.getTime()) / (24 * 60 * 60 * 1000);
             if(diffDay < 7) {
                 log.info("updateMember 로그 - 1주일 이내의 변경 요청으로 인해 닉네임 변경 불가 => " + diffDay + "일");
-                return; // throw로 바꾸기
+                return null; // throw로 바꾸기
             }
         }
 
@@ -279,6 +280,7 @@ public class MemberService implements UserDetailsService {
         member.setNickname(member.getNickname());
         member.setUpdatedDate(currentTimeString);
         this.memberRepo.save(member);
+        return member;
     }
 
     /* 회원탈퇴 */

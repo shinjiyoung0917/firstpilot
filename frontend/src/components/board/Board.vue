@@ -16,7 +16,7 @@
           </div>
           <div class="list-group" style="margin-top: 20px;">
             <button class="list-group-item" style="color: #2e2e2e"> 최신순 </button>
-            <button class="list-group-item" style="color: #2e2e2e"> 인기순 </button>
+            <!--<button class="list-group-item" style="color: #2e2e2e"> 인기순 </button>-->
           </div>
 
         </div>
@@ -150,22 +150,8 @@
                   if(board.filePath === "" || board.filePath === null) {
                     boardInfo['fileSrc'] = require("../../assets/default.jpg");
                   } else {
-                    let fileSrc = board.filePath;
-                    boardInfo['fileSrc'] = fileSrc;
-
-                    //let fileSrc = 'data:image/jpg;base64,'+ board.filePath;
-                    //boardInfo['fileSrc'] = board.filePath;
+                    boardInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + board.filePath;
                   }
-
-                  //boardInfo['fileSrc'] = require("../../assets/default.jpg");
-
-                  /*else {
-                    window.alert("/// " + boardInfo.filePath);
-                    let src = "../../../../src/main/resources/uploads/thumb_";
-                    let fileSrc = src + board.filePath;
-                    let datauri = 'data:image/jpg;base64,'+fileSrc;
-                    boardInfo['fileSrc'] = datauri; // JSON 타입으로 저장돼있어서 파일 타입(.png, .jpg등)으로 변경하는 작업 필요?
-                  }*/
 
                   for(let j in this.likeBoards) {
                     if(boardInfo.boardId === this.likeBoards[j].boardId) {

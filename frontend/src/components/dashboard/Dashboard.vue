@@ -28,7 +28,7 @@
 
         <div class="col-lg-9" style="padding-top: 30px;">
 
-          <div id="carouselExampleIndicators" class="carousel slide my-4" data-ride="carousel" id="nicknameField" style="display: block">
+          <div class="carousel slide my-4" data-ride="carousel" id="nicknameField" style="display: block">
             <div class="form-group has-success">
               <h2 class="text-center text-uppercase text-secondary mb-0"> 나의 닉네임  {{ nickname }}</h2>
               <!-- <input type="text" class="form-control" id="inputSuccess4"> -->
@@ -172,22 +172,8 @@
                   if(board.filePath === "" || board.filePath === null) {
                     boardInfo['fileSrc'] = require("../../assets/default.jpg");
                   } else {
-                    let fileSrc = board.filePath;
-                    boardInfo['fileSrc'] = fileSrc;
-
-                    //let fileSrc = 'data:image/jpg;base64,'+ board.filePath;
-                    //boardInfo['fileSrc'] = board.filePath;
+                    boardInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + board.filePath;
                   }
-
-                  //boardInfo['fileSrc'] = require("../../assets/default.jpg");
-
-                  /*else {
-                    window.alert("/// " + boardInfo.filePath);
-                    let src = "../../../../src/main/resources/uploads/thumb_";
-                    let fileSrc = src + board.filePath;
-                    let datauri = 'data:image/jpg;base64,'+fileSrc;
-                    boardInfo['fileSrc'] = datauri; // JSON 타입으로 저장돼있어서 파일 타입(.png, .jpg등)으로 변경하는 작업 필요?
-                  }*/
 
                   for(let j in this.likeBoards) {
                     if(boardInfo.boardId === this.likeBoards[j].boardId) {
@@ -318,17 +304,24 @@
           nickname: this.nickname,
           updatedDate: this.member.updatedDate
         };
-        window.alert(JSON.stringify(data));
+
         http.put('/members', data)
           .then((res) => {
+            window.alert(JSON.stringify(res));
             if(res.status === 200) {
-              window.alert("닉네임 수정이 성공적으로 완료되었습니다.");
+              if(res.data === null || res.data === "") {
+                window.alert("닉네임을 변경할 수 없습니다.");
+                this.nickname = sessionStorage.getItem("nickname");
+              } else {
+                window.alert("닉네임 수정이 성공적으로 완료되었습니다.");
+              }
               this.hideNicknameEditArea();
               BUS.$emit('bus:call', this.member.nickname);
               this.$router.replace('/dashboard');
             }
           }).catch((e) => {
-
+          window.alert("닉네임을 변경할 수 없습니다.");
+          this.nickname = sessionStorage.getItem("nickname");
         });
       },
       /* 회원탈퇴 요청 */

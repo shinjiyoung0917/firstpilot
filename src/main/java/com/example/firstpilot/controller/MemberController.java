@@ -59,14 +59,14 @@ public class MemberController {
 
     /* 회원정보(닉네임) 수정 요청 */
     @PutMapping("/members")
-    public void putMember(@RequestBody Member memberData) {
+    public Member putMember(@RequestBody Member memberData) {
         log.info("putMember 로그 - 진입");
         try {
-            this.memberService.updateMember(memberData);
+            return this.memberService.updateMember(memberData);
         } catch(ParseException e) {
             log.info("putMember 로그 - 에러 : " + e);
+            return null;
         }
-
     }
 
     /* 세션 값 요청 */
@@ -76,6 +76,7 @@ public class MemberController {
         return this.memberService.readSession();
     }
 
+    /* 회원탈퇴 요청 */
     @DeleteMapping("/members")
     public void deleteMember() {
         this.memberService.deleteMember();

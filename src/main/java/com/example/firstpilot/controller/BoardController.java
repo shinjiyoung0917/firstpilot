@@ -9,6 +9,8 @@ import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.service.BoardService;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,6 +21,11 @@ import org.springframework.data.domain.Sort;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -58,6 +65,16 @@ public class BoardController {
     @GetMapping("/boards")
     public Page<Board> getBoardList(@PageableDefault(size = 6, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return this.boardService.readBoardList(pageable);
+    }
+
+    /* 파일 요청 */
+    @GetMapping(value = "/files/{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
+    public ResponseEntity<byte[]> getFileStream(@PathVariable String fileName, HttpServletResponse res) {
+        try {
+            return this.boardService.readFileByte(fileName, res);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     /* 로그인한 회원이 좋아요 누른 게시물 목록 요청 */

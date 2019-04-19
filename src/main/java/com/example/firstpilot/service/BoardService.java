@@ -1,33 +1,46 @@
 package com.example.firstpilot.service;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.UUID;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.firstpilot.model.Board;
-import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.model.LikeBoard;
+import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.repository.BoardRepository;
 import com.example.firstpilot.repository.LikeBoardRepository;
-import com.example.firstpilot.util.CurrentTime;
 import com.example.firstpilot.util.LikeBoardPK;
+import com.example.firstpilot.util.CurrentTime;
+
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
+
+import java.text.SimpleDateFormat;
+
+import java.util.UUID;
+import java.util.List;
 
 @Service
 public class BoardService {
@@ -77,15 +90,6 @@ public class BoardService {
         }
 
         return fileName;
-
-        /*byte[] fileData = uploadFile.getBytes();
-        log.info("saveBoardFileInDir 로그  - fileData : " + fileData);*/
-
-
-        //return fileName;
-        // 파일 저장 경로에서 구분자 치환
-        //return replaceSavedFilePath(fileName);
-
     }
 
     private String getUuidFileName(String originalFileName) {
@@ -118,65 +122,41 @@ public class BoardService {
         return thumbnailName;
     }
 
-    public  static String replaceSavedFilePath(String filePath) {
-        String savedFilePath = filePath;
-        return savedFilePath.replace(File.separatorChar, '/');  // \를 /로 치환
-    }
+    /* 파일 객체 가져오기 */
+    public ResponseEntity<byte[]> readFileByte(String fileName, HttpServletResponse res) throws IOException {
+        BufferedOutputStream out = null;
+        InputStream in = null;
 
-    /*public static String getBase64String(String filePath) {
-        log.info("getBase64String 로그  - 진입");
-        String fileExt = filePath.substring(filePath.lastIndexOf('.') + 1);
-        String result = "data:image/" + fileExt + ";base64," + filePath;
-
-        log.info("getBase64String 로그  - result : " + result);
-
-        String imageString;
-        String fileExt = filePath.substring(filePath.lastIndexOf('.') + 1);
-
-        log.info("getBase64String 로그  - fileExt : " + fileExt);
-
-        FileInputStream inputStream = null;
-        ByteArrayOutputStream byteOutStream = null;
+        int pos = fileName.lastIndexOf( "." );
+        String ext = fileName.substring( pos + 1 );
+        byte[] bytes = null;
 
         try {
-            File file = new File(filePath);
-
-            log.info("getBase64String 로그  - 1111");
-
-            if( file.exists() ) {
-                inputStream = new FileInputStream(file);
-                byteOutStream = new ByteArrayOutputStream();
-
-                int len = 0;
-                byte[] buf = new byte[1024];
-                while((len = inputStream.read(buf)) != -1) {
-                    byteOutStream.write( buf, 0, len);
+            res.setContentType("image/" + ext);
+            res.setHeader("Content-Disposition", "inline;filename=" + fileName);
+            File file = new File(ABSOLUTE_FILEPATH + "/" + fileName);
+            if(file.exists()){
+                in = new FileInputStream(file);
+                out = new BufferedOutputStream(res.getOutputStream());
+                int len;
+                bytes = new byte[1024];
+                while ((len = in.read(bytes)) > 0) {
+                    out.write(bytes, 0, len);
                 }
-
-                log.info("getBase64String 로그  - 222");
-
-                byte[] fileArray = byteOutStream.toByteArray();
-                imageString = new String(Base64.encodeBase64(fileArray));
-
-                log.info("getBase64String 로그  - 333");
-
-                String changeString = "data:image/" + fileExt + ";base64," + imageString;
-                result = result.replace(filePath, changeString);
-
-                log.info("getBase64String 로그  - changeString : " + changeString);
-                log.info("getBase64String 로그  - result : " + result);
             }
+        } catch (Exception e) {
 
-            inputStream.close();
-            byteOutStream.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
+            if(out != null){ out.flush(); }
+            if(out != null){ out.close(); }
+            if(in != null){ in.close(); }
         }
 
-        return result;
-    }*/
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(bytes);
+    }
 
     /* 게시물 정보 삽입 */
     public void createBoard(Board boardData) {
@@ -218,7 +198,7 @@ public class BoardService {
         board.setLikeCount(board.getLikeCount());
         board.setCommentCount(board.getCommentCount());
         board.setHitCount(board.getHitCount());
-        if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
+        if(boardData.getFilePath() == null) {
             board.setFilePath(null);
         } else {
             board.setFilePath(boardData.getFilePath());

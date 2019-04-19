@@ -32,7 +32,7 @@
           <hr>
 
           <!-- Preview Image -->
-          <img class="img-fluid rounded" src="http://placehold.it/900x300" alt="">
+          <img :src="this.board.fileSrc">
 
           <hr>
 
@@ -63,7 +63,7 @@
                 <textarea class="form-control" rows="3" v-model="content"></textarea>
               </div>
               <div style="text-align: right">
-                <input type="file" id="uploadFile" name="uploadFile" @change="setFileData($event.target.files)">
+                <input type="file" id="uploadFileForComment" name="uploadFile" @change="setFileData($event.target.files)">
                 <button class="btn btn-primary" @click="write(null, null)">등록</button>
               </div>
               <!--</form>-->
@@ -103,6 +103,8 @@
                     <span v-else class="mt-0" style="font-size: 10px"> {{ comment.updatedDate }} 수정됨 </span>
 
                     <button class="btn btn-group-toggle" @click="showChildCommentInputArea(index)" style="font-size: small"> 대댓글 달기 </button>
+
+                    <img :src="comment.fileSrc">
                   </div>
 
                   <div style="text-align: right" v-if="comment.memberId === memberId">
@@ -115,6 +117,8 @@
                 <div :id="'editComment' + index" style="display: none">
                   <textarea v-model="editContent" rows="3" style="width: 100%"></textarea>
                   <input type="file" id="uploadFileForEditComment" name="uploadFile" @change="setFileData($event.target.files)">
+                  <img :src="comment.fileSrc">
+
                   <button class="btn btn-dark" @click="editComment(index, comment.commentId, null)"> 수정 </button>
                   <button class="btn btn-dark" @click="hideCommentEditArea(index, null)"> 취소 </button>
                 </div>
@@ -142,8 +146,10 @@
 
                             <br>
 
-                            <span v-if="childContent.updatedDate === null" class="mt-0" style="font-size: 10px"> {{ childComment.createdDate }} </span>
+                            <span v-if="childComment.updatedDate === null" class="mt-0" style="font-size: 10px"> {{ childComment.createdDate }} </span>
                             <span v-else class="mt-0" style="font-size: 10px"> {{ childComment.updatedDate }} 수정됨 </span>
+
+                            <img :src="childComment.fileSrc">
                           </div>
                           <div style="text-align: right" v-if="childComment.memberId === memberId">
                             <button class="btn btn-dark" @click="showCommentEditArea(index, childComment.content, childComment.parentId)"> 수정 </button>
@@ -155,6 +161,8 @@
                         <div :id="'editChildComment' + index" style="display: none">
                           <textarea v-model="editContent" rows="3" style="width: 100%"></textarea>
                           <input type="file" id="uploadFileForEditChildComment" name="uploadFile" @change="setFileData($event.target.files)">
+                          <img :src="childComment.fileSrc">
+
                           <button class="btn btn-dark" @click="editComment(index, childComment.commentId, childComment.parentId)"> 수정 </button>
                           <button class="btn btn-dark" @click="hideCommentEditArea(index, childComment.parentId)"> 취소 </button>
                         </div>
@@ -166,6 +174,7 @@
                   <!-- 대댓글 입력창 -->
                   <div :id="index" style="display: none">
                     <textarea v-model="childContent" :id="index" rows="3" style="width: 100%"></textarea>
+                    <input type="file" id="uploadFileForChildComment" name="uploadFile" @change="setFileData($event.target.files)">
                     <button class="btn btn-dark" @click="write(comment.commentId, index)"> 등록 </button>
                     <button class="btn btn-dark" @click="hideChildCommentInputArea(index)"> 취소 </button>
                   </div>
@@ -174,59 +183,6 @@
 
               </div>
 
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Sidebar Widgets Column -->
-        <div class="col-md-4">
-
-          <!-- Search Widget -->
-          <div class="card my-4">
-            <h5 class="card-header">Search</h5>
-            <div class="card-body">
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search for...">
-                <span class="input-group-btn">
-                <button class="btn btn-secondary" type="button">Go!</button>
-              </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Categories Widget -->
-          <div class="card my-4">
-            <h5 class="card-header">Categories</h5>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-lg-6">
-                  <ul class="list-unstyled mb-0">
-                    <li>
-                      <a href="#">Web Design</a>
-                    </li>
-                    <li>
-                      <a href="#">HTML</a>
-                    </li>
-                    <li>
-                      <a href="#">Freebies</a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="col-lg-6">
-                  <ul class="list-unstyled mb-0">
-                    <li>
-                      <a href="#">JavaScript</a>
-                    </li>
-                    <li>
-                      <a href="#">CSS</a>
-                    </li>
-                    <li>
-                      <a href="#">Tutorials</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -287,6 +243,11 @@
             if(res.status === 200) {
               this.board = res.data;
 
+              if(this.board.filePath === "" || this.board.filePath === null) {
+                this.board['fileSrc'] = require("../../assets/default.jpg");
+              } else {
+                this.board['fileSrc'] = "http://localhost:8081/files/" + this.board.filePath;
+              }
               for(let i in this.board.comments) {
                 let comment = this.board.comments[i];
                 if(comment.parentId === null) {  // 댓글일 경우
@@ -303,6 +264,9 @@
                     filePath: comment.filePath,
                     unblocked: comment.unblocked
                   };
+                  if(comment.filePath !== "" && comment.filePath !== null)  {
+                    commentInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + comment.filePath;
+                  }
                   this.comments.push(commentInfo);
                 } else {                          // 대댓글일 경우
                   let childCommentInfo = {
@@ -318,6 +282,9 @@
                     filePath: comment.filePath,
                     unblocked: comment.unblocked
                   };
+                  if(comment.filePath !== "" && comment.filePath !== null)  {
+                    childCommentInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + comment.filePath;
+                  }
                   this.childComments.unshift(childCommentInfo);
                 }
               }
@@ -397,7 +364,6 @@
             .then((res) => {
               if (res.status === 200) {
                 this.filePath = res.data;
-                window.alert("/// 파일 디렉토리에 저장 완료 res.data : " + res.data);
                 if(parent === null) {
                   this.writeComment();
                 } else {
@@ -469,13 +435,18 @@
         });
       },
       /* 등록한 댓글들 보여줌 */
-      showComments(comments) {
-        this.comments.push(comments);       // 시간순
-        //this.comments.unshift(comments);  // 최신순
+      showComments(commentsData) {
+        if(commentsData.filePath !== "" && commentsData.filePath !== null)  {
+          commentsData['fileSrc'] = "http://localhost:8081/files/thumb_" + commentsData.filePath;
+        }
+        this.comments.push(commentsData);       // 시간순
       },
       /* 등록한 대댓글들 보여줌 (시간순 고정) */
-      showChildComments(comments) {
-        this.childComments.push(comments);
+      showChildComments(commentsData) {
+        if(commentsData.filePath !== "" && commentsData.filePath !== null)  {
+          commentsData['fileSrc'] = "http://localhost:8081/files/thumb_" + commentsData.filePath;
+        }
+        this.childComments.push(commentsData);
       },
       /* 댓글 정렬 형태 바꿈 */
       resortComments() {
@@ -500,9 +471,9 @@
           parentId: this.comments[index].parentId,
           childCount: this.comments[index].childCount,
           createdDate: this.comments[index].createdDate,
+          // 파일이름 객체 넣어야함
           unblocked: this.comments[index].unblocked
         }
-        window.alert(JSON.stringify(data));
 
         http.put('/boards/' + this.boardId + '/comments/' + commentId, data)
           .then((res) => {

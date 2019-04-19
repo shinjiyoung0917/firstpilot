@@ -106,21 +106,26 @@
       http.get("/session")
         .then((res) => {
           if (res.status === 200) {
-            sessionStorage.setItem("nickname", res.data.nickname);
-            sessionStorage.setItem("memberId", res.data.memberId);
-            //this.nickname = sessionStorage.getItem("nickname");
+            if(res.data !== null) {
+              sessionStorage.setItem("nickname", res.data.nickname);
+              sessionStorage.setItem("memberId", res.data.memberId);
+              //this.nickname = sessionStorage.getItem("nickname");
+            } else {
+              // 세션 초기화?
+              sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+              sessionStorage.removeItem("memberId");
+              sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
+              //this.nickname = null;
+            }
           } else {
-            // 세션 초기화?
-            sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+            sessionStorage.removeItem("nickname");
             sessionStorage.removeItem("memberId");
-            sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
-            //this.nickname = null;
+            sessionStorage.clear();
           }
         }).catch((e) => {
-          // 세션 초기화?
-          sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
-          sessionStorage.removeItem("memberId");
-          sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
+        sessionStorage.removeItem("nickname");
+        sessionStorage.removeItem("memberId");
+        sessionStorage.clear();
       });
     }
   }
@@ -140,7 +145,7 @@
     margin-left: 30px;
   }
   #header-navigation-bar5 {
-       margin-left: 30px;
+    margin-left: 30px;
   }
   #header-navigation-bar6 {
     margin-left: 30px;
