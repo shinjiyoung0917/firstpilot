@@ -7,12 +7,10 @@ import javax.persistence.*;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -30,17 +28,17 @@ public class Comment {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "member_id", nullable = false)
+    @Column(name = "member_id", nullable = false, insertable = false, updatable = false)
     private Long memberId;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
     @Column(name = "created_date", nullable = false)
-    private LocalDateTime createdDate;
+    private String createdDate;
 
     @Column(name = "updated_date")
-    private LocalDateTime updatedDate;
+    private String updatedDate;
 
     @Column(name = "parent_id")
     private Long parentId;
@@ -57,15 +55,24 @@ public class Comment {
     private Integer unblocked;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", insertable = false, updatable = false)
+    @JoinColumn(name = "member_id") // insertable = false, updatable = false
     private Member member;
 
     @ManyToOne
     @JoinColumn(name = "board_id")
-    @JsonBackReference
+    @JsonBackReference("boardAndComment")
     //@JsonManagedReference
     //@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@Id")
     private Board board;
+
+    /*public void setMember(Member member) {
+        // 무한루프 발생 방지
+        if(this.member != null) {
+            this.member.getComments().remove(this);
+        }
+        this.member = member;
+        member.getComments().add(this);
+    }*/
 
     public void setBoard(Board board) {
         // 무한루프 발생 방지

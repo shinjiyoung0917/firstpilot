@@ -1,45 +1,33 @@
 package com.example.firstpilot.service;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.example.firstpilot.model.Board;
-import com.example.firstpilot.model.LikeBoard;
-import com.example.firstpilot.model.Comment;
-import com.example.firstpilot.repository.BoardRepository;
-import com.example.firstpilot.repository.LikeBoardRepository;
-import com.example.firstpilot.repository.CommentRepository;
-import com.example.firstpilot.util.LikeBoardPK;
-import com.example.firstpilot.util.LoginUserDetails;
-
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.apache.commons.io.FilenameUtils;
+import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.UUID;
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.example.firstpilot.model.Board;
+import com.example.firstpilot.model.Comment;
+import com.example.firstpilot.model.LikeBoard;
+import com.example.firstpilot.model.Member;
+import com.example.firstpilot.repository.BoardRepository;
+import com.example.firstpilot.repository.LikeBoardRepository;
+import com.example.firstpilot.util.CurrentTime;
+import com.example.firstpilot.util.LikeBoardPK;
 
 @Service
 public class BoardService {
@@ -56,6 +44,7 @@ public class BoardService {
     @Autowired
     private MemberService memberService;
 
+    private CurrentTime currentTime = new CurrentTime();
 
     /* 서버 디렉토리에 파일 업로드 */
     public String saveBoardFileInDir(MultipartFile uploadFile) throws Exception {
@@ -194,14 +183,16 @@ public class BoardService {
         log.info("createBoard 로그  - 진입");
 
         // 세션값 가져와서 회원 시퀀스 번호 저장 (프론트에서 바꾸는 것을 대비하기 위해)
-        Long memberId = memberService.readSession().getMemberId();
+        Member member = memberService.readSession();
 
         Board board = new Board();
         board.setTitle(boardData.getTitle());
         board.setContent(boardData.getContent());
-        board.setMemberId(memberId);
-        board.setNickname(boardData.getNickname());
-        board.setCreatedDate(LocalDateTime.now());
+        board.setMemberId(member.getMemberId());
+        board.setMember(member);
+        board.setNickname(member.getNickname());
+        String currentTimeString = this.currentTime.getCurrentTime();
+        board.setCreatedDate(currentTimeString);
         board.setHitCount((long)0);
         board.setLikeCount((long)0);
         board.setCommentCount((long)0);
@@ -211,6 +202,28 @@ public class BoardService {
             board.setFilePath(boardData.getFilePath());
         }
         board.setUnblocked(1);
+        this.boardRepo.save(board);
+    }
+
+    /* 게시물 업데이트 */
+    public void updateBoard(Long boardId, Board boardData) {
+        log.info("updateBoard 로그  - 진입");
+
+        Board board = boardRepo.findByBoardIdAndUnblocked(boardId, 1);
+        board.setTitle(boardData.getTitle());
+        board.setContent(boardData.getContent());
+        board.setCreatedDate(board.getCreatedDate());
+        String currentTimeString = this.currentTime.getCurrentTime();
+        board.setUpdatedDate(currentTimeString);
+        board.setLikeCount(board.getLikeCount());
+        board.setCommentCount(board.getCommentCount());
+        board.setHitCount(board.getHitCount());
+        if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
+            board.setFilePath(null);
+        } else {
+            board.setFilePath(boardData.getFilePath());
+        }
+        board.setUnblocked(board.getUnblocked());
         this.boardRepo.save(board);
     }
 
@@ -273,26 +286,6 @@ public class BoardService {
         log.info("updateHitCount 로그  - 진입");
         Board board = this.boardRepo.findByBoardIdAndUnblocked(boardId, 1);
         board.setHitCount(board.getHitCount() + 1);
-        this.boardRepo.save(board);
-    }
-
-    /* 게시물 업데이트 */
-    public void updateBoard(Long boardId, Board boardData) {
-        log.info("updateBoard 로그  - 진입");
-        Board board = boardRepo.findByBoardIdAndUnblocked(boardId, 1);
-        board.setTitle(boardData.getTitle());
-        board.setContent(boardData.getContent());
-        board.setCreatedDate(boardData.getCreatedDate());
-        board.setUpdatedDate(LocalDateTime.now() );
-        board.setLikeCount(boardData.getLikeCount());
-        board.setCommentCount(boardData.getCommentCount());
-        board.setHitCount(boardData.getHitCount());
-        if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
-            board.setFilePath(null);
-        } else {
-            board.setFilePath(boardData.getFilePath());
-        }
-        board.setUnblocked(boardData.getUnblocked());
         this.boardRepo.save(board);
     }
 

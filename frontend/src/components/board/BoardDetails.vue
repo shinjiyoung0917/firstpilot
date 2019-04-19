@@ -76,6 +76,8 @@
             <div><button class="list-group-item" @click="resortComments()" style="color: #2e2e2e"> 최신순 </button></div>
           </div>
 
+          <hr>
+
           <!-- 댓글, 대댓글 -->
           <!-- 댓글 -->
           <div v-for="(comment, index) in comments">

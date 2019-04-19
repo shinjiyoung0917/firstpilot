@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import javax.mail.MessagingException;
+import java.text.ParseException;
+
 @RestController
 public class MemberController {
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
@@ -27,7 +30,11 @@ public class MemberController {
     public MailAuth postAuthKey(@RequestBody MailAuth mailAuth) {
         log.info("postAuthKey 로그 - 진입");
         log.info("postAuthKey 로그 - data : " + mailAuth.getEmail());
-        return this.memberService.createAuthKey(mailAuth);
+        try {
+            return this.memberService.createAuthKey(mailAuth);
+        } catch(MessagingException e) {
+            return null; // 바꾸기
+        }
     }
 
     /* 회원가입 요청 */
@@ -54,7 +61,12 @@ public class MemberController {
     @PutMapping("/members")
     public void putMember(@RequestBody Member memberData) {
         log.info("putMember 로그 - 진입");
-        this.memberService.updateMember(memberData);
+        try {
+            this.memberService.updateMember(memberData);
+        } catch(ParseException e) {
+            log.info("putMember 로그 - 에러 : " + e);
+        }
+
     }
 
     /* 세션 값 요청 */
@@ -64,4 +76,8 @@ public class MemberController {
         return this.memberService.readSession();
     }
 
+    @DeleteMapping("/members")
+    public void deleteMember() {
+        this.memberService.deleteMember();
+    }
 }

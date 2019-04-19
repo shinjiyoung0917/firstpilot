@@ -10,7 +10,6 @@ import org.hibernate.annotations.ColumnDefault;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,17 +29,17 @@ public class Board {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "member_id", nullable = false)
+    @Column(name = "member_id", nullable = false, insertable = false, updatable = false)
     private Long memberId;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
     @Column(name = "created_date", nullable = false)
-    private LocalDateTime createdDate;
+    private String createdDate;
 
     @Column(name = "updated_date")
-    private LocalDateTime updatedDate;
+    private String updatedDate;
 
     @Column(name = "hit_count", nullable = false)
     @ColumnDefault("0")
@@ -61,17 +60,17 @@ public class Board {
     @ColumnDefault("1")
     private Integer unblocked;
 
-    /*@OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
-    private List<LikeBoard> likeBoards = new ArrayList<>();
-    */
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
-    @JsonManagedReference
+    @JsonManagedReference("boardAndComment")
     //@JsonBackReference
     @OrderBy("createdDate, parentId ASC")
     private List<Comment> comments = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", insertable = false, updatable = false)
-    private Member member;
+     /*@OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
+    private List<LikeBoard> likeBoards = new ArrayList<>();
+    */
 }

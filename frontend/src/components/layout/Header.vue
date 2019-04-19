@@ -64,13 +64,13 @@
 
 <script>
   import http from "@/http-common"
-  //import {BUS} from '@/EventBus'
+  import {BUS} from '@/EventBus'
 
   export default {
     name: "Header",
     data() {
       return {
-        nickname:  sessionStorage.getItem("nickname")
+        nickname: sessionStorage.getItem("nickname")
       };
     },
     methods: {
@@ -94,24 +94,27 @@
           window.alert("이미 로그아웃 처리 완료되었습니다.");
         }
       },
-
-      /*setIsSession() {
-        BUS.$on('bus:call', function () {
-          window.alert("Login.vue에서 emit해서 이벤트 받은 함수");
-        })
-      }*/
+      changeNicknameInSession() {
+        BUS.$on('bus:call', function (nickname) {
+          window.alert("Dashboard.vue에서 emit해서 이벤트를 받음");
+          this.nickname = nickname;
+        });
+      }
     },
     beforeCreate() {
+      //this.getSession();
       http.get("/session")
         .then((res) => {
           if (res.status === 200) {
             sessionStorage.setItem("nickname", res.data.nickname);
             sessionStorage.setItem("memberId", res.data.memberId);
+            //this.nickname = sessionStorage.getItem("nickname");
           } else {
             // 세션 초기화?
             sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
             sessionStorage.removeItem("memberId");
             sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
+            //this.nickname = null;
           }
         }).catch((e) => {
           // 세션 초기화?
@@ -120,12 +123,6 @@
           sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
       });
     }
-    /*watch: {
-     session: function () {
-       window.alert("this.session을 watch하는 함수");
-       this.nickname = sessionStorage.getItem("nickname");
-     }
-   }*/
   }
 </script>
 

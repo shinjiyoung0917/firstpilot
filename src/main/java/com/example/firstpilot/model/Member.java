@@ -4,18 +4,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.persistence.*;
-
-import java.time.LocalDateTime;
-
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,20 +24,14 @@ public class Member { //implements UserDetails
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", nullable = false)
     private String nickname;
 
     @Column(name = "updated_date")
-    private LocalDateTime updatedDate;
+    private String updatedDate;
 
     private String role;
    /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "email")
     private List<MemberRole> role;*/
-
-    /*@OneToMany(mappedBy = "member")
-    //@JsonManagedReference
-    @OrderBy("createdDate DESC ")
-    private List<Board> boards = new ArrayList<>();
-    */
 }

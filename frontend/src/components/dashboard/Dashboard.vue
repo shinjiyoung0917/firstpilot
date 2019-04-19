@@ -30,13 +30,13 @@
 
           <div id="carouselExampleIndicators" class="carousel slide my-4" data-ride="carousel" id="nicknameField" style="display: block">
             <div class="form-group has-success">
-              <h2 class="text-center text-uppercase text-secondary mb-0"> 나의 닉네임  {{ this.member.nickname }}</h2>
+              <h2 class="text-center text-uppercase text-secondary mb-0"> 나의 닉네임  {{ nickname }}</h2>
               <!-- <input type="text" class="form-control" id="inputSuccess4"> -->
             </div>
           </div>
 
           <div class="form-group floating-label-form-group controls mb-0 pb-2" id="nicknameEditField" style="display: none">
-            <input class="form-control" id="name" aria-invalid="false" required="required" type="text" v-model="this.member.nickname" data-validation-required-message="닉네임을 입력해주세요.">
+            <input type="text" class="form-control" id="name" aria-invalid="false" required="required" v-model="nickname" data-validation-required-message="닉네임을 입력해주세요.">
             <p class="help-block text-danger"></p>
             <button class="btn btn-dark" @click="editNickname"> 수정 </button>
             <button class="btn btn-dark" @click="hideNicknameEditArea"> 취소 </button>
@@ -46,13 +46,6 @@
 
           <!-- 게시물 리스트 시작 -->
           <div class="row" v-if="this.boardsOrComments === 1">
-            <div v-if="this.boards.length === 0">
-              <!-- 게시물 없는 이미지 -->
-              <span>
-                아직 작성하신 글이 없네요.
-                게시물을 등록하여 회원들과 생각을 공유해보세요.
-              </span>
-            </div>
 
             <div class="col-lg-4 col-md-6 mb-4" v-for="(board, index) in boards">
               <div class="card h-100">
@@ -79,6 +72,14 @@
                   <!--<small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small> 별-->
                 </div>
               </div>
+            </div>
+
+            <div v-if="this.boards.length === 0">
+              <!-- 게시물 없는 이미지 -->
+              <span style="font-size: 30px">
+                아직 작성하신 글이 없네요. <br>
+                게시물을 등록하여 회원들과 생각을 공유해보세요.
+              </span>
             </div>
 
           </div>
@@ -119,6 +120,7 @@
   import httpFile from "@/http-fileUpload"
   import Header from '../layout/Header.vue'
   import Footer from '../layout/Footer.vue'
+  import {BUS} from '@/EventBus'
 
   export default {
     components: {
@@ -127,6 +129,7 @@
     },
     data () {
       return {
+        nickname: sessionStorage.getItem("nickname"),
         memberId: sessionStorage.getItem("memberId"),
         member: '',
         boards: [],
@@ -134,8 +137,7 @@
         bottom: false,
         page: 0,
         comments: [],
-        boardsOrComments: 1,
-        editNickname: 0
+        boardsOrComments: 1
       }
     },
     methods: {
@@ -313,12 +315,17 @@
       /* 닉네임 수정 요청 */
       editNickname() {
         let data = {
-          nickname: this.member.nickname
+          nickname: this.nickname,
+          updatedDate: this.member.updatedDate
         };
+        window.alert(JSON.stringify(data));
         http.put('/members', data)
           .then((res) => {
             if(res.status === 200) {
               window.alert("닉네임 수정이 성공적으로 완료되었습니다.");
+              this.hideNicknameEditArea();
+              BUS.$emit('bus:call', this.member.nickname);
+              this.$router.replace('/dashboard');
             }
           }).catch((e) => {
 
@@ -326,7 +333,36 @@
       },
       /* 회원탈퇴 요청 */
       withdrawal() {
+        let confirmFlag = confirm("회원탈퇴를 진행하시겠습니까? \n오직 회원만 서비스 이용가능합니다.");
 
+        if(confirmFlag) {
+          http.delete('/members')
+            .then((res) => {
+              if (res.status === 200) {
+                window.alert("회원탈퇴를 성공적으로 진행하였습니다.\n지금까지 이용해주셔서 감사합니다.");
+                this.removeSession();
+                BUS.$emit('bus:call', '');
+              }
+            }).catch((e) => {
+            window.alert(e);
+            console.log(e);
+          });
+          this.$router.replace('/');
+        } else {
+        }
+      },
+      removeSession() {
+        http.post('/logout')
+          .then((res) => {
+            if(res.status === 200) {
+              sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+              sessionStorage.removeItem("memberId");
+              sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
       }
     },
     created() {

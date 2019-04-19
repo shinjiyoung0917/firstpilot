@@ -1,15 +1,20 @@
 package com.example.firstpilot.service;
 
+import com.sun.xml.internal.org.jvnet.mimepull.MIMEMessage;
+import org.apache.tomcat.util.json.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.firstpilot.model.Member;
-import com.example.firstpilot.model.MailAuth;
-import com.example.firstpilot.model.MemberRole;
+import com.example.firstpilot.model.*;
 import com.example.firstpilot.repository.MemberRepository;
 import com.example.firstpilot.repository.MailAuthRepository;
+import com.example.firstpilot.repository.BoardRepository;
+import com.example.firstpilot.repository.CommentRepository;
 import com.example.firstpilot.util.LoginUserDetails;
+import com.example.firstpilot.util.CurrentTime;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,7 +31,16 @@ import java.security.NoSuchAlgorithmException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import java.time.LocalDateTime;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -35,17 +49,26 @@ import java.util.regex.Pattern;
 public class MemberService implements UserDetailsService {
     private static final Logger log = LoggerFactory.getLogger(MemberService.class);
 
+    @Value("${spring.mail.username}")
+    String SENDER_EMAIL;
+
+    @Autowired
+    private JavaMailSender mailSender;
     @Autowired
     private MemberRepository memberRepo;
     @Autowired
     private MailAuthRepository authRepo;
     @Autowired
-    private JavaMailSender mailSender;
+    private BoardRepository boardRepo;
+    @Autowired
+    private CommentRepository commentRepo;
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private boolean lowerCheck;
     private int size;
+
+    private CurrentTime currentTime = new CurrentTime();
 
     /* 로그인 인증 (시큐리티 내부에서 자동 호출?) */
     @Override
@@ -104,7 +127,7 @@ public class MemberService implements UserDetailsService {
     }
 
     /* 이메일 인증코드 삽입 */
-    public MailAuth createAuthKey(MailAuth mailAuthData) {
+    public MailAuth createAuthKey(MailAuth mailAuthData) throws MessagingException {
         log.info("createAuthKey 로그 - 진입");
 
         // 이메일 중복 검사
@@ -112,28 +135,34 @@ public class MemberService implements UserDetailsService {
         String encodedEmail = encryptSHA256(email);
         Member isMailExist = this.memberRepo.findByEmail(encodedEmail);
         if(isMailExist == null) {
-            SimpleMailMessage message = new SimpleMailMessage();
-            String text = getKey(50, false);
+            String key = getKey(50, false);
+            StringBuffer text = new StringBuffer().append("<h1>회원가입 인증코드입니다.</h1>")
+                                                .append(key);
 
-            /*
-            message.setTo(memberEmail);
-            message.setSubject("[익명게시판] 이메일 인증 코드 발송");
-            message.setText(text);
-            */
-            //mailSender.send(message);
+            //SimpleMailMessage message = new SimpleMailMessage();
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
+            messageHelper.setFrom(SENDER_EMAIL);
+            messageHelper.setTo(email);
+            /*message.setSender(new InternetAddress(SENDER_EMAIL));
+            message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));*/
+            message.setSubject("[익명게시판] 회원가입용 인증 코드 발송");
+            message.setText(text.toString());
+            message.setSentDate(new Date());
+            mailSender.send(message);
 
             MailAuth mailAuth = new MailAuth();
             mailAuth.setEmail(encodedEmail);
             mailAuth.setAuthType(1);
-            mailAuth.setAuthKey(text);
-            mailAuth.setCreatedDate(LocalDateTime.now());
+            mailAuth.setAuthKey(key);
+            String currentTimeString = this.currentTime.getCurrentTime();
+            mailAuth.setCreatedDate(currentTimeString);
             return this.authRepo.save(mailAuth);
         } else {
             mailAuthData.setEmail("Already-Exist");
             return mailAuthData;
         }
     }
-
 
     /* 회원가입 */
     public Member createMember(Member memberData) {
@@ -196,7 +225,8 @@ public class MemberService implements UserDetailsService {
                 return null;
             }
         } else {
-            memberData.setEmail("Already-Exist");
+            // throw로 바꾸기
+            //memberData.setEmail("Already-Exist");
             return memberData;
         }
     }
@@ -215,19 +245,69 @@ public class MemberService implements UserDetailsService {
     }
 
     /* 닉네임 변경 */
-    public void updateMember(Member memberData) {
+    public void updateMember(Member memberData) throws ParseException {
+        log.info("updateMember 로그 - 진입");
+
         // 닉네임 중복 불가
-        // 이전에 변경 후 1주일 이내 변경 불가
-        LocalDateTime now = LocalDateTime.now();
-        // 7일이내에 변경했는지 검사
-        //if(now < ) { }
-        // else { }
-        Long memberId = readSession().getMemberId();
-        Member member = new Member();
-        member.setNickname(memberData.getNickname());
-        member.setUpdatedDate(LocalDateTime.now());
+        Member isNicknameExist = this.memberRepo.findByNickname(memberData.getNickname());
+        if(isNicknameExist != null) {
+            log.info("updateMember 로그 - 중복으로 인해 닉네임 변경 불가");
+            return; // throw로 바꾸기
+        }
+        log.info("updateMember 로그 - 닉네임 중복 아님");
+
+        // 1주일 이내에 변경했는지 검사 (이전에 변경 후 1주일 이내 변경 불가)
+        String currentTimeString = this.currentTime.getCurrentTime();
+        log.info("updateMember 로그 - 지금 시간(String) : " + currentTimeString);
+        SimpleDateFormat dateFormat = this.currentTime.getDateFormat();
+        Date current = dateFormat.parse(currentTimeString);
+        log.info("updateMember 로그 - 지금 시간(Date) : " + current);
+        Date past;
+        if(memberData.getUpdatedDate() != null) {
+            past = dateFormat.parse(memberData.getUpdatedDate());
+            log.info("updateMember 로그 - 이전에 업데이트 했던 시간(Date) : " + past);
+
+            long diffDay = (current.getTime() - past.getTime()) / (24 * 60 * 60 * 1000);
+            if(diffDay < 7) {
+                log.info("updateMember 로그 - 1주일 이내의 변경 요청으로 인해 닉네임 변경 불가 => " + diffDay + "일");
+                return; // throw로 바꾸기
+            }
+        }
+
+        log.info("updateMember 로그 - 닉네임 변경 가능");
+        Member member = readSession();
+        member.setNickname(member.getNickname());
+        member.setUpdatedDate(currentTimeString);
         this.memberRepo.save(member);
     }
 
+    /* 회원탈퇴 */
+    @Transactional
+    public void deleteMember() {
+        log.info("deleteMember 로그 - 진입");
+        Member member = readSession();
+        Long memberId = member.getMemberId();
+        String email = member.getEmail();
 
+        List<Board> boards = this.boardRepo.findAllByMemberIdAndUnblocked(memberId, 1);
+        List<Comment> comments = this.commentRepo.findByMemberIdAndUnblocked(memberId, 1);
+
+        log.info("deleteMember 로그 - 본인 게시물 개수 : " + boards.size());
+        log.info("deleteMember 로그 - 본인 댓글 개수 : " + comments.size());
+
+        for(Board board : boards) {
+            board.setUnblocked(0);
+            for(Comment comment : board.getComments()) {
+                comment.setUnblocked(0);
+            }
+        }
+        log.info("deleteMember 로그 - 본인 게시물 및 이하 댓글들 상태 변경 완료");
+        for(Comment comment : comments) {
+            comment.setUnblocked(0);
+        }
+        log.info("deleteMember 로그 - 본인 댓글들 상태 변경 완료");
+
+        this.memberRepo.deleteByMemberId(memberId);
+        this.authRepo.deleteByEmail(email);
+    }
 }

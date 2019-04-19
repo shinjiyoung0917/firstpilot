@@ -4,7 +4,6 @@ import com.example.firstpilot.util.MailAuthPK;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -23,5 +22,5 @@ public class MailAuth {
     private String authKey;
 
     @Column(name = "created_date", nullable = false)
-    private LocalDateTime createdDate;
+    private String createdDate;
 }

@@ -134,7 +134,7 @@
               } else {
                 this.authKey = res.data.authKey;
                 this.isCreatedAuthKey = 1;
-                window.alert("인증코드를 메일로 발송하였습니다.\n 확인하신 후 인증코드를 입력해주세요.");
+                window.alert("인증코드를 메일로 발송하였습니다.\n확인하신 후 인증코드를 입력해주세요.");
                 //this.getTime();
               }
             }).catch(e => {

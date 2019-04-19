@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
 public interface MailAuthRepository extends JpaRepository<MailAuth, MailAuthPK> {
-    //void deleteByEmailAndAuthType(String email, Integer authType);
+    void deleteByEmail(String email);
 }

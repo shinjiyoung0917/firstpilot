@@ -118,6 +118,7 @@
       }
     },
     methods: {
+      /* 게시물 정보 요청 */
       addBoards() {
         let page = {
           page: this.page
