@@ -12,13 +12,21 @@
       </ul>
     </div>
     <div class="col-md-6">
+<<<<<<< HEAD
       <router-view @refreshData="refreshList"></router-view>
+=======
+      <router-view></router-view>
+>>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626
     </div>
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
   import http from "@/http-common";
+=======
+  import http from "@/http-common"
+>>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626
 
   export default {
     name: "users-list",
@@ -30,12 +38,21 @@
     methods: {
       /* eslint-disable no-console */
       showUsers() {
+<<<<<<< HEAD
         http
           .get("/users")
           .then(response => {
             this.users = response.data; // JSON이 자동으로 파싱됨
           })
           .catch(e => {
+=======
+        http.get("/members")
+          .then(res => {
+            this.users = res.data; // JSON이 자동으로 파싱됨
+          })
+          .catch(e => {
+            window.alert(e);
+>>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626
             console.log(e);
           });
       },
