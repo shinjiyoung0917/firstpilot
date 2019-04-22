@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Long> {
-    Page<Board> findAll(Pageable pageable);
-    Board findByBoardId(Long boardId);
+    Page<Board> findAllByIsNotBlocked(Pageable pageable, Integer isValid);
+    Board findByBoardIdAndIsNotBlocked(Long boardId, Integer isValid);
 }
 
 

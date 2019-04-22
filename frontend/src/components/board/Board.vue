@@ -127,7 +127,7 @@
               //if (this.page !== 0) {
                 for (let i in res.data.content) {
                   let board = res.data.content[i];
-                  if (board.isValid === 1) {
+                  if (board.isNotBlocked === 1) {
                     this.snippet(board, 1);
                     this.snippet(board, 2);
 

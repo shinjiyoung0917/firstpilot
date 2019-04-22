@@ -201,7 +201,7 @@ public class MemberService implements UserDetailsService {
         }
     }
 
-    /* 세션 값 가져오기 */
+    /* 로그인한 회원의 세션 값 가져오기 */
     public Member readSession() {
         log.info("readSession 로그 - 진입");
 

@@ -1,44 +1,37 @@
 package com.example.firstpilot.service;
 
-import org.apache.tomcat.util.codec.binary.Base64;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.example.firstpilot.model.Board;
-import com.example.firstpilot.model.LikeBoard;
-import com.example.firstpilot.model.Comment;
-import com.example.firstpilot.repository.BoardRepository;
-import com.example.firstpilot.repository.LikeBoardRepository;
-import com.example.firstpilot.repository.CommentRepository;
-import com.example.firstpilot.util.LikeBoardPK;
-import com.example.firstpilot.util.LoginUserDetails;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-
-import org.apache.commons.io.FilenameUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.UUID;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.example.firstpilot.model.Board;
+import com.example.firstpilot.model.Comment;
+import com.example.firstpilot.model.LikeBoard;
+import com.example.firstpilot.repository.BoardRepository;
+import com.example.firstpilot.repository.CommentRepository;
+import com.example.firstpilot.repository.LikeBoardRepository;
+import com.example.firstpilot.util.LikeBoardPK;
+import com.example.firstpilot.util.LoginUserDetails;
 
 
 @Service
@@ -296,7 +289,7 @@ public class BoardService {
         if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
             board.setFilePath(null);
         } else {
-            board.setFilePath(boardData.getFilePath());
+            board.setFilePath(boardData.getFilePath().substring(6));
         }
         board.setIsValid(boardData.getIsValid());
         this.boardRepo.save(board);
@@ -304,12 +297,10 @@ public class BoardService {
 
     /* 게시물 삭제 */
     public void deleteBoard(Long boardId) {
-        Board board = this.boardRepo.findByBoardId(boardId);
-        board.setIsValid(0);        // 블라인드 되도록 유효상태 변경
-        this.boardRepo.save(board);
-
-        // board랑 comment 조인해서 나오는 컬럼들 전부 isValid 0으로 업데이트
-
+        //this.boardRepo.deleteByBoardId(boardId); // 댓글, 대댓글도 삭제하도록 (cascade)
+        /*Board board = this.boardRepo.findByBoardId(boardId);
+        board.setIsValid(0);
+        this.boardRepo.save(board);*/
     }
 
     /* 댓글 정보 삽입 */
@@ -347,28 +338,5 @@ public class BoardService {
     public List<Comment> readComments(Long boardId) {
         log.info("readComments 로그  - 진입");
         return this.commentRepo.findByBoardId(boardId, new Sort(Sort.Direction.DESC, "createdDate"));
-    }
-
-    /* 댓글 업데이트 */
-    public void updateComment(Long boardId, Long commentId, Comment commentData) {
-        log.info("updateComment 로그  - 진입");
-        Comment comment = commentRepo.findByCommentId(commentId);
-        comment.setContent(commentData.getContent());
-        comment.setUpdatedDate(LocalDateTime.now() );
-        if(commentData.getFilePath().equals("") || commentData.getFilePath() == null) {
-            comment.setFilePath(null);
-        } else {
-            comment.setFilePath(commentData.getFilePath());
-        }
-        comment.setIsValid(commentData.getIsValid());
-        this.commentRepo.save(comment);
-    }
-
-    /* 댓글 삭제 */
-    public void deleteComment(Long commentId) {
-        log.info("deleteComment 로그  - 진입");
-        Comment comment = this.commentRepo.findByCommentId(commentId);
-        comment.setIsValid(0);        // 블라인드 되도록 유효상태 변경
-        this.commentRepo.save(comment);
     }
 }

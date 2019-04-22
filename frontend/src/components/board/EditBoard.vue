@@ -182,7 +182,7 @@
           commentCount: this.board.commentCount,
           hitCount: this.board.hitCount,
           createdDate: this.board.createdDate,
-          isValid: this.board.isValid
+          isNotBlocked: this.board.isNotBlocked
         }
 
         http.put('/boards/' + this.boardId, data)

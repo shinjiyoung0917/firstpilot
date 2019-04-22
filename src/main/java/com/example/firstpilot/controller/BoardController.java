@@ -54,7 +54,7 @@ public class BoardController {
         return fileName;
     }
 
-    /* 게시물 정보 요청 */
+    /* 전체 게시물 정보 요청 */
     @GetMapping("/boards")
     public Page<Board> getBoardList(@PageableDefault(size = 6, sort = {"createdDate"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return this.boardService.readBoardList(pageable);
@@ -82,7 +82,7 @@ public class BoardController {
         this.boardService.updateLikeCount(boardId, 1);
     }
 
-    /* 상세 게시물 정보 요청 */
+    /* 상세 게시물 및 댓글 정보 요청 */
     @GetMapping("/boards/{boardId}")
     public Board getBoardDetails(@PathVariable("boardId") Long boardId) {
         log.info("getBoardDetails 로그  - 진입");
@@ -111,34 +111,6 @@ public class BoardController {
         this.boardService.deleteBoard(boardId);
     }
 
-    /* 댓글 등록 요청 */
-    @PostMapping("/boards/{boardId}/comments")
-    public Comment postComments(@PathVariable("boardId") Long boardId, @RequestBody Comment commentData) {
-        log.info("postComments 로그  - 진입");
-        this.boardService.updateCommentCount(boardId);
-        return this.boardService.createComments(boardId, commentData);
-    }
-
-    /* 댓글 정보 요청 */
-    @GetMapping("/boards/{boardId}/comments")
-    public List<Comment> getComments(@PathVariable("boardId") Long boardId) {
-        log.info("getComments 로그  - 진입");
-        return this.boardService.readComments(boardId);
-    }
-
-    /* 댓글 업데이트 요청 */
-    @PutMapping("/boards/{boardId}/comments/{commentId}")
-    public void putComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId, @RequestBody Comment commentData) {
-        log.info("putComment 로그  - 진입");
-        this.boardService.updateComment(boardId, commentId, commentData);
-    }
-
-    /* 게시물 삭제 요청 */
-    @DeleteMapping("/boards/{boardId}/comments/{commentId}")
-    public void deleteComment(@PathVariable("commentId") Long commentId) {
-        log.info("deleteComment 로그  - 진입");
-        this.boardService.deleteComment(commentId);
-    }
 
 
     /* 대시보드 (본인이 작성한 글 혹은 댓글) 정보 요청 */

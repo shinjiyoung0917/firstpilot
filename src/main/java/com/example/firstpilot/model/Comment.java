@@ -2,68 +2,84 @@ package com.example.firstpilot.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.ManyToAny;
 
 import javax.persistence.*;
+
+import org.hibernate.annotations.ColumnDefault;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "comment")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "comment_id")
-    @Getter
     private Long commentId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    //@Column(name = "board_id", nullable = false)
-    @Getter @Setter
+    @JsonBackReference
+    //@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@Id")
     private Board board;
-    //private Long boardId;
+    /*@Column(name = "board_id", nullable = false)
+    private Long boardId;
+    */
 
     @Column(name = "content", nullable = false)
-    @Getter @Setter
     private String content;
 
+    /*@ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
+    */
     @Column(name = "member_id", nullable = false)
-    @Getter @Setter
     private Long memberId;
 
 
     @Column(name = "nickname", nullable = false)
-    @Getter @Setter
     private String nickname;
 
     @Column(name = "created_date", nullable = false)
-    @Getter @Setter
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date")
-    @Getter @Setter
     private LocalDateTime updatedDate;
 
     @Column(name = "parent_id")
-    @Getter @Setter
     private Long parentId;
 
     @Column(name = "child_count", nullable = false)
     @ColumnDefault("0")
-    @Getter @Setter
     private Long childCount;
 
     @Column(name = "file_path")
-    @Getter @Setter
     private String filePath;
 
-    @Column(name = "is_valid", nullable = false)
+    @Column(name = "is_Not_Blocked", nullable = false)
     @ColumnDefault("1")
-    @Getter @Setter
-    private Integer isValid;
+    private Integer isNotBlocked;
 
-    /*@ManyToOne
-    @JoinColumn(name = "board_id")
-    private Board board;*/
+    /*public void setMember(Member member) {
+    if(this.member != null) {
+            this.member.getComments().remove(this);
+        }
+        this.member = member;
+        member.getComments().add(this);
+    }*/
+
+    public void setBoard(Board board) {
+        // 무한루프 발생 방지
+        if(this.board != null) {
+            this.board.getComments().remove(this);
+        }
+        this.board = board;
+        board.getComments().add(this);
+    }
 }

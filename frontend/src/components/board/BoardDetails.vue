@@ -9,13 +9,10 @@
 
         <!-- Post Content Column -->
         <div class="col-lg-8">
-          <div style="text-align: right" v-if="this.isHiddenButton === 0">
+          <div style="text-align: right" v-if="this.board.memberId === memberId">
             <router-link class="btn btn-primary" :to="{ name: 'edit-board', params: { id: this.boardId }}">  수정 </router-link>
             <router-view/>
             <button class="btn btn-primary" @click="deleteBoard"> 삭제 </button>
-          </div>
-          <div v-else>
-            <button class="btn btn-primary" @click=""> 나오면안됑 {{memberId}} {{this.memberId}} {{board.memberId}} {{this.board.memberId}}</button>
           </div>
 
           <!-- Title -->
@@ -82,23 +79,52 @@
               <div class="media-body" style="text-align: left">
 
                 <h5 class="mt-0"> {{ comment.nickname }} </h5>
-                {{ comment.content }}
+                <span v-if="comment.isNotBlocked === 1" :id="index" style="display: block">
+                  {{ comment.content }}
+                </span>
+                <span v-else>
+                  삭제된 댓글입니다.
+                </span>
+                
+<!-- span :id값 다른거로?????? -->
+
+                <!-- 댓글 수정란 -->
+                <div :id="index" style="display: none">
+                  <textarea v-model="content" :id="index" rows="3" style="width: 100%"></textarea>
+                  <button class="btn btn-dark" @click="editComment(index, comment.commentId, null)"> 확인 </button>
+                  <button class="btn btn-dark" @click=""> 취소 </button>
+                </div>
+
+
                 <br>
                 <span class="mt-0" style="font-size: 10px"> {{ comment.createdDate }} </span>
 
                 <button class="btn btn-group-toggle" @click="showChildCommentInputArea(index)" style="font-size: small"> 대댓글 달기 </button>
-                <!-- 본인 댓글이면 삭제 버튼 보여주기 -->
+
+                <div style="text-align: right" v-if="comment.memberId === memberId">
+                  <button class="btn btn-dark" @click="showCommentEditArea(index)"> 수정 </button>
+                  <button class="btn btn-dark" @click="deleteComment(comment.commentId)"> 삭제 </button>
+                </div>
 
                 <div>
                   <!-- 대댓글 -->
-                  <div v-for="childComment in childComments">
+                  <div v-for="(childComment, index) in childComments">
                     <div class="media mt-4" v-if="childComment.parentId === comment.commentId">
                       <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
                       <div class="media-body">
                         <h5 class="mt-0"> {{ childComment.nickname }} </h5>
+                        <span v-if="childComment.isNotBlocked === 1">
                         {{ childComment.content }}
+                        </span>
+                        <span v-else>
+                          삭제된 댓글입니다.
+                        </span>
                         <br>
                         <span class="mt-0" style="font-size: 10px"> {{ childComment.createdDate }} </span>
+                      </div>
+                      <div style="text-align: right" v-if="childComment.memberId === memberId">
+                        <button class="btn btn-dark" @click="editComment(index, childComment.commentId, childComment.parentId)"> 수정 </button>
+                        <button class="btn btn-dark" @click="deleteComment(childComment.commentId)"> 삭제 </button>
                       </div>
                     </div>
                   </div>
@@ -195,8 +221,7 @@
     },
     data () {
       return {
-        memberId: this.$route.params.memberId, //sessionStorage.getItem("memberId"),
-        isHiddenButton: 1,
+        memberId: '', //this.$route.params.memberId, //sessionStorage.getItem("memberId"),
         boardId: this.$route.params.id,
         board: '',
         likeBoard: this.$route.params.like,
@@ -223,77 +248,53 @@
       getBoardDetails() {
         http.get('/boards/' + this.boardId)
           .then((res) => {
-            this.board = res.data;
-            if(sessionStorage.getItem("memberId") === res.data.memberId.toString()) {
-              this.isHiddenButton = 0;
-            }
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      },
-      /* 전체 댓글 정보 요청 */
-      getComments() {
-        http.get('/boards/' + this.boardId + '/comments')
-          .then((res) => {
             if(res.status === 200) {
-              for(let i in res.data) {
-                let comment = res.data[i];
-                if (comment.isValid === 1) {
-                  if(comment.parentId === null) {  // 댓글일 경우
-                    let commentInfo = {
-                      commentId: comment.commentId,
-                      title: comment.title,
-                      content: comment.content,
-                      memberId: comment.memberId,
-                      nickname: comment.nickname,
-                      createdDate: comment.createdDate,
-                      updatedDate: comment.updatedDate,
-                      parentId: comment.parentId,
-                      childCount: comment.childCount,
-                      filePath: comment.filePath
-                    };
-                    this.comments.push(commentInfo);
-                  } else {                          // 대댓글일 경우
-                    let childCommentInfo = {
-                      commentId: comment.commentId,
-                      title: comment.title,
-                      content: comment.content,
-                      memberId: comment.memberId,
-                      nickname: comment.nickname,
-                      createdDate: comment.createdDate,
-                      updatedDate: comment.updatedDate,
-                      parentId: comment.parentId,
-                      childCount: comment.childCount,
-                      filePath: comment.filePath
-                    };
-                    this.childComments.unshift(childCommentInfo);
-                  }
+              this.board = res.data;
+              window.alert(JSON.stringify(res.data));
+
+              for(let i in this.board.comments) {
+                let comment = this.board.comments[i];
+                if(comment.parentId === null) {  // 댓글일 경우
+                  let commentInfo = {
+                    commentId: comment.commentId,
+                    title: comment.title,
+                    content: comment.content,
+                    memberId: comment.memberId,
+                    nickname: comment.nickname,
+                    createdDate: comment.createdDate,
+                    updatedDate: comment.updatedDate,
+                    parentId: comment.parentId,
+                    childCount: comment.childCount,
+                    filePath: comment.filePath,
+                    isNotBlocked: comment.isNotBlocked
+                  };
+                  this.comments.push(commentInfo);
+                } else {                          // 대댓글일 경우
+                  let childCommentInfo = {
+                    commentId: comment.commentId,
+                    title: comment.title,
+                    content: comment.content,
+                    memberId: comment.memberId,
+                    nickname: comment.nickname,
+                    createdDate: comment.createdDate,
+                    updatedDate: comment.updatedDate,
+                    parentId: comment.parentId,
+                    childCount: comment.childCount,
+                    filePath: comment.filePath,
+                    isNotBlocked: comment.isNotBlocked
+                  };
+                  this.childComments.unshift(childCommentInfo);
                 }
               }
+
+              this.memberId = Number(sessionStorage.getItem("memberId"));
+              /*if (sessionStorage.getItem("memberId") === this.board.memberId.toString()) {
+              }*/
             }
           }).catch((e) => {
           window.alert(e);
           console.log(e);
         });
-      },
-      /* 등록한 댓글들 보여줌 */
-      showComments(comments) {
-        // 최신순일 경우
-        this.comments.unshift(comments);
-      },
-      /* 등록한 대댓글들 보여줌 */
-      showChildComments(comments) {
-        // 대댓글은 시간순 고정
-        this.childComments.push(comments);
-      },
-      /* 대댓글 입력창 보여줌 */
-      showChildCommentInputArea(index) {
-        document.getElementById(index).style.display = 'block';
-      },
-      /* 대댓글 입력창 숨김 */
-      hideChildCommentInputArea(index) {
-        document.getElementById(index).style.display = 'none';
       },
       /* 댓글 등록 요청 (파일 먼저 서버에 저장) */
       write(parent, index) {
@@ -389,6 +390,59 @@
           console.log(e);
         });
       },
+      /* 등록한 댓글들 보여줌 */
+      showComments(comments) {
+        // 시간순일 경우
+        this.comments.push(comments);
+        // 최신순일 경우
+        // this.comments.unshift(comments);
+      },
+      /* 등록한 대댓글들 보여줌 */
+      showChildComments(comments) {
+        // 대댓글은 시간순 고정
+        this.childComments.push(comments);
+      },
+      /* 대댓글 입력창 보여줌 */
+      showChildCommentInputArea(index) {
+        document.getElementById(index).style.display = 'block';
+      },
+      /* 대댓글 입력창 숨김 */
+      hideChildCommentInputArea(index) {
+        document.getElementById(index).style.display = 'none';
+      },
+      /* 댓글 수정 요청 */
+      editComment(index, commentId, parent) {
+        http.put('/boards/' + this.boardId + '/comments/' + commentId)
+          .then((res) => {
+            if(res.status === 200) {
+              window.alert('댓글이 성공적으로 수정되었습니다.');
+              if(parent === null) {
+                this.comments[index].content = res.data.content;
+              } else {
+                this.childComments[index].content = res.data.content;
+              }
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      /* 댓글 수정란 보여줌 */
+      showCommentEditArea(index) {
+        document.getElementById(index).style.display = 'none';
+      },
+      /* 댓글 삭제 요청 */
+      deleteComment(commentId) {
+        http.delete('/boards/' + this.boardId + '/comments/' + commentId)
+          .then((res) => {
+            if(res.status === 200) {
+              window.alert('댓글이 성공적으로 삭제되었습니다.');
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
       /* 게시물 삭제 요청 */
       deleteBoard() {
         http.delete('/boards/' + this.boardId)
@@ -436,7 +490,6 @@
       } else {
         this.increaseHitCount();
         this.getBoardDetails();
-        this.getComments();
       }
     }
   }
