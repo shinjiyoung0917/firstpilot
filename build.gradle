@@ -24,20 +24,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-mail'
-<<<<<<< HEAD
-=======
     compile "org.springframework:spring-context-support"
     compile 'com.sun.mail:javax.mail'
     compile 'commons-fileupload:commons-fileupload:1.4'
->>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626
     compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
-<<<<<<< HEAD
-=======
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
->>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 }

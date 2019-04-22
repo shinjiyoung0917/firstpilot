@@ -412,7 +412,6 @@
       },
       /* 파일 데이터를 제외한 나머지 대댓글 정보 등록 요청 */
       writeChildComment(parent, index) {
-        window.alert("this.childContent : " + this.childContent);
         let data = {
           content: this.childContent,
           nickname: sessionStorage.getItem("nickname"),
@@ -478,7 +477,7 @@
         http.put('/boards/' + this.boardId + '/comments/' + commentId, data)
           .then((res) => {
             if(res.status === 200) {
-              window.alert("=> " + JSON.stringify(res));
+              //window.alert("=> " + JSON.stringify(res));
 
               window.alert('댓글이 성공적으로 수정되었습니다.');
               if(parent === null) {
@@ -551,7 +550,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId")) {
+      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {

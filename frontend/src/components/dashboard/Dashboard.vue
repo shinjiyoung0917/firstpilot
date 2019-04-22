@@ -307,7 +307,7 @@
 
         http.put('/members', data)
           .then((res) => {
-            window.alert(JSON.stringify(res));
+            //window.alert(JSON.stringify(res));
             if(res.status === 200) {
               if(res.data === null || res.data === "") {
                 window.alert("닉네임을 변경할 수 없습니다.");
@@ -359,7 +359,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId")) {
+      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {

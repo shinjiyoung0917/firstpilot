@@ -76,7 +76,6 @@
                     {{ board.likeCount }}
                     <img src="../../assets/comment.png" width="30" height="30" @click=""> {{ board.commentCount }}
                   </h6>
-                  <!--<small class="text-muted">&#9733; &#9733; &#9733; &#9733; &#9734;</small> 별-->
                 </div>
               </div>
             </div>
@@ -188,14 +187,6 @@
           }
         }
       },
-      /* 썸네일 보여줌 */
-      /*showThumbnail (contents) {
-        if (contents.imgSource) {
-          contents.imgSource = "data:image/jpg;base64," + contents.imgSource
-        } else {
-          //contents.imgSource = require("../../assets/default.png")
-        }
-      },*/
       /* 스크롤이 최하단에 도착했는지 확인 */
       bottomVisible() {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
@@ -243,7 +234,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId")) {
+      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {

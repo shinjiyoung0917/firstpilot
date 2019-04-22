@@ -131,7 +131,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId")) {
+      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       }

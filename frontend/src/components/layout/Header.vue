@@ -26,12 +26,12 @@
             <router-view/>
           </li>
 
-          <li class="nav-item" v-if="this.nickname" id="header-navigation-bar3">
+          <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar3">
             <router-link to="/dashboard" style="color: #888888;"> 나의 페이지 </router-link> <!-- 나의 페이지에서 회원탈퇴 구현하기 -->
             <router-view/>
           </li>
 
-          <li class="nav-item" v-if="this.nickname" id="header-navigation-bar4">
+          <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar4">
             <a @click="logout" style="color: #888888;" href=""> 로그아웃 </a>
           </li>
 
@@ -40,7 +40,7 @@
             <router-view/>
           </li>
 
-          <li class="nav-item" v-if="this.nickname" id="header-navigation-bar6">
+          <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar6">
             <span style="color: cornsilk"> {{ this.nickname }}님 환영합니다. </span>
           </li>
 
@@ -50,9 +50,9 @@
           </li>
 
           <!-- 삭제할 버튼 -->
-          <li class="nav-item" style="margin-left: 30px">
+          <!--<li class="nav-item" style="margin-left: 30px">
             <button @click="checkSession">세션테스트</button>
-          </li>
+          </li>-->
 
         </ul>
 

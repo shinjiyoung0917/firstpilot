@@ -2,14 +2,10 @@ HELP.md
 .gradle
 /build/
 !gradle/wrapper/gradle-wrapper.jar
-<<<<<<< HEAD
-=======
 *.map
 node_modules/
 package-lock.json
-/src/main/resources/uploads/
 /uploads/
->>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626
 
 ### STS ###
 .apt_generated

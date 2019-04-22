@@ -1,9 +1,5 @@
 package com.example.firstpilot.service;
 
-<<<<<<< HEAD
-public class BoardService {
-}
-=======
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -298,4 +294,3 @@ public class BoardService {
         return this.boardRepo.findByMemberIdAndUnblocked(pageable, memberId, 1);
     }
 }
->>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626

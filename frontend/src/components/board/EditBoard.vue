@@ -21,7 +21,7 @@
           <hr>
 
           <!-- Preview Image -->
-          <img class="img-fluid rounded" src="http://placehold.it/900x300" alt="">
+          <img :src="this.board.fileSrc" class="img-fluid rounded" alt="">
 
           <hr>
 
@@ -132,6 +132,12 @@
         http.get('/boards/' + this.boardId)
           .then((res) => {
             this.board = res.data;
+
+            if(this.board.filePath === "" || this.board.filePath === null) {
+              this.board['fileSrc'] = require("../../assets/default.jpg");
+            } else {
+              this.board['fileSrc'] = "http://localhost:8081/files/" + this.board.filePath;
+            }
           }).catch((e) => {
           window.alert(e);
           console.log(e);
@@ -198,7 +204,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId")) {
+      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {

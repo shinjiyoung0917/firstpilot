@@ -3,15 +3,6 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-<<<<<<< HEAD
-
-Vue.config.productionTip = false
-
-/* eslint-disable no-new */
-new Vue({
-  //router,
-  //render: h => h(App)
-=======
 import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -23,7 +14,6 @@ Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
->>>>>>> 3c2c93843f40de0a2904254b047576ff12a55626
   el: '#app',
   router,
   components: { App },

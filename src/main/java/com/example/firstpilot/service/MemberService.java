@@ -137,7 +137,7 @@ public class MemberService implements UserDetailsService {
         if(isMailExist == null) {
             String key = getKey(50, false);
             StringBuffer text = new StringBuffer().append("회원가입 인증코드입니다.\n")
-                                                .append(key);
+                    .append(key);
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
