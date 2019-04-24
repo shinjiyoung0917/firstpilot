@@ -173,9 +173,9 @@ public class BoardService {
         board.setNickname(member.getNickname());
         String currentTimeString = this.currentTime.getCurrentTime();
         board.setCreatedDate(currentTimeString);
-        board.setHitCount((long)0);
-        board.setLikeCount((long)0);
-        board.setCommentCount((long)0);
+        board.setHitCount(0L);
+        board.setLikeCount(0L);
+        board.setCommentCount(0L);
         if(boardData.getFilePath().equals("") || boardData.getFilePath() == null) {
             board.setFilePath(null);
         } else {

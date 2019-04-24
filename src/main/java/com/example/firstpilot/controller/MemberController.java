@@ -1,10 +1,12 @@
 package com.example.firstpilot.controller;
 
+import com.example.firstpilot.dto.MailAuthDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.model.MailAuth;
+import com.example.firstpilot.dto.MemberDto;
 import com.example.firstpilot.service.MemberService;
 import com.example.firstpilot.repository.MemberRepository;
 
@@ -27,24 +29,21 @@ public class MemberController {
     /* 이메일 인증코드 생성 요청 */
     @PostMapping("/auth")
     @ResponseStatus(HttpStatus.CREATED)
-    public MailAuth postAuthKey(@RequestBody MailAuth mailAuth) {
+    public MailAuth postAuthKey(@RequestBody MailAuthDto mailAuthDto) {
         log.info("postAuthKey 로그 - 진입");
-        log.info("postAuthKey 로그 - data : " + mailAuth.getEmail());
-        try {
-            return this.memberService.createAuthKey(mailAuth);
-        } catch(MessagingException e) {
-            return null; // 바꾸기
-        }
+        log.info("postAuthKey 로그 - data : " + mailAuthDto.getEmail());
+
+        return this.memberService.createAuthKey(mailAuthDto);
     }
 
     /* 회원가입 요청 */
     @PostMapping("/members")
     @ResponseStatus(HttpStatus.CREATED)
-    public Member postMember(@RequestBody Member memberData) {
+    public Member postMember(@RequestBody MemberDto memberDto) {
         log.info("postMember 로그 - 진입");
-        log.info("postMember 로그 - data1 : " + memberData.getEmail());
-        log.info("postMember 로그 - data2 : " + memberData.getPassword());
-        return this.memberService.createMember(memberData);
+        log.info("postMember 로그 - data1 : " + memberDto.getEmail());
+        log.info("postMember 로그 - data2 : " + memberDto.getPassword());
+        return this.memberService.createMember(memberDto);
     }
 
     /* 회원정보 요청 */
@@ -59,10 +58,10 @@ public class MemberController {
 
     /* 회원정보(닉네임) 수정 요청 */
     @PutMapping("/members")
-    public Member putMember(@RequestBody Member memberData) {
+    public Member putMember(@RequestBody MemberDto memberDto) {
         log.info("putMember 로그 - 진입");
         try {
-            return this.memberService.updateMember(memberData);
+            return this.memberService.updateMember(memberDto);
         } catch(ParseException e) {
             log.info("putMember 로그 - 에러 : " + e);
             return null;
