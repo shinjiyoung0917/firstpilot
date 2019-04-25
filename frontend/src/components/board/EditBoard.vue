@@ -188,7 +188,7 @@
           commentCount: this.board.commentCount,
           hitCount: this.board.hitCount,
           createdDate: this.board.createdDate,
-          unblocked: this.board.unblocked
+          blockStatus: this.board.blockStatus
         }
 
         http.put('/boards/' + this.boardId, data)

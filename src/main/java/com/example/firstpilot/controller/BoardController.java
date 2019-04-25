@@ -5,12 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.model.Board;
 import com.example.firstpilot.model.LikeBoard;
-import com.example.firstpilot.model.Comment;
+import com.example.firstpilot.dto.BoardDto;
 import com.example.firstpilot.service.BoardService;
+import com.example.firstpilot.service.FileManageService;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,12 +18,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,31 +33,22 @@ public class BoardController {
 
     @Autowired
     private BoardService boardService;
-
-    /* 게시물 등록 요청 */
-    @PostMapping("/boards")
-    public void postBoard(@RequestBody Board board) {
-        log.info("postBoard 로그  - 진입");
-        log.info("postBoard 로그  - board title : " + board.getTitle());
-        this.boardService.createBoard(board);
-    }
+    @Autowired
+    private FileManageService fileManageService;
 
     /* 로컬 디렉토리(실제 상용화라고 생각하면 서버 디렉토리)에 저장 요청 */
     @PostMapping("/boards/file")
-    public String postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
+    public ResponseEntity<String> postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
         log.info("postBoardFile 로그  - 진입");
-        String fileName = null;
-        try {
-            fileName = this.boardService.saveBoardFileInDir(uploadFile);
-            log.info("postBoardFile 로그  - fileName : " + fileName);
-        } catch(Exception e) {
-            log.info("postBoardFile 에러 로그  - " + e);
-            e.printStackTrace();
-        }
+        return fileManageService.saveBoardFileInDir(uploadFile);
+    }
 
-        log.info("postBoardFile 로그  - fixedFilePath : " + fileName);
-
-        return fileName;
+    /* 게시물 등록 요청 */
+    @PostMapping("/boards")
+    public void postBoard(@RequestBody BoardDto boardDto) {
+        log.info("postBoard 로그  - 진입");
+        log.info("postBoard 로그  - board title : " + boardDto.getTitle());
+        boardService.createBoard(boardDto);
     }
 
     /* 전체 게시물 정보 요청 */
@@ -67,11 +57,11 @@ public class BoardController {
         return this.boardService.readBoardList(pageable);
     }
 
-    /* 파일 요청 */
+    /* 파일 이미지 요청 */
     @GetMapping(value = "/files/{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> getFileStream(@PathVariable String fileName, HttpServletResponse res) {
         try {
-            return this.boardService.readFileByte(fileName, res);
+            return fileManageService.readFileByte(fileName, res);
         } catch (IOException e) {
             return null;
         }
@@ -116,9 +106,9 @@ public class BoardController {
 
     /* 게시물 업데이트 요청 */
     @PutMapping("/boards/{boardId}")
-    public void putBoard(@PathVariable("boardId") Long boardId, @RequestBody Board boardData) {
+    public void putBoard(@PathVariable("boardId") Long boardId, @RequestBody BoardDto boardDto) {
         log.info("putBoard 로그  - 진입");
-        this.boardService.updateBoard(boardId, boardData);
+        this.boardService.updateBoard(boardId, boardDto);
     }
 
     /* 게시물 삭제 요청 */

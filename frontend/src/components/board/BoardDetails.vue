@@ -90,7 +90,7 @@
                 <h5 class="mt-0"> {{ comment.nickname }} </h5>
                 <div :id="'existedComment' + index" style="display: block">
                   <div>
-                    <span v-if="comment.unblocked === 1">  <!-- 대댓글 없으면 안보이게? -->
+                    <span v-if="comment.blockStatus === 1">  <!-- 대댓글 없으면 안보이게? -->
                       {{ comment.content }}
                     </span>
                     <span v-else>
@@ -137,7 +137,7 @@
                         <h5 class="mt-0"> {{ childComment.nickname }} </h5>
                         <div :id="'existedChildComment' + index" style="display: block">
                           <div>
-                            <span v-if="childComment.unblocked === 1">
+                            <span v-if="childComment.blockStatus === 1">
                             {{ childComment.content }}
                             </span>
                             <span v-else>
@@ -262,7 +262,7 @@
                     parentId: comment.parentId,
                     childCount: comment.childCount,
                     filePath: comment.filePath,
-                    unblocked: comment.unblocked
+                    blockStatus: comment.blockStatus
                   };
                   if(comment.filePath !== "" && comment.filePath !== null)  {
                     commentInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + comment.filePath;
@@ -280,7 +280,7 @@
                     parentId: comment.parentId,
                     childCount: comment.childCount,
                     filePath: comment.filePath,
-                    unblocked: comment.unblocked
+                    blockStatus: comment.blockStatus
                   };
                   if(comment.filePath !== "" && comment.filePath !== null)  {
                     childCommentInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + comment.filePath;
@@ -471,7 +471,7 @@
           childCount: this.comments[index].childCount,
           createdDate: this.comments[index].createdDate,
           // 파일이름 객체 넣어야함
-          unblocked: this.comments[index].unblocked
+          blockStatus: this.comments[index].blockStatus
         }
 
         http.put('/boards/' + this.boardId + '/comments/' + commentId, data)

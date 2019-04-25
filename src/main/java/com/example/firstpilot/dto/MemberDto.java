@@ -4,11 +4,14 @@ import com.example.firstpilot.model.Member;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+
 @Getter
+@NoArgsConstructor
 public class MemberDto {
     private Long memberId;
 
@@ -33,11 +36,10 @@ public class MemberDto {
                 .build();
     }
 
-    /*public MemberDto(String email, String nickname, String password, String updatedDate) {
-        this.email = email;
+    public MemberDto(Long memberId, String nickname, String updatedDate) {
+        this.memberId = memberId;
         this.nickname = nickname;
-        this.password = password;
         this.updatedDate = updatedDate;
-    }*/
+    }
 
 }

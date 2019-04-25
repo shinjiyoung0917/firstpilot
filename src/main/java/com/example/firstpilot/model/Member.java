@@ -1,9 +1,9 @@
 package com.example.firstpilot.model;
 
 import com.example.firstpilot.dto.MemberDto;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Builder;
+import com.example.firstpilot.util.CurrentTime;
+
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -18,9 +18,10 @@ import java.util.Random;
 @Setter
 @Entity
 @Table(name = "member")
-public class Member { //implements UserDetails
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Member {
     @Id
-    @GeneratedValue //(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "member_id")
     private Long memberId;
 
@@ -41,10 +42,12 @@ public class Member { //implements UserDetails
     @JoinColumn(name = "email")
     private List<MemberRole> role;*/
 
-   @PrePersist
-   public void prePersist() {
-
-   }
+    @PrePersist
+    public void prePersist() {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        updatedDate = currentTimeString;
+    }
 
    @Builder
     public Member(String email, String nickname, String password, String updatedDate) {
@@ -53,6 +56,15 @@ public class Member { //implements UserDetails
        this.password = password;
        this.updatedDate = updatedDate;
    }
+
+    public MemberDto toDto() {
+        return new MemberDto(memberId, nickname, updatedDate);
+    }
+
+    public Member updateMemberEntity(MemberDto memberDto) {
+        nickname = memberDto.getNickname();
+        return this;
+    }
 
     /* SHA256 해시 함수 (이메일을 위한 것) */
     public String encryptSHA256(String email) {
@@ -86,8 +98,6 @@ public class Member { //implements UserDetails
         Random randoms = new Random();
         StringBuffer strBuff = new StringBuffer();
 
-        String generatedNickname = "";
-
         for (int i = 0; i < 10; i++) {
             int rIndex = randoms.nextInt(3);
             switch (rIndex) {
@@ -101,14 +111,7 @@ public class Member { //implements UserDetails
                     break;
             }
         }
-        generatedNickname = strBuff.toString();
-        return generatedNickname;
-    }
-
-    public void update(MemberDto memberDto) {
-        this.email = memberDto.getEmail();
-        this.nickname = memberDto.getNickname();
-        this.password = memberDto.getPassword();
-        this.updatedDate = memberDto.getUpdatedDate();
+        nickname = strBuff.toString();
+        return nickname;
     }
 }

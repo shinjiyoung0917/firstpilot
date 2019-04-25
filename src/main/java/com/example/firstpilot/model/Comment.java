@@ -1,5 +1,6 @@
 package com.example.firstpilot.model;
 
+import com.example.firstpilot.util.BlockStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,9 +51,8 @@ public class Comment {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "unblocked", nullable = false)
-    @ColumnDefault("1")
-    private Integer unblocked;
+    @Column(name = "block_status", nullable = false)
+    private BlockStatus blockStatus;
 
     @ManyToOne
     @JoinColumn(name = "member_id") // insertable = false, updatable = false

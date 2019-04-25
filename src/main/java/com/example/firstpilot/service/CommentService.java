@@ -1,5 +1,6 @@
 package com.example.firstpilot.service;
 
+import com.example.firstpilot.util.BlockStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class CommentService {
         log.info("createOrUpdateComments 로그  - 진입");
         log.info("createOrUpdateComments 로그  - filePath : " + commentData.getFilePath());
 
-        Board board = boardRepo.findByBoardIdAndUnblocked(boardId, 1);
+        Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED);
         Member member = memberService.readSession();
 
         Comment comment;
@@ -71,7 +72,7 @@ public class CommentService {
             log.info("createOrUpdateComments 로그  - 파일 선택함");
             comment.setFilePath(commentData.getFilePath().substring(6));
         }
-        comment.setUnblocked(1);
+        comment.setBlockStatus(BlockStatus.UNBLOCKED);
 
         try {
             return this.commentRepo.save(comment);
@@ -85,7 +86,7 @@ public class CommentService {
         log.info("deleteComment 로그  - 진입");
         Comment comment = this.commentRepo.findByCommentId(commentId);
         comment.getBoard().setCommentCount(comment.getBoard().getCommentCount() - 1);
-        comment.setUnblocked(0);        // 블라인드 되도록 상태 변경
+        comment.setBlockStatus(BlockStatus.BLOCKED);
         this.commentRepo.save(comment);
     }
 
@@ -93,6 +94,6 @@ public class CommentService {
     public List<Comment> readMyComments() {
         log.info("readMyComments 로그  - 진입");
         Long memberId = memberService.readSession().getMemberId();
-        return this.commentRepo.findByMemberIdAndUnblocked(memberId, 1);
+        return this.commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED);
     }
 }

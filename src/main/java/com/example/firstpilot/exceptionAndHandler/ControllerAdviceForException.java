@@ -42,4 +42,9 @@ public class ControllerAdviceForException extends ResponseEntityExceptionHandler
     public ResponseEntity handleNotTimeForNicknameChange(NotTimeForNicknameChange e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler(NotFoundBoardException.class)
+    public ResponseEntity handleNotFoundBoardException(NotFoundBoardException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }

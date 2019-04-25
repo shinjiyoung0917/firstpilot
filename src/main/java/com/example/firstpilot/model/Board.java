@@ -1,13 +1,16 @@
 package com.example.firstpilot.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import com.example.firstpilot.dto.BoardDto;
+import com.example.firstpilot.util.BlockStatus;
+import com.example.firstpilot.util.CurrentTime;
 
+import javax.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.ArrayList;
@@ -56,21 +59,53 @@ public class Board {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "unblocked", nullable = false)
-    @ColumnDefault("1")
-    private Integer unblocked;
+    @Column(name = "block_status", nullable = false)
+    private BlockStatus blockStatus;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
+    @OneToMany(mappedBy = "board")
     @JsonManagedReference("boardAndComment")
-    //@JsonBackReference
     @OrderBy("createdDate, parentId ASC")
     private List<Comment> comments = new ArrayList<>();
 
      /*@OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
     private List<LikeBoard> likeBoards = new ArrayList<>();
     */
+
+    @PrePersist
+    public void prePersist() {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        updatedDate = currentTimeString;
+    }
+
+    @Builder
+    public Board(Member member, Long memberId, String nickname, String title, String content, String filePath, Long hitCount, Long likeCount, Long commentCount) {
+        this.member = member;
+        this.memberId = memberId;
+        this.nickname = nickname;
+        this.title = title;
+        this.content = content;
+        this.filePath = filePath;
+        this.hitCount = hitCount;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
+    }
+
+    public BoardDto toDto() {
+        return new BoardDto();
+    }
+
+    public Board updateBoardEntity(BoardDto boardDto) {
+        title = boardDto.getTitle();
+        content = boardDto.getContent();
+        filePath = boardDto.getFilePath();
+        return this;
+    }
+
+
+
 }

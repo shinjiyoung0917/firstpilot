@@ -1,5 +1,10 @@
 package com.example.firstpilot.model;
 
+import com.example.firstpilot.util.AuthType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.example.firstpilot.dto.MailAuthDto;
 import com.example.firstpilot.util.CurrentTime;
 import com.example.firstpilot.util.MailAuthPK;
 
@@ -7,6 +12,8 @@ import javax.persistence.*;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Random;
 
@@ -14,6 +21,7 @@ import java.util.Random;
 @Entity
 @IdClass(MailAuthPK.class)
 @Table(name = "mail_auth")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MailAuth {
     @Id
     @Column(name = "email", nullable = false)
@@ -21,7 +29,8 @@ public class MailAuth {
 
     @Id
     @Column(name = "auth_type", nullable = false)
-    private Integer authType;
+    @Enumerated(EnumType.STRING)
+    private AuthType authType;
 
     @Column(name = "auth_key", nullable = false)
     private String authKey;
@@ -29,23 +38,40 @@ public class MailAuth {
     @Column(name = "created_date", nullable = false)
     private String createdDate;
 
-    //db컬럼이 아니다라는거 명시
+    @PrePersist
+    public void prePersist() {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        createdDate = currentTimeString;
+    }
 
     @Builder
-    public MailAuth(String email, Integer authType, String authKey, String createdDate) {
+    public MailAuth(String email, AuthType authType, String authKey, String createdDate) {
         this.email = email;
         this.authType = authType;
         this.authKey = authKey;
         this.createdDate = createdDate;
     }
 
-    public void setMailAuthInfo(String email, String key) {
-        this.email = email;
-        this.authKey = key;
+    public void setEmailAndAuthTypeAndAuthKey(String encryptedEmail, AuthType authType, String authKey) {
+        this.email = encryptedEmail;
+        this.authType = authType;
+        this.authKey = authKey;
     }
 
+    public MailAuthDto toDto() {
+        return new MailAuthDto(authType, authKey, createdDate);
+    }
+
+    public MailAuth updateMailAuthEntity(MailAuthDto mailAuthDto) {
+
+        return this;
+    }
+
+    private static final Logger log = LoggerFactory.getLogger(MailAuth.class);
     public String encryptEmail() {
-        Member member = null;
+        log.info("encryptEmail 로그 - 진입");
+        Member member = new Member(null, null, null, null);
         email = member.encryptSHA256(email);
         return email;
     }

@@ -151,7 +151,7 @@
             if(res.status === 200) {
               for (let i in res.data.content) {
                 let board = res.data.content[i];
-                if (board.unblocked === 1) {
+                if (board.blockStatus === 1) {
                   this.snippet(board, 1);
                   this.snippet(board, 2);
 
@@ -205,14 +205,6 @@
           }
         }
       },
-      /* 썸네일 보여줌 */
-      /*showThumbnail (contents) {
-        if (contents.imgSource) {
-          contents.imgSource = "data:image/jpg;base64," + contents.imgSource
-        } else {
-          //contents.imgSource = require("../../assets/default.png")
-        }
-      },*/
       /* 스크롤이 최하단에 도착했는지 확인 */
       bottomVisible() {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
@@ -267,7 +259,7 @@
               for (let i in res.data) {
                 let comment = res.data[i];
 
-                if (comment.unblocked === 1) {
+                if (comment.blockStatus === 1) {
                   this.snippet(comment, 2);
 
                   let commentInfo = {
@@ -290,8 +282,22 @@
       },
       /* 닉네임 수정 필드 보여줌 */
       showNicknameEditArea() {
-        document.getElementById("nicknameField").style.display = 'none';
-        document.getElementById("nicknameEditField").style.display = 'block';
+        http.get('/members/' + this.memberId + '/change-period')
+          .then((res) => {
+            if(res.status === 200) {
+              if(res.data === true) {
+                document.getElementById("nicknameField").style.display = 'none';
+                document.getElementById("nicknameEditField").style.display = 'block';
+              } else {
+                window.alert("닉네임을 변경하신지 7일 이내로, 변경이 불가합니다.");
+              }
+            }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+
+
       },
       /* 닉네임 수정 필드 숨김 */
       hideNicknameEditArea() {

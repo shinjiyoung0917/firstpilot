@@ -2,26 +2,22 @@ package com.example.firstpilot.dto;
 
 import com.example.firstpilot.model.MailAuth;
 
+import com.example.firstpilot.util.AuthType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.PrePersist;
 
 import com.example.firstpilot.util.CurrentTime;
 
 @Getter
+@NoArgsConstructor
 public class MailAuthDto {
     private String email;
-    private Integer authType;
+    AuthType authType;
     private String authKey;
     private String createdDate;
-
-    @PrePersist
-    public void prePersist() {
-        CurrentTime currentTime = new CurrentTime();
-        String currentTimeString = currentTime.getCurrentTime();
-        createdDate = currentTimeString;
-    }
 
     public MailAuth toEntity() {
         return MailAuth.builder()
@@ -32,11 +28,10 @@ public class MailAuthDto {
                 .build();
     }
 
-
-    /*public MailAuthDto(String email, Integer authType, String authKey, String createdDate) {
-        this.email = email;
+    public MailAuthDto(AuthType authType, String authKey, String createdDate) {
         this.authType = authType;
         this.authKey = authKey;
+        // TODO: 필요없는 것 같으니 지우기
         this.createdDate = createdDate;
-    }*/
+    }
 }
