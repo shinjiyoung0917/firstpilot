@@ -75,7 +75,6 @@
       }
     },
     methods: {
-      /* 게시물 등록 요청 (파일 먼저 서버에 저장) */
       write() {
         if(this.title === null || this.title === "") {
           window.alert("제목을 입력해주세요.")
@@ -86,7 +85,6 @@
             let bodyFormData = new FormData();
             bodyFormData.set('uploadFile', this.fileData);
 
-            // 파일 서버 디렉토리에 저장
             httpFile.post('/boards/file', bodyFormData)
               .then((res) => {
                 if (res.status === 200) {
@@ -97,18 +95,16 @@
               window.alert(e);
               console.log(e);
             });
-          } else {                      // 업로드할 파일이 없을 경우
+          } else {
             this.writeData();
           }
         }
       },
-      /* 선택한 파일 데이터 가져오기 */
       setFileData(files) {
         if(files.length) {
           this.fileData = files[0];
         }
       },
-      /* 파일 데이터를 제외한 나머지 게시판 데이터 등록 요청 */
       writeData() {
         let data = {
           memberId: this.memberId,

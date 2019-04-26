@@ -2,16 +2,19 @@ package com.example.firstpilot.dto;
 
 import com.example.firstpilot.model.Member;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class MemberDto {
     private Long memberId;
 
@@ -35,11 +38,4 @@ public class MemberDto {
                 .updatedDate(updatedDate)
                 .build();
     }
-
-    public MemberDto(Long memberId, String nickname, String updatedDate) {
-        this.memberId = memberId;
-        this.nickname = nickname;
-        this.updatedDate = updatedDate;
-    }
-
 }

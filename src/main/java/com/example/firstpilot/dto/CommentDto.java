@@ -1,6 +1,7 @@
 package com.example.firstpilot.dto;
 
 import com.example.firstpilot.model.Board;
+import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.util.BlockStatus;
 
@@ -15,38 +16,35 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardDto {
+public class CommentDto {
+    private Long commentId;
+    private Board board;
     private Long boardId;
     private Member member;
     private Long memberId;
     private String nickname;
 
-    @NotBlank(message = "제목을 입력해주세요.")
-    private String title;
-
     @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
     private String filePath;
-    private Long hitCount;
-    private Long likeCount;
-    private Long commentCount;
+    private Long parentId;
+    private Long childCount;
     private String createdDate;
     private String updatedDate;
     private BlockStatus blockStatus;
 
-    public Board toEntity(Member member) {
-        return Board.builder()
+    public Comment toEntity(Board board, Member member) {
+        return Comment.builder()
+                .board(board)
+                .boardId(boardId)
                 .member(member)
                 .memberId(memberId)
                 .nickname(nickname)
-                .title(title)
                 .content(content)
                 .filePath(filePath)
-                .hitCount(hitCount)
-                .likeCount(likeCount)
-                .commentCount(commentCount)
-                .filePath(filePath)
+                .parentId(parentId)
+                .childCount(childCount)
                 .build();
     }
 }

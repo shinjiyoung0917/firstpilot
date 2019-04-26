@@ -16,9 +16,11 @@ import java.util.Random;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "member")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
     @Id
     @GeneratedValue
@@ -38,9 +40,6 @@ public class Member {
     private String updatedDate;
 
     private String role;
-   /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "email")
-    private List<MemberRole> role;*/
 
     @PrePersist
     public void prePersist() {
@@ -49,16 +48,21 @@ public class Member {
         updatedDate = currentTimeString;
     }
 
-   @Builder
+   /*@Builder
     public Member(String email, String nickname, String password, String updatedDate) {
        this.email = email;
        this.password = nickname;
        this.password = password;
        this.updatedDate = updatedDate;
-   }
+   }*/
 
     public MemberDto toDto() {
-        return new MemberDto(memberId, nickname, updatedDate);
+        return MemberDto.builder()
+                .email(email)
+                .nickname(nickname)
+                .password(password)
+                .updatedDate(updatedDate)
+                .build();
     }
 
     public Member updateMemberEntity(MemberDto memberDto) {

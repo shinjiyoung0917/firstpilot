@@ -9,10 +9,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     // List<Comment> findByBoardId(Long boardId, Sort sort);
-    Comment findByCommentId(Long commentId);
-    List<Comment> findByMemberIdAndBlockStatus(Long memberId, BlockStatus blockStatus);
+    Optional<Comment> findByCommentIdAndBlockStatus(Long commentId, BlockStatus blockStatus);
+    Optional<List<Comment> > findByMemberIdAndBlockStatus(Long memberId, BlockStatus blockStatus);
 }

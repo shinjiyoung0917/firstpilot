@@ -22,7 +22,6 @@ public class MemberController {
     @Autowired
     private MailAuthService mailAuthService;
 
-    /* 이메일 인증코드 생성 요청 */
     @PostMapping("/auth")
     @ResponseStatus(HttpStatus.CREATED)
     public MailAuthDto postAuthKey(@RequestBody MailAuthDto mailAuthDto) {
@@ -32,39 +31,39 @@ public class MemberController {
         return mailAuthService.createAuthKey(mailAuthDto);
     }
 
-    /* 회원가입 요청 */
     @PostMapping("/members")
     @ResponseStatus(HttpStatus.CREATED)
     public MemberDto postMember(@RequestBody MemberDto memberDto) {
         log.info("postMember 로그 - 진입");
         log.info("postMember 로그 - data1 : " + memberDto.getEmail());
         log.info("postMember 로그 - data2 : " + memberDto.getPassword());
+
         return memberService.createMember(memberDto);
     }
 
-    /* 세션 값 요청 */
     @GetMapping("/session")
     public MemberDto getSession() {
         log.info("getSession 로그 - 진입");
+
         return memberService.readSession().toDto();
     }
 
-    /* 닉네임 변경 가능 여부 요청 */
+    /* 닉네임 변경 가능 여부 확인 요청 */
     @GetMapping("/members/{memberId}/change-period")
     public ResponseEntity<Boolean> getMemberNicknameChangePeriod(@PathVariable("memberId") Long memberId) {
         log.info("getMember 로그 - 진입");
+
         boolean exceedOneWeek = memberService.readMemberNicknameChangePeriod(memberId);
         return new ResponseEntity<>(exceedOneWeek, HttpStatus.OK);
     }
 
-    /* 회원정보(닉네임) 수정 요청 */
     @PutMapping("/members")
     public MemberDto putMember(@RequestBody MemberDto memberDto) {
         log.info("putMember 로그 - 진입");
+
         return memberService.updateMember(memberDto);
     }
 
-    /* 회원탈퇴 요청 */
     @DeleteMapping("/members")
     public void deleteMember() {
         memberService.deleteMember();

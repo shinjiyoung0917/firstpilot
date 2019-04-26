@@ -1,24 +1,27 @@
 package com.example.firstpilot.service;
 
-import com.example.firstpilot.util.BlockStatus;
+import com.example.firstpilot.exceptionAndHandler.NotFoundMemberException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.model.Comment;
 import com.example.firstpilot.model.Board;
 import com.example.firstpilot.model.Member;
+import com.example.firstpilot.dto.CommentDto;
 import com.example.firstpilot.repository.CommentRepository;
 import com.example.firstpilot.repository.BoardRepository;
-import com.example.firstpilot.util.CurrentTime;
+import com.example.firstpilot.util.BlockStatus;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.dao.DataAccessException;
-
-import org.springframework.data.domain.Sort;
-
 import java.util.List;
+import java.util.Optional;
+
+import com.example.firstpilot.exceptionAndHandler.NotFoundCommentException;
+import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
+
+import javax.transaction.Transactional;
 
 @Service
 public class CommentService {
@@ -31,69 +34,52 @@ public class CommentService {
     @Autowired
     private MemberService memberService;
 
-    private CurrentTime currentTime = new CurrentTime();
+    private Integer PREFIX_THUMB_LENGTH = "thumb_".length();
 
     /* 댓글 정보 삽입 */
-    public Comment createOrUpdateComments(Long boardId, Long commentId, Comment commentData) {
+    @Transactional
+    public Comment createComments(Long boardId, CommentDto commentDto) {
         log.info("createOrUpdateComments 로그  - 진입");
-        log.info("createOrUpdateComments 로그  - filePath : " + commentData.getFilePath());
+        log.info("createOrUpdateComments 로그  - filePath : " + commentDto.getFilePath());
 
-        Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED);
+        Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
+                .orElseThrow(() -> new NotFoundBoardException());
         Member member = memberService.readSession();
 
-        Comment comment;
-        if(commentId == null) {         // 댓글 등록
-            comment = new Comment();
-        } else {                        // 댓글 업데이트
-            comment = commentRepo.findByCommentId(commentId);
-        }
-        comment.setContent(commentData.getContent());
-        comment.setBoard(board);
-        comment.setMember(member);
-        comment.setMemberId(member.getMemberId());
-        if(commentId == null) {         // 댓글 등록
-            comment.setNickname(member.getNickname());
-        } else {                        // 댓글 업데이트
-            comment.setNickname(commentData.getNickname());
-        }
-        String currentTimeString = this.currentTime.getCurrentTime();
-        if(commentId == null) {         // 댓글 등록
+        Comment comment = commentDto.toEntity(board, member);
 
-            comment.setCreatedDate(currentTimeString);
-        } else {                        // 댓글 업데이트
-            comment.setUpdatedDate(currentTimeString);
-        }
-        comment.setParentId(commentData.getParentId());
-        comment.setChildCount((long)0);
-        if(commentData.getFilePath() == null || commentData.getFilePath().equals("")) {
-            log.info("createOrUpdateComments 로그  - 파일을 선택하지 않음");
-            comment.setFilePath(null);
-        } else {
-            log.info("createOrUpdateComments 로그  - 파일 선택함");
-            comment.setFilePath(commentData.getFilePath().substring(6));
-        }
-        comment.setBlockStatus(BlockStatus.UNBLOCKED);
+        String nullableFilePath = commentDto.getFilePath();
+        Optional.ofNullable(nullableFilePath)
+                .ifPresent(value -> {
+                    comment.setFilePath(nullableFilePath.substring(PREFIX_THUMB_LENGTH));
+                });
 
-        try {
-            return this.commentRepo.save(comment);
-        } catch(DataAccessException e) {
-            throw new Error("Comment Insert Error");
-        }
+        board.increaseCommentCount();
+        boardRepo.save(board);
+        return commentRepo.save(comment);
     }
 
-    /* 댓글 삭제 */
+    public void updateComments(Long commentId, CommentDto commentDto) {
+        Comment comment = commentRepo.findByCommentIdAndBlockStatus(commentId, BlockStatus.UNBLOCKED)
+                .orElseThrow(() -> new NotFoundCommentException());
+
+        commentRepo.save(comment.updateCommentEntity(commentDto));
+    }
+
     public void deleteComment(Long commentId) {
         log.info("deleteComment 로그  - 진입");
-        Comment comment = this.commentRepo.findByCommentId(commentId);
-        comment.getBoard().setCommentCount(comment.getBoard().getCommentCount() - 1);
-        comment.setBlockStatus(BlockStatus.BLOCKED);
-        this.commentRepo.save(comment);
+        Comment comment = commentRepo.findByCommentIdAndBlockStatus(commentId, BlockStatus.UNBLOCKED)
+                .orElseThrow(() -> new NotFoundCommentException());
+        comment.getBoard().decreaseCommentCount();
+        comment.updateCommentBlockStatus();
+        commentRepo.save(comment);
     }
 
-    /* 대시보드 댓글 */
     public List<Comment> readMyComments() {
         log.info("readMyComments 로그  - 진입");
         Long memberId = memberService.readSession().getMemberId();
-        return this.commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED);
+        List<Comment> myCommentList = commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
+                .orElseThrow(() -> new NotFoundMemberException());
+        return myCommentList;
     }
 }

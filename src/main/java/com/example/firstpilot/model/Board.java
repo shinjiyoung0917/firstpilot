@@ -1,15 +1,12 @@
 package com.example.firstpilot.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
 import com.example.firstpilot.dto.BoardDto;
 import com.example.firstpilot.util.BlockStatus;
 import com.example.firstpilot.util.CurrentTime;
 
+import lombok.*;
+
 import javax.persistence.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -18,6 +15,9 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "board")
 public class Board {
@@ -45,15 +45,12 @@ public class Board {
     private String updatedDate;
 
     @Column(name = "hit_count", nullable = false)
-    @ColumnDefault("0")
     private Long hitCount;
 
     @Column(name = "like_count", nullable = false)
-    @ColumnDefault("0")
     private Long likeCount;
 
     @Column(name = "comment_count", nullable = false)
-    @ColumnDefault("0")
     private Long commentCount;
 
     @Column(name = "file_path")
@@ -71,18 +68,19 @@ public class Board {
     @OrderBy("createdDate, parentId ASC")
     private List<Comment> comments = new ArrayList<>();
 
-     /*@OneToMany(mappedBy = "board") //cascade = CascadeType.ALL
+     @OneToMany(mappedBy = "board")
+     @JsonManagedReference("boardAndLikeBoard")
     private List<LikeBoard> likeBoards = new ArrayList<>();
-    */
 
     @PrePersist
     public void prePersist() {
         CurrentTime currentTime = new CurrentTime();
         String currentTimeString = currentTime.getCurrentTime();
         updatedDate = currentTimeString;
+        blockStatus = BlockStatus.UNBLOCKED;
     }
 
-    @Builder
+    /*@Builder
     public Board(Member member, Long memberId, String nickname, String title, String content, String filePath, Long hitCount, Long likeCount, Long commentCount) {
         this.member = member;
         this.memberId = memberId;
@@ -93,10 +91,21 @@ public class Board {
         this.hitCount = hitCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
-    }
+    }*/
 
-    public BoardDto toDto() {
-        return new BoardDto();
+    public BoardDto toDto(Member member) {
+        return BoardDto.builder()
+                .member(member)
+                .memberId(memberId)
+                .nickname(nickname)
+                .title(title)
+                .content(content)
+                .filePath(filePath)
+                .hitCount(hitCount)
+                .likeCount(likeCount)
+                .commentCount(commentCount)
+                .filePath(filePath)
+                .build();
     }
 
     public Board updateBoardEntity(BoardDto boardDto) {
@@ -106,6 +115,28 @@ public class Board {
         return this;
     }
 
+    public void increaseHitCount() {
+        ++this.hitCount;
+    }
 
+    public void increaseLikeCount() {
+        ++this.likeCount;
+    }
+
+    public void decreaseLikeCount() {
+        --this.likeCount;
+    }
+
+    public void increaseCommentCount() {
+        ++this.commentCount;
+    }
+
+    public void decreaseCommentCount() {
+        --this.commentCount;
+    }
+
+    public void updateBoardBlockStatus() {
+        blockStatus = BlockStatus.BLOCKED;
+    }
 
 }

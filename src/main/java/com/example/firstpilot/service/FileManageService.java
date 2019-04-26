@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.*;
 import java.io.*;
+import java.util.Optional;
 import java.util.UUID;
 
 import java.text.SimpleDateFormat;
@@ -41,7 +42,7 @@ public class FileManageService {
             String originalFileName = uploadFile.getOriginalFilename();
             byte[] bytes = uploadFile.getBytes();
 
-            String uuidFileName = getUuidFileName(originalFileName);
+            String uuidFileName = generateUuidFileName(originalFileName);
             StringBuffer stringBuffer = new StringBuffer();
             String fileName = stringBuffer.append(new SimpleDateFormat("yyyyMMddHHmmss")
                     .format(System.currentTimeMillis())).append(uuidFileName).toString();
@@ -51,9 +52,17 @@ public class FileManageService {
             File target = new File(ABSOLUTE_FILEPATH, fileName);
             FileCopyUtils.copy(bytes, target);
 
-            if (uploadFile.getContentType().substring(IMAGE_CONTENTTYPE_START_INDEX, IMAGE_CONTENTTYPE_END_INDEX).equals("image")) {
-                makeThumbnail(ABSOLUTE_FILEPATH, fileName, originalFileName);
-            }
+            String nullableContentType = uploadFile.getContentType();
+            Optional.ofNullable(nullableContentType)
+                    .ifPresent(value -> {
+                        if (nullableContentType.substring(IMAGE_CONTENTTYPE_START_INDEX, IMAGE_CONTENTTYPE_END_INDEX).equals("image")) {
+                            try {
+                                makeThumbnail(ABSOLUTE_FILEPATH, fileName, originalFileName);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
             return new ResponseEntity(fileName, HttpStatus.OK); //fileName;
         } catch(IOException e) {
             e.printStackTrace();
@@ -61,11 +70,11 @@ public class FileManageService {
         }
     }
 
-    private String getUuidFileName(String originalFileName) {
+    private String generateUuidFileName(String originalFileName) {
         return UUID.randomUUID().toString() + "_" + originalFileName;
     }
 
-    private static String makeThumbnail(String uploadRootPath, String fileName, String oriFileName) throws IOException{
+    private String makeThumbnail(String uploadRootPath, String fileName, String oriFileName) throws IOException{
         log.info("makeThumbnail 로그  - uploadRootPath : " + uploadRootPath);
         log.info("makeThumbnail 로그  - fileName : " + fileName);
         log.info("makeThumbnail 로그  - oriFileName : " + oriFileName);

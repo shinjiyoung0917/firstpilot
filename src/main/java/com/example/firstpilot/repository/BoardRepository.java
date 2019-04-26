@@ -16,8 +16,8 @@ import java.util.Optional;
 public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findAllByBlockStatus(Pageable pageable, BlockStatus blockStatus);
     Optional<Board> findByBoardIdAndBlockStatus(Long boardId, BlockStatus blockStatus);
-    Page<Board> findByMemberIdAndBlockStatus(Pageable pageable, Long memberId, BlockStatus blockStatus);
-    List<Board> findAllByMemberIdAndBlockStatus(Long memberId, BlockStatus blockStatus);
+    Optional<Page<Board> > findByMemberIdAndBlockStatus(Pageable pageable, Long memberId, BlockStatus blockStatus);
+    Optional<List<Board> > findAllByMemberIdAndBlockStatus(Long memberId, BlockStatus blockStatus);
 }
 
 

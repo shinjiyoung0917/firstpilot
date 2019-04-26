@@ -37,7 +37,6 @@ public class MailAuthService {
 
     Integer KEY_SIZE = 50;
 
-    /* 이메일 인증코드 삽입 */
     public MailAuthDto createAuthKey(MailAuthDto mailAuthDto) {
         log.info("createAuthKey 로그 - 진입");
 
@@ -54,14 +53,18 @@ public class MailAuthService {
             sendMail(authKey, email);
 
             // TODO: 더 좋은 방법이 없을까
-            mailAuth.setEmailAndAuthTypeAndAuthKey(encryptedEmail, AuthType.SIGN_UP, authKey);
+            mailAuth = MailAuth.builder()
+                    .email(encryptedEmail)
+                    .authType(AuthType.SIGN_UP)
+                    .authKey(authKey)
+                    .build();
+
             return authRepo.save(mailAuth).toDto();
         } else {
             throw new AlreadyExistedEmailException();
         }
     }
 
-    /* 메일 발송 */
     public void sendMail(String key, String email) {
         log.info("sendMail 로그 - 진입");
         StringBuffer text = new StringBuffer().append("회원가입 인증코드입니다.\n").append(key);

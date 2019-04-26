@@ -125,10 +125,9 @@
         http.get('/boards', { params: page })
           .then((res) => {
             if(res.status === 200) {
-              //if (this.page !== 0) {
               for (let i in res.data.content) {
                 let board = res.data.content[i];
-                if (board.blockStatus === 1) {
+                if (board.blockStatus === "UNBLOCKED") {
                   this.snippet(board, 1);
                   this.snippet(board, 2);
 
@@ -160,14 +159,7 @@
                   this.boards.push(boardInfo);
                 }
               }
-              /*} else {
-                this.boards = res.data.content;
-              }*/
               this.page += 1;
-
-              /*if(this.bottomVisible()) {
-                this.addBoards();
-              }*/
             }
 
           }).catch((e) => {
@@ -254,22 +246,5 @@
         }
       }
     }
-
-    /*created() {
-      window.addEventListener('scroll', () => {
-        this.bottom = this.bottomVisible();
-      });
-
-      this.addBoards();
-    },
-    watch: {
-      bottom(bottom) {
-        if(bottom) {
-          this.addBoards();
-        }
-      }
-    },
-    mounted() {
-    }*/
   }
 </script>

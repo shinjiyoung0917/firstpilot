@@ -47,4 +47,9 @@ public class ControllerAdviceForException extends ResponseEntityExceptionHandler
     public ResponseEntity handleNotFoundBoardException(NotFoundBoardException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler(NotFoundCommentException.class)
+    public ResponseEntity handleNotFoundCommentException(NotFoundCommentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.firstpilot.model;
 
 import com.example.firstpilot.util.AuthType;
+import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,18 +11,15 @@ import com.example.firstpilot.util.MailAuthPK;
 
 import javax.persistence.*;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.util.Random;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @IdClass(MailAuthPK.class)
 @Table(name = "mail_auth")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MailAuth {
     @Id
     @Column(name = "email", nullable = false)
@@ -45,22 +43,13 @@ public class MailAuth {
         createdDate = currentTimeString;
     }
 
-    @Builder
-    public MailAuth(String email, AuthType authType, String authKey, String createdDate) {
-        this.email = email;
-        this.authType = authType;
-        this.authKey = authKey;
-        this.createdDate = createdDate;
-    }
-
-    public void setEmailAndAuthTypeAndAuthKey(String encryptedEmail, AuthType authType, String authKey) {
-        this.email = encryptedEmail;
-        this.authType = authType;
-        this.authKey = authKey;
-    }
-
     public MailAuthDto toDto() {
-        return new MailAuthDto(authType, authKey, createdDate);
+        return MailAuthDto.builder()
+                .email(email)
+                .authType(authType)
+                .authKey(authKey)
+                .createdDate(createdDate)
+                .build();
     }
 
     public MailAuth updateMailAuthEntity(MailAuthDto mailAuthDto) {
@@ -71,7 +60,7 @@ public class MailAuth {
     private static final Logger log = LoggerFactory.getLogger(MailAuth.class);
     public String encryptEmail() {
         log.info("encryptEmail 로그 - 진입");
-        Member member = new Member(null, null, null, null);
+        Member member = Member.builder().build();
         email = member.encryptSHA256(email);
         return email;
     }

@@ -211,10 +211,10 @@
     },
     data () {
       return {
-        memberId: '', //this.$route.params.memberId, //sessionStorage.getItem("memberId"),
+        memberId: '',
         boardId: this.$route.params.id,
         board: '',
-        likeBoard: this.$route.params.like,
+        likeBoard: '',
         comments: [],
         childComments: [],
         content: '',
@@ -226,17 +226,6 @@
       }
     },
     methods: {
-      /* 조회수 증가 */
-      increaseHitCount() {
-        http.put('/boards/' + this.boardId + '/hit')
-          .then((res) => {
-            //this.board.hitCount += 1;
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      },
-      /* 해당 게시물 정보 요청 */
       getBoardDetails() {
         http.get('/boards/' + this.boardId)
           .then((res) => {
@@ -248,6 +237,10 @@
               } else {
                 this.board['fileSrc'] = "http://localhost:8081/files/" + this.board.filePath;
               }
+              if(this.likeBoard === 1) {
+                this.board['like'] = 1;
+              }
+
               for(let i in this.board.comments) {
                 let comment = this.board.comments[i];
                 if(comment.parentId === null) {  // 댓글일 경우
@@ -288,11 +281,17 @@
                   this.childComments.unshift(childCommentInfo);
                 }
               }
-
               this.memberId = Number(sessionStorage.getItem("memberId"));
-              /*if (sessionStorage.getItem("memberId") === this.board.memberId.toString()) {
-              }*/
             }
+          }).catch((e) => {
+          window.alert(e);
+          console.log(e);
+        });
+      },
+      requestCheckLikeBoard() {
+        http.get('/boards/likes')
+          .then((res) => {
+            this.likeBoards = res.data;
           }).catch((e) => {
           window.alert(e);
           console.log(e);
@@ -391,6 +390,8 @@
       /* 파일 데이터를 제외한 나머지 댓글 정보 등록 요청 */
       writeComment() {
         let data = {
+          boardId: this.boardId,
+          memberId: this.memberId,
           content: this.content,
           nickname: sessionStorage.getItem("nickname"),
           parentId: null,
@@ -413,6 +414,8 @@
       /* 파일 데이터를 제외한 나머지 대댓글 정보 등록 요청 */
       writeChildComment(parent, index) {
         let data = {
+          boardId: this.boardId,
+          memberId: this.memberId,
           content: this.childContent,
           nickname: sessionStorage.getItem("nickname"),
           parentId: parent,
@@ -464,7 +467,7 @@
         window.alert(index + ", " + commentId + ", " + parent);
         let data = {
           memberId: this.memberId,
-          nickname: sessionStorage.getItem("nickname"),
+          //nickname: sessionStorage.getItem("nickname"),
           content: this.editContent,
           filePath: this.comments[index].filePath,
           parentId: this.comments[index].parentId,
@@ -554,7 +557,7 @@
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {
-        this.increaseHitCount();
+        this.requestCheckLikeBoard();
         this.getBoardDetails();
       }
     }

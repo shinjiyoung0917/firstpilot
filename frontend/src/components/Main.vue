@@ -22,21 +22,6 @@
     components: {
       'app-header': Header,
       'app-footer': Footer
-    },
-    data() {
-      return {
-        email: '',
-        username: '',
-        password: ''
-      }
-    },
-    methods: {
-      main() {
-
-      }
-    },
-    mounted() {
-      this.main();
     }
   }
 </script>
