@@ -1,7 +1,5 @@
 package com.example.firstpilot.service;
 
-import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +21,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.example.firstpilot.exceptionAndHandler.NotFoundMemberException;
+import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
 
 import javax.transaction.Transactional;
 
@@ -49,9 +47,6 @@ public class BoardService {
                 .orElseThrow(() -> new NotFoundMemberException());
 
         Board board = boardDto.toEntity(member);
-
-        // TODO: set 안쓰는 방법은 없을까
-        board.setBlockStatus(BlockStatus.UNBLOCKED);
         boardRepo.save(board);
     }
 
@@ -77,6 +72,7 @@ public class BoardService {
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundBoardException());
         board.increaseHitCount();
+        boardRepo.save(board);
         return board;
     }
 
@@ -86,7 +82,7 @@ public class BoardService {
         board.updateBoardBlockStatus();
 
         for(Comment comment : board.getComments()) {
-            comment.updateCommentBlockStatus();
+            comment.updateCommentContentAndBlockStatus();
         }
         boardRepo.save(board);
     }
@@ -105,10 +101,14 @@ public class BoardService {
 
         updateLikeCountIncrease(boardId);
 
-        Long memberId = memberService.readSession().getMemberId();
+        Member member = memberService.readSession();
+        Long memberId = member.getMemberId();
+        Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
+                .orElseThrow(() -> new NotFoundBoardException());
         LikeBoard likeBoard = LikeBoard.builder()
                 .memberId(memberId)
                 .boardId(boardId)
+                .board(board)
                 .build();
         likeBoardRepo.save(likeBoard);
     }

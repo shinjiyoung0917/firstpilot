@@ -117,7 +117,6 @@
       }
     },
     methods: {
-      /* 게시물 정보 요청 */
       addBoards() {
         let page = {
           page: this.page
@@ -128,8 +127,8 @@
               for (let i in res.data.content) {
                 let board = res.data.content[i];
                 if (board.blockStatus === "UNBLOCKED") {
-                  this.snippet(board, 1);
-                  this.snippet(board, 2);
+                  this.makeSnippet(board, 1);
+                  this.makeSnippet(board, 2);
 
                   let boardInfo = {
                     boardId: board.boardId,
@@ -167,8 +166,7 @@
           console.log(e);
         });
       },
-      /* 제목 및 내용 일부분만 보이도록 */
-      snippet(board, TitleOrContent) {
+      makeSnippet(board, TitleOrContent) {
         if(TitleOrContent === 1) {
           if (board.title.length > 15) {
             board.title = board.title.substring(0, 15) + "...";
@@ -187,7 +185,6 @@
           return false;
         }
       },
-      /* 현재 로그인한 회원이 좋아요를 누른 게시물 목록 요청 */
       getLikeBoards() {
         http.get('/boards/likes')
           .then((res) => {
@@ -197,7 +194,6 @@
           console.log(e);
         });
       },
-      /* 좋아요 해제 */
       toUnlike(i) {
         this.boards[i].like = 0;
         this.boards[i].likeCount -= 1;
@@ -211,7 +207,6 @@
         });
 
       },
-      /* 좋아요 */
       toLike(i) {
         this.boards[i].like = 1;
         this.boards[i].likeCount += 1;

@@ -63,7 +63,7 @@ public class FileManageService {
                             }
                         }
                     });
-            return new ResponseEntity(fileName, HttpStatus.OK); //fileName;
+            return new ResponseEntity(fileName, HttpStatus.OK);
         } catch(IOException e) {
             e.printStackTrace();
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -78,6 +78,7 @@ public class FileManageService {
         log.info("makeThumbnail 로그  - uploadRootPath : " + uploadRootPath);
         log.info("makeThumbnail 로그  - fileName : " + fileName);
         log.info("makeThumbnail 로그  - oriFileName : " + oriFileName);
+
         int thumbnail_width = 700;
         int thumbnail_height = 400;
 

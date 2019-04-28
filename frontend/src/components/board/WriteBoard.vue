@@ -89,14 +89,14 @@
               .then((res) => {
                 if (res.status === 200) {
                   this.filePath = res.data;
-                  this.writeData();
+                  this.writeData("HAVE_FILE");
                 }
               }).catch((e) => {
               window.alert(e);
               console.log(e);
             });
           } else {
-            this.writeData();
+            this.writeData("NO_FILE");
           }
         }
       },
@@ -105,14 +105,24 @@
           this.fileData = files[0];
         }
       },
-      writeData() {
-        let data = {
-          memberId: this.memberId,
-          nickname: this.nickname,
-          title: this.title,
-          content: this.content,
-          filePath: this.filePath
+      writeData(filePresence) {
+        if(filePresence === "HAVE_FILE") {
+          var data = {
+            memberId: this.memberId,
+            nickname: this.nickname,
+            title: this.title,
+            content: this.content,
+            filePath: this.filePath
+          };
+        } else if(filePresence === "NO_FILE") {
+          var data = {
+            memberId: this.memberId,
+            nickname: this.nickname,
+            title: this.title,
+            content: this.content
+          };
         }
+        window.alert(JSON.stringify(data));
 
         http.post('/boards', data)
           .then((res) => {

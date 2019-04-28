@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.example.firstpilot.exceptionAndHandler.NotFoundCommentException;
 import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
@@ -34,8 +33,6 @@ public class CommentService {
     @Autowired
     private MemberService memberService;
 
-    private Integer PREFIX_THUMB_LENGTH = "thumb_".length();
-
     /* 댓글 정보 삽입 */
     @Transactional
     public Comment createComments(Long boardId, CommentDto commentDto) {
@@ -47,13 +44,9 @@ public class CommentService {
         Member member = memberService.readSession();
 
         Comment comment = commentDto.toEntity(board, member);
-
-        String nullableFilePath = commentDto.getFilePath();
-        Optional.ofNullable(nullableFilePath)
-                .ifPresent(value -> {
-                    comment.setFilePath(nullableFilePath.substring(PREFIX_THUMB_LENGTH));
-                });
-
+        if(comment.getParentId() != null) {
+            comment.increaseChildCount();
+        }
         board.increaseCommentCount();
         boardRepo.save(board);
         return commentRepo.save(comment);
@@ -70,8 +63,12 @@ public class CommentService {
         log.info("deleteComment 로그  - 진입");
         Comment comment = commentRepo.findByCommentIdAndBlockStatus(commentId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundCommentException());
+
+        if(comment.getParentId() != null) {
+            comment.decreaseChildCount();
+        }
         comment.getBoard().decreaseCommentCount();
-        comment.updateCommentBlockStatus();
+        comment.updateCommentContentAndBlockStatus();
         commentRepo.save(comment);
     }
 

@@ -3,6 +3,7 @@ package com.example.firstpilot.model;
 import com.example.firstpilot.dto.MemberDto;
 import com.example.firstpilot.util.CurrentTime;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @Getter
@@ -48,16 +51,9 @@ public class Member {
         updatedDate = currentTimeString;
     }
 
-   /*@Builder
-    public Member(String email, String nickname, String password, String updatedDate) {
-       this.email = email;
-       this.password = nickname;
-       this.password = password;
-       this.updatedDate = updatedDate;
-   }*/
-
     public MemberDto toDto() {
         return MemberDto.builder()
+                .memberId(memberId)
                 .email(email)
                 .nickname(nickname)
                 .password(password)

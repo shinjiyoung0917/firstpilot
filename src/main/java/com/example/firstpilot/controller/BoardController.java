@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,9 +45,8 @@ public class BoardController {
     }
 
     @PostMapping("/boards")
-    public void postBoard(@RequestBody BoardDto boardDto) {
+    public void postBoard(@RequestBody @Valid BoardDto boardDto) {
         log.info("postBoard 로그  - 진입");
-        log.info("postBoard 로그  - board title : " + boardDto.getTitle());
 
         boardService.createBoard(boardDto);
     }
@@ -67,7 +67,7 @@ public class BoardController {
     }
 
     @GetMapping("/boards/likes")
-    public List<LikeBoard> getLikeBoardList() { //@RequestParam("memberId") Long memberId
+    public List<LikeBoard> getLikeBoardList() {
         return boardService.readLikeBoardList();
     }
 

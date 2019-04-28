@@ -29,7 +29,10 @@ public class CommentDto {
 
     private String filePath;
     private Long parentId;
-    private Long childCount;
+
+    @Builder.Default
+    private Long childCount = 0L;
+
     private String createdDate;
     private String updatedDate;
     private BlockStatus blockStatus;

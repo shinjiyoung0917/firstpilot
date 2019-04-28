@@ -4,14 +4,12 @@ import com.example.firstpilot.model.Board;
 import com.example.firstpilot.model.Member;
 import com.example.firstpilot.util.BlockStatus;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,15 +20,21 @@ public class BoardDto {
     private String nickname;
 
     @NotBlank(message = "제목을 입력해주세요.")
+    @Size(max = 30, min = 1, message = "제목의 글자 수가 30자를 초과하였습니다.")
     private String title;
 
     @NotBlank(message = "내용을 입력해주세요.")
+    @Size(max = 2000, min = 1, message = "내용의 글자 수가 2000자를 초과하였습니다.")
     private String content;
 
     private String filePath;
-    private Long hitCount;
-    private Long likeCount;
-    private Long commentCount;
+
+    @Builder.Default
+    private Long hitCount = 0L;
+    @Builder.Default
+    private Long likeCount = 0L;
+    @Builder.Default
+    private Long commentCount = 0L;
     private String createdDate;
     private String updatedDate;
     private BlockStatus blockStatus;

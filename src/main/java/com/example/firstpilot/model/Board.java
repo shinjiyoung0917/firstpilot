@@ -68,30 +68,24 @@ public class Board {
     @OrderBy("createdDate, parentId ASC")
     private List<Comment> comments = new ArrayList<>();
 
-     @OneToMany(mappedBy = "board")
-     @JsonManagedReference("boardAndLikeBoard")
+    @OneToMany(mappedBy = "board")
+    @JsonManagedReference("memberBoardAndLikeBoard")
     private List<LikeBoard> likeBoards = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
         CurrentTime currentTime = new CurrentTime();
         String currentTimeString = currentTime.getCurrentTime();
-        updatedDate = currentTimeString;
+        createdDate = currentTimeString;
         blockStatus = BlockStatus.UNBLOCKED;
     }
 
-    /*@Builder
-    public Board(Member member, Long memberId, String nickname, String title, String content, String filePath, Long hitCount, Long likeCount, Long commentCount) {
-        this.member = member;
-        this.memberId = memberId;
-        this.nickname = nickname;
-        this.title = title;
-        this.content = content;
-        this.filePath = filePath;
-        this.hitCount = hitCount;
-        this.likeCount = likeCount;
-        this.commentCount = commentCount;
-    }*/
+    @PreUpdate
+    public void preUpdate() {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        updatedDate = currentTimeString;
+    }
 
     public BoardDto toDto(Member member) {
         return BoardDto.builder()

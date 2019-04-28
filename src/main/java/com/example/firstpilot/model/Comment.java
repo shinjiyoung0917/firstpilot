@@ -54,7 +54,7 @@ public class Comment {
     private BlockStatus blockStatus;
 
     @ManyToOne
-    @JoinColumn(name = "member_id") // insertable = false, updatable = false
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne
@@ -75,22 +75,16 @@ public class Comment {
     public void prePersist() {
         CurrentTime currentTime = new CurrentTime();
         String currentTimeString = currentTime.getCurrentTime();
-        updatedDate = currentTimeString;
+        createdDate = currentTimeString;
         blockStatus = BlockStatus.UNBLOCKED;
     }
 
-    /*@Builder
-    public Comment(Board board, Long boardId, Member member, Long memberId, String nickname, String content, String filePath, Long parentId, Long childCount) {
-        this.board = board;
-        this.boardId = boardId;
-        this.member = member;
-        this.memberId = memberId;
-        this.nickname = nickname;
-        this.content = content;
-        this.filePath = filePath;
-        this.parentId = parentId;
-        this.childCount = childCount;
-    }*/
+    @PreUpdate
+    public void preUpdate() {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        updatedDate = currentTimeString;
+    }
 
     public CommentDto toDto(Board board, Member member) {
         return CommentDto.builder()
@@ -112,8 +106,17 @@ public class Comment {
         return this;
     }
 
-    public void updateCommentBlockStatus() {
+    public void updateCommentContentAndBlockStatus() {
+        content = "삭제된 댓글입니다.";
         blockStatus = BlockStatus.BLOCKED;
+    }
+
+    public void increaseChildCount() {
+        ++this.childCount;
+    }
+
+    public void decreaseChildCount() {
+        --this.childCount;
     }
 
 }
