@@ -13,7 +13,7 @@ public class CurrentTime {
         log.info("getCurrentTime 로그 - 진입");
         long currentTime = System.currentTimeMillis();
         log.info("getCurrentTime 로그 - currentTime : " + currentTime);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd, hh:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd, hh:mm:ss");
         String currentTimeString = dateFormat.format(new Date(currentTime));
         log.info("getCurrentTime 로그 - currentTimeString : " + currentTimeString);
 
@@ -21,6 +21,6 @@ public class CurrentTime {
     }
 
     public SimpleDateFormat getDateFormat() {
-        return new SimpleDateFormat("yyyy-MM-dd, hh:mm");
+        return new SimpleDateFormat("yyyy-MM-dd, hh:mm:ss");
     }
 }

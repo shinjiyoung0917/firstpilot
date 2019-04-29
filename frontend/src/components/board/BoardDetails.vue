@@ -231,7 +231,7 @@
 
               for(let i in this.board.comments) {
                 let comment = this.board.comments[i];
-                if(comment.parentId === null) {  // 댓글일 경우
+                if(comment.parentId === null) {
                   let commentInfo = {
                     commentId: comment.commentId,
                     title: comment.title,
@@ -249,7 +249,7 @@
                     commentInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + comment.filePath;
                   }
                   this.comments.push(commentInfo);
-                } else {                          // 대댓글일 경우
+                } else {
                   let childCommentInfo = {
                     commentId: comment.commentId,
                     title: comment.title,
