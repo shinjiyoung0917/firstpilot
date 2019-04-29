@@ -10,6 +10,7 @@ import com.example.firstpilot.service.CommentService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.validation.Valid;
 
 import java.util.List;
 
@@ -21,14 +22,14 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/boards/{boardId}/comments")
-    public Comment postComments(@PathVariable("boardId") Long boardId, @RequestBody CommentDto commentDto) {
+    public Comment postComments(@PathVariable("boardId") Long boardId, @RequestBody @Valid CommentDto commentDto) {
         log.info("postComments 로그  - 진입");
 
         return commentService.createComments(boardId, commentDto);
     }
 
     @PutMapping("/boards/{boardId}/comments/{commentId}")
-    public void putComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId, @RequestBody CommentDto commentDto) {
+    public void putComment(@PathVariable("boardId") Long boardId, @PathVariable("commentId") Long commentId, @RequestBody @Valid CommentDto commentDto) {
         log.info("putComment 로그  - 진입");
 
         commentService.updateComments(commentId, commentDto);

@@ -22,10 +22,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+
 import javax.validation.Valid;
 
-import java.io.IOException;
 import java.util.List;
+
+import java.io.IOException;
 
 @RestController
 public class BoardController {
@@ -36,7 +38,6 @@ public class BoardController {
     @Autowired
     private FileManageService fileManageService;
 
-    /* 로컬 디렉토리(실제 상용화라고 생각하면 서버 디렉토리)에 저장 요청 */
     @PostMapping("/boards/file")
     public ResponseEntity<String> postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
         log.info("postBoardFile 로그  - 진입");
@@ -56,7 +57,7 @@ public class BoardController {
         return boardService.readBoardList(pageable);
     }
 
-    /* 첨부파일 이미지 요청 */
+   // TODO: JPG 파일은 왜 안되는 건가..?
     @GetMapping(value = "/files/{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> getFileStream(@PathVariable String fileName, HttpServletResponse res) {
         try {
@@ -85,7 +86,6 @@ public class BoardController {
         boardService.deleteLikeBoard(boardId);
     }
 
-    /* 댓글 정보와 함께 상세 게시물 정보 요청 */
     @GetMapping("/boards/{boardId}")
     public Board getBoardDetails(@PathVariable("boardId") Long boardId) {
         log.info("getBoardDetails 로그  - 진입");
@@ -95,7 +95,7 @@ public class BoardController {
     }
 
     @PutMapping("/boards/{boardId}")
-    public void putBoard(@PathVariable("boardId") Long boardId, @RequestBody BoardDto boardDto) {
+    public void putBoard(@PathVariable("boardId") Long boardId, @RequestBody @Valid BoardDto boardDto) {
         log.info("putBoard 로그  - 진입");
 
         boardService.updateBoard(boardId, boardDto);

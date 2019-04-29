@@ -43,9 +43,8 @@
             <br><span style="color: #B94A48"> (* 위의 닉네임은 임시 닉네임이며, 변경이 가능합니다.) </span>
           </p>
           <p>
-            <router-link class="btn btn-primary" to="/"><button> 홈 </button></router-link>
-            <router-view/>
-            <router-link class="btn btn-primary" to="/login"><button> 로그인 </button></router-link>
+            <router-link to="/"><button> 홈 </button></router-link>
+            <router-link to="/login"><button> 로그인 </button></router-link>
             <router-view/>
           </p>
         </div>
@@ -152,7 +151,6 @@
         }
 
       },
-      /* 회원가입 요청 */
       signup() {
         if(this.isUsedAuthKey === 0) {
           window.alert("이메일 인증을 진행해주세요.");

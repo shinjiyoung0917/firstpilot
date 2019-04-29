@@ -10,6 +10,8 @@ import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +67,13 @@ public class Board {
     private Member member;
 
     @OneToMany(mappedBy = "board")
+    @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference("boardAndComment")
     @OrderBy("createdDate, parentId ASC")
     private List<Comment> comments = new ArrayList<>();
 
-   @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board")
+    @Fetch(FetchMode.SUBSELECT)
     @JsonManagedReference("memberBoardAndLikeBoard")
     private List<LikeBoard> likeBoards = new ArrayList<>();
 

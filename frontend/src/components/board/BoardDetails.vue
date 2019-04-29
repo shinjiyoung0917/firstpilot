@@ -330,11 +330,10 @@
           }
         }
 
-        if(this.fileData !== '') {    // 업로드할 파일이 있을 경우
+        if(this.fileData !== '') {
           let bodyFormData = new FormData();
           bodyFormData.set('uploadFile', this.fileData);
 
-          // 파일 서버 디렉토리에 저장
           httpFile.post('/boards/file', bodyFormData)
             .then((res) => {
               if (res.status === 200) {
@@ -383,6 +382,7 @@
             parentId: null
           };
         }
+
         http.post('/boards/' + this.boardId + '/comments', data)
           .then((res) => {
             if (res.status === 200) {
@@ -405,7 +405,7 @@
           nickname: sessionStorage.getItem("nickname"),
           parentId: parent,
           filePath: this.filePath
-        }
+        };
 
         http.post('/boards/' + this.boardId + '/comments', data)
           .then((res) => {
@@ -443,18 +443,17 @@
         document.getElementById(index).style.display = 'none';
       },
       editComment(index, commentId, parent) {
-        window.alert(index + ", " + commentId + ", " + parent);
         let data = {
+          boardId: this.boardId,
           memberId: this.memberId,
-          //nickname: sessionStorage.getItem("nickname"),
           content: this.editContent,
-          filePath: this.comments[index].filePath,
+          nickname: sessionStorage.getItem("nickname"),
           parentId: this.comments[index].parentId,
+          filePath: this.comments[index].filePath,
           childCount: this.comments[index].childCount,
           createdDate: this.comments[index].createdDate,
-          // 파일이름 객체 넣어야함
           blockStatus: this.comments[index].blockStatus
-        }
+        };
 
         http.put('/boards/' + this.boardId + '/comments/' + commentId, data)
           .then((res) => {

@@ -63,7 +63,6 @@ public class Comment {
     private Board board;
 
     /*public void setBoard(Board board) {
-        // 무한루프 발생 방지
         if(this.board != null) {
             this.board.getComments().remove(this);
         }

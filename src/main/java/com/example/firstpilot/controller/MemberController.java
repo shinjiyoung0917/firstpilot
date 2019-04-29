@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import javax.validation.Valid;
+
 @RestController
 public class MemberController {
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
@@ -24,7 +26,7 @@ public class MemberController {
 
     @PostMapping("/auth")
     @ResponseStatus(HttpStatus.CREATED)
-    public MailAuthDto postAuthKey(@RequestBody MailAuthDto mailAuthDto) {
+    public MailAuthDto postAuthKey(@RequestBody @Valid MailAuthDto mailAuthDto) {
         log.info("postAuthKey 로그 - 진입");
         log.info("postAuthKey 로그 - data : " + mailAuthDto.getEmail());
 
@@ -33,7 +35,7 @@ public class MemberController {
 
     @PostMapping("/members")
     @ResponseStatus(HttpStatus.CREATED)
-    public MemberDto postMember(@RequestBody MemberDto memberDto) {
+    public MemberDto postMember(@RequestBody @Valid MemberDto memberDto) {
         log.info("postMember 로그 - 진입");
         log.info("postMember 로그 - data1 : " + memberDto.getEmail());
         log.info("postMember 로그 - data2 : " + memberDto.getPassword());
@@ -58,7 +60,7 @@ public class MemberController {
     }
 
     @PutMapping("/members")
-    public MemberDto putMember(@RequestBody MemberDto memberDto) {
+    public MemberDto putMember(@RequestBody @Valid MemberDto memberDto) {
         log.info("putMember 로그 - 진입");
 
         return memberService.updateMember(memberDto);

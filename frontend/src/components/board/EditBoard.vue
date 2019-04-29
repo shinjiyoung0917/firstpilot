@@ -127,7 +127,6 @@
       }
     },
     methods: {
-      /* 수정할 해당 게시물의 정보 요청 */
       getBoardData() {
         http.get('/boards/' + this.boardId)
           .then((res) => {
@@ -150,11 +149,10 @@
         } else if(this.board.content === null || this.board.content === "") {
           window.alert("내용을 입력해주세요.")
         } else {
-          if(this.fileData !== '') {    // 업로드할 파일이 있을 경우
+          if(this.fileData !== '') {
             let bodyFormData = new FormData();
             bodyFormData.set('uploadFile', this.fileData);
 
-            // 파일 서버 디렉토리에 저장
             httpFile.post('/boards/file', bodyFormData)
               .then((res) => {
                 if (res.status === 200) {
@@ -165,7 +163,7 @@
               window.alert(e);
               console.log(e);
             });
-          } else {                      // 업로드할 파일이 없을 경우
+          } else {
             this.editData();
           }
         }

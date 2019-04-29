@@ -96,6 +96,7 @@ public class BoardService {
         return myBoardList;
     }
 
+    // TODO: 좋아요 수 업데이트 되는 것이랑 같이 트랜잭션 롤백처리 안되고 있는 듯
     @Transactional
     public void createLikeBoard(Long boardId) {
         log.info("createLikeBoard 로그  - 진입");
@@ -132,16 +133,16 @@ public class BoardService {
 
         Long memberId = memberService.readSession().getMemberId();
 
+        LikeBoard likeBoard = likeBoardRepo.findByMemberIdAndBoardId(memberId, boardId)
+                .orElseThrow(() -> new UnableToDeleteLikeBoard());
+        likeBoardRepo.deleteByLikeId(likeBoard.getLikeId());
+
         /*LikeBoardPK pk = LikeBoardPK.builder()
                 .memberId(memberId)
                 .boardId(boardId)
                 .build();
         likeBoardRepo.deleteById(pk);
         */
-
-        LikeBoard likeBoard = likeBoardRepo.findByMemberIdAndBoardId(memberId, boardId)
-                .orElseThrow(() -> new UnableToDeleteLikeBoard());
-        likeBoardRepo.deleteByLikeId(likeBoard.getLikeId());
     }
 
     @Transactional

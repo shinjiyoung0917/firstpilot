@@ -5,14 +5,6 @@
     <div class="login-row">
       <div class="login-form">
         <h1> 로 그 인 </h1>
-        <!--
-        <b-form-group id="exampleInputGroup1" label="Username:" label-for="exampleInput1">
-          <b-form-input id="exampleInput1" type="username" v-model="form.username" required placeholder="Enter username"></b-form-input>
-        </b-form-group>
-        <b-form-group id="exampleInputGroup2" label="Password:" label-for="exampleInput2">
-          <b-form-input id="exampleInput2" type="password" v-model="form.password" required placeholder="Enter password"></b-form-input>
-        </b-form-group>
-        -->
 
         <form @submit.prevent="login" id="loginForm" method="POST">
           <p>
@@ -22,7 +14,7 @@
             <input type="password" placeholder="Password" v-model="password" name="password">
           </p>
           <p>
-            <button type="submit"> 로그인 </button> <!-- @click="login" -->
+            <button type="submit"> 로그인 </button>
             <button @click="cancel"> 취소 </button>
           </p>
         </form>
@@ -35,7 +27,6 @@
 
 <script>
   import http from "@/http-common"
-  //import axios from 'axios'
   import Header from '../layout/Header.vue'
   import Footer from '../layout/Footer.vue'
   import {BUS} from '@/EventBus'
@@ -56,21 +47,12 @@
       }
     },
     methods: {
-      /* 로그인 요청 */
       login() {
         if (this.email && this.password) {
           let bodyFormData = new FormData();
           bodyFormData.set('username', this.email);
           bodyFormData.append('password', this.password);
 
-          /*
-          axios({
-            method: 'post',
-            url: 'login',
-            data: bodyFormData,
-            config: { headers: { 'Content-Type': 'multipart/form-data' }}
-          })
-          */
           http.post('/login', bodyFormData)
             .then((res) => {
               if(res.status === 200) {
@@ -82,7 +64,6 @@
               }
             }).catch((e) => {
               window.alert("로그인에 실패하였습니다. 이메일과 비밀번호를 다시 한 번 확인해주세요.");
-              //window.alert(e);
               console.log(e);
             });
         }
