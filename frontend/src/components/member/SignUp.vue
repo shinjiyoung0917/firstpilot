@@ -85,7 +85,6 @@
       }
     },
     methods: {
-      /* 이메일 패턴 체크 */
       checkEmailPattern() {
         const expText = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/;
 
@@ -97,7 +96,6 @@
           return true;
         }
       },
-      /* 비밀번호 패턴 체크 */
       checkPasswordPattern() {
         const expText =  /^[A-Za-z0-9]{6,12}$/;
 
@@ -107,7 +105,6 @@
           document.getElementById('checkPasswordPatternResult').innerHTML = " ";
         }
       },
-      /* 비밀번호 재확인 체크 */
       checkPasswordRepeat() {
         if(this.password !== this.passwordRepeat){
           document.getElementById('checkPasswordRepeatResult').innerHTML = "비밀번호와 동일하게 입력해주세요.";
@@ -115,7 +112,6 @@
           document.getElementById('checkPasswordRepeatResult').innerHTML = " ";
         }
       },
-      /* 인증코드 요청 */
       reqAuthKey() {
         //$('#toast').fadeIn(4000).delay(1000).fadeOut(400);
 
@@ -147,7 +143,6 @@
       getTime() {
         //window.setTimeout("getTime();", 1000);
       },
-      /* 인증코드 확인 */
       checkAuthKey() {
         if(this.inputAuthKey === this.authKey) {
           this.isUsedAuthKey = 1;
@@ -234,26 +229,4 @@
     color: white;
   }
 
-/*
-  .toast {
-    width: 250px;
-    height: 20px;
-    height:auto;
-    position: fixed;
-    left: 50%;
-    margin-left:-125px;
-    bottom: 100px;
-    z-index: 9999;
-    background-color: #383838;
-    color: #F0F0F0;
-    font-family: Calibri;
-    font-size: 15px;
-    padding: 10px;
-    text-align:center;
-    border-radius: 2px;
-    -webkit-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
-    -moz-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
-    box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
-   }
-*/
 </style>

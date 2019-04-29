@@ -52,4 +52,9 @@ public class ControllerAdviceForException extends ResponseEntityExceptionHandler
     public ResponseEntity handleNotFoundCommentException(NotFoundCommentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler(UnableToDeleteLikeBoard.class)
+    public ResponseEntity handleUnableToDeleteLikeBoard(UnableToDeleteLikeBoard e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }

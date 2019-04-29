@@ -202,7 +202,6 @@
         memberId: '',
         boardId: this.$route.params.id,
         board: '',
-        likeBoard: '',
         comments: [],
         childComments: [],
         content: '',
@@ -218,20 +217,16 @@
         http.get('/boards/' + this.boardId)
           .then((res) => {
             if(res.status === 200) {
-              window.alert("=> " + JSON.stringify(res.data));
-              window.alert("=> " + JSON.stringify(res.data.likeBoards));
-
               this.board = res.data;
 
-              //this.board.member.likeBoards
+              if(this.board.likeBoards.length !== 0) {
+                this.board['like'] = 1;
+              }
 
               if(this.board.filePath === "" || this.board.filePath === null) {
                 this.board['fileSrc'] = require("../../assets/default.jpg");
               } else {
                 this.board['fileSrc'] = "http://localhost:8081/files/" + this.board.filePath;
-              }
-              if(this.likeBoard === 1) {
-                this.board['like'] = 1;
               }
 
               for(let i in this.board.comments) {
@@ -276,15 +271,6 @@
               }
               this.memberId = Number(sessionStorage.getItem("memberId"));
             }
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      },
-      requestCheckLikeBoard() {
-        http.get('/boards/likes')
-          .then((res) => {
-            this.likeBoard = res.data;
           }).catch((e) => {
           window.alert(e);
           console.log(e);
@@ -544,7 +530,6 @@
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {
-        this.requestCheckLikeBoard();
         this.getBoardDetails();
       }
     }

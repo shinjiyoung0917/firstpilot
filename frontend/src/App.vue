@@ -1,16 +1,25 @@
 <template>
+
   <div id="app" class="container-fluid">
-    <!-- <img src="./assets/logo.png"> -->
+
     <div class="site-info">
-      <!-- <router-link class="btn btn-primary" to="/users"> Users 버튼 (테스트용) </router-link> -->
     </div>
+
     <router-view/>
   </div>
+
 </template>
 
 <script>
-export default {
-  name: 'App'
+  import Header from './components/layout/Header.vue'
+  import Footer from './components/layout/Footer.vue'
+
+  export default {
+    name: 'App',
+    components: {
+      'app-header': Header,
+      'app-footer': Footer
+    }
 }
 </script>
 

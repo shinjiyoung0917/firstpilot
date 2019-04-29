@@ -62,14 +62,14 @@ public class Comment {
     @JsonBackReference("boardAndComment")
     private Board board;
 
-    public void setBoard(Board board) {
+    /*public void setBoard(Board board) {
         // 무한루프 발생 방지
         if(this.board != null) {
             this.board.getComments().remove(this);
         }
         this.board = board;
         board.getComments().add(this);
-    }
+    }*/
 
     @PrePersist
     public void prePersist() {

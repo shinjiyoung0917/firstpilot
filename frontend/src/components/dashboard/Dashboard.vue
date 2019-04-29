@@ -117,7 +117,6 @@
 
 <script>
   import http from "@/http-common"
-  import httpFile from "@/http-fileUpload"
   import Header from '../layout/Header.vue'
   import Footer from '../layout/Footer.vue'
   import {BUS} from '@/EventBus'
@@ -133,7 +132,6 @@
         memberId: sessionStorage.getItem("memberId"),
         member: '',
         boards: [],
-        likeBoards: [],
         bottom: false,
         page: 0,
         comments: [],
@@ -145,15 +143,17 @@
         this.boardsOrComments = 1;
         let page = {
           page: this.page
-        }
+        };
+
         http.get('/dashboards/boards', { params: page })
           .then((res) => {
             if(res.status === 200) {
               for (let i in res.data.content) {
                 let board = res.data.content[i];
-                if (board.blockStatus === 1) {
-                  this.snippet(board, 1);
-                  this.snippet(board, 2);
+
+                if (board.blockStatus === 'UNBLOCKED') {
+                  this.makeSnippet(board, 1);
+                  this.makeSnippet(board, 2);
 
                   let boardInfo = {
                     boardId: board.boardId,
@@ -175,16 +175,14 @@
                     boardInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + board.filePath;
                   }
 
-                  for(let j in this.likeBoards) {
-                    if(boardInfo.boardId === this.likeBoards[j].boardId) {
-                      boardInfo['like'] = 1;
-                    }
+                  if(board.likeBoards.length !== 0) {
+                    boardInfo['like'] = 1;
                   }
 
                   this.boards.push(boardInfo);
                   this.member = board.member;
                 }
-              } // for문 끝
+              }
               this.page += 1;
             }
 
@@ -193,8 +191,7 @@
           console.log(e);
         });
       },
-      /* 제목 및 내용 일부분만 보이도록 */
-      snippet(data, TitleOrContent) {
+      makeSnippet(data, TitleOrContent) {
         if(TitleOrContent === 1) {
           if (data.title.length > 15) {
             data.title = data.title.substring(0, 15) + "...";
@@ -213,17 +210,6 @@
           return false;
         }
       },
-      /* 현재 로그인한 회원이 좋아요를 누른 게시물 목록 요청 */
-      getLikeBoards() {
-        http.get('/boards/likes')
-          .then((res) => {
-            this.likeBoards = res.data;
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
-      },
-      /* 좋아요 해제 */
       toUnlike(i) {
         this.boards[i].like = 0;
         this.boards[i].likeCount -= 1;
@@ -237,7 +223,6 @@
         });
 
       },
-      /* 좋아요 */
       toLike(i) {
         this.boards[i].like = 1;
         this.boards[i].likeCount += 1;
@@ -259,8 +244,8 @@
               for (let i in res.data) {
                 let comment = res.data[i];
 
-                if (comment.blockStatus === 1) {
-                  this.snippet(comment, 2);
+                if (comment.blockStatus === 'UNBLOCKED') {
+                  this.makeSnippet(comment, 2);
 
                   let commentInfo = {
                     content: comment.content,
@@ -273,14 +258,13 @@
                   this.comments.push(commentInfo);
                   this.comments.reverse();
                 }
-              } // for문 끝
+              }
             }
           }).catch((e) => {
           window.alert(e);
           console.log(e);
         });
       },
-      /* 닉네임 수정 필드 보여줌 */
       showNicknameEditArea() {
         http.get('/members/' + this.memberId + '/change-period')
           .then((res) => {
@@ -299,12 +283,10 @@
 
 
       },
-      /* 닉네임 수정 필드 숨김 */
       hideNicknameEditArea() {
         document.getElementById("nicknameField").style.display = 'block';
         document.getElementById("nicknameEditField").style.display = 'none';
       },
-      /* 닉네임 수정 요청 */
       editNickname() {
         let data = {
           nickname: this.nickname,
@@ -313,7 +295,6 @@
 
         http.put('/members', data)
           .then((res) => {
-            //window.alert(JSON.stringify(res));
             if(res.status === 200) {
               if(res.data === null || res.data === "") {
                 window.alert("닉네임을 변경할 수 없습니다.");
@@ -330,7 +311,6 @@
           this.nickname = sessionStorage.getItem("nickname");
         });
       },
-      /* 회원탈퇴 요청 */
       withdrawal() {
         let confirmFlag = confirm("회원탈퇴를 진행하시겠습니까? \n오직 회원만 서비스 이용가능합니다.");
 
@@ -369,7 +349,6 @@
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {
-        this.getLikeBoards();
         this.addBoards();
       }
     },
@@ -380,7 +359,7 @@
     },
     watch: {
       bottom(bottom) {
-        if(bottom) {
+        if(bottom && this.boardsOrComments === 1) {
           this.addBoards();
         }
       }

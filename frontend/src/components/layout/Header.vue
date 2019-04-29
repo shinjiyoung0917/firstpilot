@@ -4,7 +4,6 @@
     <div class="container">
 
       <router-link to="/" style="color: #888888;"> Start Anonymous Board </router-link>
-      <router-view />
 
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -18,17 +17,14 @@
             <router-link to="/" style="color: #888888;"> 홈
               <span class="sr-only">(current)</span>
             </router-link>
-            <router-view/>
           </li>
 
           <li class="nav-item" id="header-navigation-bar2">
             <router-link to="/boards" style="color: #888888;"> 익명게시판 </router-link>
-            <router-view/>
           </li>
 
           <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar3">
             <router-link to="/dashboard" style="color: #888888;"> 나의 페이지 </router-link> <!-- 나의 페이지에서 회원탈퇴 구현하기 -->
-            <router-view/>
           </li>
 
           <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar4">
@@ -37,7 +33,6 @@
 
           <li class="nav-item" v-else id="header-navigation-bar5">
             <router-link to="/login" style="color: #888888;"> 로그인 </router-link>
-            <router-view/>
           </li>
 
           <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar6">
@@ -46,9 +41,9 @@
 
           <li class="nav-item" v-else id="header-navigation-bar7">
             <router-link to="/signup" style="color: #888888;"> 회원가입 </router-link>
-            <router-view/>
           </li>
 
+          <router-view/>
         </ul>
 
       </div>

@@ -8,6 +8,7 @@ import lombok.*;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class Board {
     @OrderBy("createdDate, parentId ASC")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board")
+   @OneToMany(mappedBy = "board")
     @JsonManagedReference("memberBoardAndLikeBoard")
     private List<LikeBoard> likeBoards = new ArrayList<>();
 

@@ -112,7 +112,6 @@
         memberId: sessionStorage.getItem("memberId"),
         bottom: false,
         boards: [],
-        likeBoards: [],
         page: 0
       }
     },
@@ -150,10 +149,8 @@
                     boardInfo['fileSrc'] = "http://localhost:8081/files/thumb_" + board.filePath;
                   }
 
-                  for(let j in this.likeBoards) {
-                    if(boardInfo.boardId === this.likeBoards[j].boardId) {
-                      boardInfo['like'] = 1;
-                    }
+                  if(board.likeBoards.length !== 0) {
+                    boardInfo['like'] = 1;
                   }
                   this.boards.push(boardInfo);
                 }
@@ -184,15 +181,6 @@
         } else {
           return false;
         }
-      },
-      getLikeBoards() {
-        http.get('/boards/likes')
-          .then((res) => {
-            this.likeBoards = res.data;
-          }).catch((e) => {
-          window.alert(e);
-          console.log(e);
-        });
       },
       toUnlike(i) {
         this.boards[i].like = 0;
@@ -225,7 +213,6 @@
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {
-        this.getLikeBoards();
         this.addBoards();
       }
     },

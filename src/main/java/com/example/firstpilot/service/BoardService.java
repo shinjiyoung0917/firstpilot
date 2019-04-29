@@ -1,5 +1,6 @@
 package com.example.firstpilot.service;
 
+import com.example.firstpilot.exceptionAndHandler.UnableToDeleteLikeBoard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,9 +106,11 @@ public class BoardService {
         Long memberId = member.getMemberId();
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundBoardException());
+
         LikeBoard likeBoard = LikeBoard.builder()
                 .memberId(memberId)
                 .boardId(boardId)
+                .member(member)
                 .board(board)
                 .build();
         likeBoardRepo.save(likeBoard);
@@ -128,15 +131,22 @@ public class BoardService {
         updateLikeCountDecrease(boardId);
 
         Long memberId = memberService.readSession().getMemberId();
-        LikeBoardPK pk = LikeBoardPK.builder()
+
+        /*LikeBoardPK pk = LikeBoardPK.builder()
                 .memberId(memberId)
                 .boardId(boardId)
                 .build();
         likeBoardRepo.deleteById(pk);
+        */
+
+        LikeBoard likeBoard = likeBoardRepo.findByMemberIdAndBoardId(memberId, boardId)
+                .orElseThrow(() -> new UnableToDeleteLikeBoard());
+        likeBoardRepo.deleteByLikeId(likeBoard.getLikeId());
     }
 
-    private void updateLikeCountIncrease(Long boardId) {
-        log.info("updateLikeCountPlus 로그  - 진입");
+    @Transactional
+    public void updateLikeCountIncrease(Long boardId) {
+        log.info("updateLikeCountIncrease 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundBoardException());
@@ -144,8 +154,9 @@ public class BoardService {
         boardRepo.save(board);
     }
 
-    private void updateLikeCountDecrease(Long boardId) {
-        log.info("updateLikeCountMinus 로그  - 진입");
+    @Transactional
+    public void updateLikeCountDecrease(Long boardId) {
+        log.info("updateLikeCountDecrease 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundBoardException());
