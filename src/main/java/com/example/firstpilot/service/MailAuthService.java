@@ -29,7 +29,7 @@ public class MailAuthService {
     private MemberService memberService;
     @Autowired
     private MailAuthRepository authRepo;
-    @Autowired
+
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")

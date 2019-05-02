@@ -168,13 +168,6 @@
           }
         }
       },
-      /* 선택한 파일 데이터 가져오기 */
-      setFileData(files) {
-        if(files.length) {
-          this.fileData = files[0];
-        }
-      },
-      /* 파일 데이터를 제외한 나머지 게시판 데이터 등록 요청 */
       editData() {
         let data = {
           memberId: this.memberId,
@@ -182,12 +175,7 @@
           title: this.board.title,
           content: this.board.content,
           filePath: this.board.filePath,
-          likeCount: this.board.likeCount,
-          commentCount: this.board.commentCount,
-          hitCount: this.board.hitCount,
-          createdDate: this.board.createdDate,
-          blockStatus: this.board.blockStatus
-        }
+        };
 
         http.put('/boards/' + this.boardId, data)
           .then((res) => {
@@ -199,6 +187,12 @@
           window.alert(e);
           console.log(e);
         });
+      },
+      /* 선택한 파일 데이터 가져오기 */
+      setFileData(files) {
+        if(files.length) {
+          this.fileData = files[0];
+        }
       }
     },
     created() {

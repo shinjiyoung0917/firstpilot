@@ -3,7 +3,6 @@ package com.example.firstpilot.model;
 import com.example.firstpilot.dto.MemberDto;
 import com.example.firstpilot.util.CurrentTime;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 @Getter
@@ -44,8 +41,8 @@ public class Member {
 
     private String role;
 
-    @PrePersist
-    public void prePersist() {
+    @PreUpdate
+    public void preUpdate() {
         CurrentTime currentTime = new CurrentTime();
         String currentTimeString = currentTime.getCurrentTime();
         updatedDate = currentTimeString;

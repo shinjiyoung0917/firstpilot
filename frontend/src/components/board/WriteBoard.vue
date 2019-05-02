@@ -106,23 +106,15 @@
         }
       },
       writeData(filePresence) {
+        let data = {
+          memberId: this.memberId,
+          nickname: this.nickname,
+          title: this.title,
+          content: this.content,
+        };
         if(filePresence === "HAVE_FILE") {
-          var data = {
-            memberId: this.memberId,
-            nickname: this.nickname,
-            title: this.title,
-            content: this.content,
-            filePath: this.filePath
-          };
-        } else if(filePresence === "NO_FILE") {
-          var data = {
-            memberId: this.memberId,
-            nickname: this.nickname,
-            title: this.title,
-            content: this.content
-          };
+          data[filePath] = this.filePath;
         }
-        window.alert(JSON.stringify(data));
 
         http.post('/boards', data)
           .then((res) => {

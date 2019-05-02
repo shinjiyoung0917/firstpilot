@@ -63,7 +63,7 @@
                 <textarea class="form-control" rows="3" v-model="content"></textarea>
               </div>
               <div style="text-align: right">
-                <input type="file" id="uploadFileForComment" name="uploadFile" @change="setFileData($event.target.files)">
+                <input type="file" id="uploadFileForComment" name="uploadFile" @change="setFileData($event.target.files, 'commentWrite')">
                 <button class="btn btn-primary" @click="write(null, null)">등록</button>
               </div>
               <!--</form>-->
@@ -110,10 +110,10 @@
                 <!-- 댓글 수정란 -->
                 <div :id="'editComment' + index" style="display: none">
                   <textarea v-model="editContent" rows="3" style="width: 100%"></textarea>
-                  <input type="file" id="uploadFileForEditComment" name="uploadFile" @change="setFileData($event.target.files)">
+                  <input type="file" id="uploadFileForEditComment" name="uploadFile" @change="setFileData($event.target.files, 'edit')">
                   <img :src="comment.fileSrc">
 
-                  <button class="btn btn-dark" @click="editComment(index, comment.commentId, null)"> 수정 </button>
+                  <button class="btn btn-dark" @click="edit(index, comment.commentId, null)"> 수정 </button>
                   <button class="btn btn-dark" @click="hideCommentEditArea(index, null)"> 취소 </button>
                 </div>
 
@@ -148,10 +148,10 @@
                         <!-- 대댓글 수정란 -->
                         <div :id="'editChildComment' + index" style="display: none">
                           <textarea v-model="editContent" rows="3" style="width: 100%"></textarea>
-                          <input type="file" id="uploadFileForEditChildComment" name="uploadFile" @change="setFileData($event.target.files)">
+                          <input type="file" id="uploadFileForEditChildComment" name="uploadFile" @change="setFileData($event.target.files, 'edit')">
                           <img :src="childComment.fileSrc">
 
-                          <button class="btn btn-dark" @click="editComment(index, childComment.commentId, childComment.parentId)"> 수정 </button>
+                          <button class="btn btn-dark" @click="edit(index, childComment.commentId, childComment.parentId)"> 수정 </button>
                           <button class="btn btn-dark" @click="hideCommentEditArea(index, childComment.parentId)"> 취소 </button>
                         </div>
 
@@ -162,7 +162,7 @@
                   <!-- 대댓글 입력창 -->
                   <div :id="index" style="display: none">
                     <textarea v-model="childContent" :id="index" rows="3" style="width: 100%"></textarea>
-                    <input type="file" id="uploadFileForChildComment" name="uploadFile" @change="setFileData($event.target.files)">
+                    <input type="file" id="uploadFileForChildComment" name="uploadFile" @change="setFileData($event.target.files, 'childCommentWrite')">
                     <button class="btn btn-dark" @click="write(comment.commentId, index)"> 등록 </button>
                     <button class="btn btn-dark" @click="hideChildCommentInputArea(index)"> 취소 </button>
                   </div>
@@ -208,7 +208,8 @@
         childContent: '',
         editContent: '',
         isEditing: 0,
-        fileData: '',
+        writeFileData: '',
+        editFileData: '',
         filePath: ''
       }
     },
@@ -330,9 +331,9 @@
           }
         }
 
-        if(this.fileData !== '') {
+        if(this.writeFileData !== '') {
           let bodyFormData = new FormData();
-          bodyFormData.set('uploadFile', this.fileData);
+          bodyFormData.set('uploadFile', this.writeFileData);
 
           httpFile.post('/boards/file', bodyFormData)
             .then((res) => {
@@ -341,7 +342,7 @@
                 if(parent === null) {
                   this.writeComment("HAVE_FILE");
                 } else {
-                  this.writeChildComment(parent, index, "HAVE_FILE");
+                  this.writeChildComment("HAVE_FILE", parent, index);
                 }
               }
             }).catch((e) => {
@@ -352,35 +353,21 @@
           if(parent === null) {
             this.writeComment("NO_FILE");
           } else {
-            this.writeChildComment(parent, index, "NO_FILE");
+            this.writeChildComment("NO_FILE", parent, index);
           }
-        }
-      },
-      /* 선택한 파일 데이터 가져오기 */
-      setFileData(files) {
-        if(files.length) {
-          this.fileData = files[0];
         }
       },
       /* 파일 데이터를 제외한 나머지 댓글 정보 등록 요청 */
       writeComment(filePresence) {
+        let data = {
+          boardId: this.boardId,
+          memberId: this.memberId,
+          content: this.content,
+          nickname: sessionStorage.getItem("nickname"),
+          parentId: null
+        };
         if(filePresence === "HAVE_FILE") {
-          var data = {
-            boardId: this.boardId,
-            memberId: this.memberId,
-            content: this.content,
-            nickname: sessionStorage.getItem("nickname"),
-            parentId: null,
-            filePath: this.filePath
-          };
-        } else if(filePresence === "NO_FILE") {
-          var data = {
-            boardId: this.boardId,
-            memberId: this.memberId,
-            content: this.content,
-            nickname: sessionStorage.getItem("nickname"),
-            parentId: null
-          };
+          data['filePath'] = this.filePath;
         }
 
         http.post('/boards/' + this.boardId + '/comments', data)
@@ -397,15 +384,17 @@
         });
       },
       /* 파일 데이터를 제외한 나머지 대댓글 정보 등록 요청 */
-      writeChildComment(parent, index) {
+      writeChildComment(filePresence, parent, index) {
         let data = {
           boardId: this.boardId,
           memberId: this.memberId,
           content: this.childContent,
           nickname: sessionStorage.getItem("nickname"),
-          parentId: parent,
-          filePath: this.filePath
+          parentId: parent
         };
+        if(filePresence === "HAVE_FILE") {
+          data['filePath'] = this.filePath;
+        }
 
         http.post('/boards/' + this.boardId + '/comments', data)
           .then((res) => {
@@ -442,27 +431,58 @@
       hideChildCommentInputArea(index) {
         document.getElementById(index).style.display = 'none';
       },
-      editComment(index, commentId, parent) {
+      edit(index, commentId, parent) {
+        if (this.editContent === null || this.editContent === "") {
+          window.alert("내용을 입력해주세요.");
+          return;
+        }
+
+        if(this.editFileData !== '') {
+          let bodyFormData = new FormData();
+          bodyFormData.set('uploadFile', this.editFileData);
+
+          httpFile.post('/boards/file', bodyFormData)
+            .then((res) => {
+              if (res.status === 200) {
+                this.filePath = res.data;
+                this.editComment("HAVE_FILE", index, commentId, parent);
+              }
+            }).catch((e) => {
+            window.alert(e);
+            console.log(e);
+          });
+        } else {
+          this.editComment("NO_FILE", index, commentId, parent);
+        }
+      },
+      editComment(filePresence, index, commentId, parent) {
         let data = {
           boardId: this.boardId,
           memberId: this.memberId,
           content: this.editContent,
           nickname: sessionStorage.getItem("nickname"),
-          parentId: this.comments[index].parentId,
-          filePath: this.comments[index].filePath,
-          childCount: this.comments[index].childCount,
-          createdDate: this.comments[index].createdDate,
-          blockStatus: this.comments[index].blockStatus
+          parentId: parent
         };
+        if(filePresence === "HAVE_FILE") {
+          data['filePath'] = this.filePath;
+        }
 
         http.put('/boards/' + this.boardId + '/comments/' + commentId, data)
           .then((res) => {
             if(res.status === 200) {
               window.alert('댓글이 성공적으로 수정되었습니다.');
+
               if(parent === null) {
                 this.comments[index].content = this.editContent;
+
+                if(this.filePath !== "" && this.filePath !== null)  {
+                  this.comments[index].fileSrc = "http://localhost:8081/files/thumb_" + this.filePath;
+                }
               } else {
                 this.childComments[index].content = this.editContent;
+                if(this.filePath !== "" && this.filePath !== null)  {
+                  this.childComments[index].fileSrc = "http://localhost:8081/files/thumb_" + this.filePath;
+                }
               }
               this.hideCommentEditArea(index, parent);
             }
@@ -495,6 +515,16 @@
         } else {
           document.getElementById("existedChildComment" + index).style.display = 'block';
           document.getElementById("editChildComment" + index).style.display = 'none';
+        }
+      },
+      /* 선택한 파일 데이터 가져오기 */
+      setFileData(files, whichFileExplorer) {
+        if(files.length) {
+          if(whichFileExplorer === "commentWrite" || whichFileExplorer === "childCommentWrite") {
+            this.writeFileData = files[0];
+          } else if(whichFileExplorer === "edit") {
+            this.editFileData = files[0];
+          }
         }
       },
       deleteComment(index, commentId, parent) {

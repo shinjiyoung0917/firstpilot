@@ -60,7 +60,7 @@ public class MemberController {
     }
 
     @PutMapping("/members")
-    public MemberDto putMember(@RequestBody @Valid MemberDto memberDto) {
+    public MemberDto putMember(@RequestBody MemberDto memberDto) {
         log.info("putMember 로그 - 진입");
 
         return memberService.updateMember(memberDto);

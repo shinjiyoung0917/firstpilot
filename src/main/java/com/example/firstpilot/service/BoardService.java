@@ -12,7 +12,6 @@ import com.example.firstpilot.dto.BoardDto;
 import com.example.firstpilot.repository.MemberRepository;
 import com.example.firstpilot.repository.BoardRepository;
 import com.example.firstpilot.repository.LikeBoardRepository;
-import com.example.firstpilot.util.LikeBoardPK;
 import com.example.firstpilot.util.BlockStatus;
 
 import org.springframework.stereotype.Service;

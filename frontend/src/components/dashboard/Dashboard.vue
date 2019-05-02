@@ -30,13 +30,13 @@
 
           <div class="carousel slide my-4" data-ride="carousel" id="nicknameField" style="display: block">
             <div class="form-group has-success">
-              <h2 class="text-center text-uppercase text-secondary mb-0"> 나의 닉네임  {{ nickname }}</h2>
+              <h2 class="text-center text-uppercase text-secondary mb-0"> 나의 닉네임  {{ this.nickname }}</h2>
               <!-- <input type="text" class="form-control" id="inputSuccess4"> -->
             </div>
           </div>
 
           <div class="form-group floating-label-form-group controls mb-0 pb-2" id="nicknameEditField" style="display: none">
-            <input type="text" class="form-control" id="name" aria-invalid="false" required="required" v-model="nickname" data-validation-required-message="닉네임을 입력해주세요.">
+            <input type="text" class="form-control" id="name" aria-invalid="false" required="required" v-model="editedNickname" data-validation-required-message="닉네임을 입력해주세요.">
             <p class="help-block text-danger"></p>
             <button class="btn btn-dark" @click="editNickname"> 수정 </button>
             <button class="btn btn-dark" @click="hideNicknameEditArea"> 취소 </button>
@@ -129,6 +129,7 @@
     data () {
       return {
         nickname: sessionStorage.getItem("nickname"),
+        editedNickname: sessionStorage.getItem("nickname"),
         memberId: sessionStorage.getItem("memberId"),
         member: '',
         boards: [],
@@ -280,8 +281,6 @@
           window.alert(e);
           console.log(e);
         });
-
-
       },
       hideNicknameEditArea() {
         document.getElementById("nicknameField").style.display = 'block';
@@ -289,8 +288,7 @@
       },
       editNickname() {
         let data = {
-          nickname: this.nickname,
-          updatedDate: this.member.updatedDate
+          nickname: this.editedNickname
         };
 
         http.put('/members', data)
@@ -303,11 +301,12 @@
                 window.alert("닉네임 수정이 성공적으로 완료되었습니다.");
               }
               this.hideNicknameEditArea();
-              BUS.$emit('bus:call', this.member.nickname);
-              this.$router.replace('/dashboard');
+              this.nickname = this.editedNickname;
+              //BUS.$emit('bus:call', this.member.nickname);
             }
           }).catch((e) => {
-          window.alert("닉네임을 변경할 수 없습니다.");
+          window.alert(e);
+          console.log(e);
           this.nickname = sessionStorage.getItem("nickname");
         });
       },

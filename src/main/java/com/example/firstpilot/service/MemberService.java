@@ -151,7 +151,7 @@ public class MemberService implements UserDetailsService {
     }
 
     /* 닉네임 변경가능한지의 여부 판단 (닉네임 수정란에 기입하고 수정 버튼 눌렀을 때) */
-    private boolean possibleToChangeNickname(String updatedDate) {
+    public boolean possibleToChangeNickname(String updatedDate) {
         long period = -1;
 
         CurrentTime currentTime = new CurrentTime();
@@ -163,7 +163,6 @@ public class MemberService implements UserDetailsService {
             Date current = dateFormat.parse(currentTimeString);
             log.info("possibleToChangeNickname 로그 - 지금 시간(Date) : " + current);
 
-            // TODO: 변경날짜 null일 경우 처리
             if(updatedDate != null) {
                 Date past = dateFormat.parse(updatedDate);
                 log.info("possibleToChangeNickname 로그 - 이전에 업데이트 했던 시간(Date) : " + past);
@@ -199,14 +198,12 @@ public class MemberService implements UserDetailsService {
 
     /* 회원탈퇴 시 게시물, 댓글 함께 삭제(상태 변환) */
     private void deleteBoardsAndComments(Long memberId) {
-        // TODO: Board, Comment도 Optional로 바꿔서 익셉션 처리하기
         List<Board> boards = boardRepo.findAllByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundMemberException());
         List<Comment> comments = commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundMemberException());
 
-        log.info("deleteBoardsAndComments 로그 - 본인 게시물 개수 : " + boards.size());
-        log.info("deleteBoardsAndComments 로그 - 본인 댓글 개수 : " + comments.size());
+        log.info("deleteBoardsAndComments 로그 - 본인 게시물, 댓글 개수 : " + boards.size() + ", " + comments.size());
 
         for(Board board : boards) {
             board.setBlockStatus(BlockStatus.BLOCKED);
