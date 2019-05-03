@@ -1,21 +1,20 @@
 package com.example.firstpilot.exceptionAndHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@RestControllerAdvice
+// TODO: @RestControllerAdvice로 수정하기
 public class ControllerAdviceForException extends ResponseEntityExceptionHandler {
-    private static final Logger log = LoggerFactory.getLogger(ExceptionHandler.class);
-
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity handleNullPointerException(NullPointerException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        // TODO: 상태코드 고치기, NPE 발생하면 X
     }
 
     @ExceptionHandler(AlreadyExistedEmailException.class)

@@ -85,11 +85,17 @@
         }
       },
       changeNicknameInSession() {
-        BUS.$on('bus:call', function (nickname) {
-          window.alert("Dashboard.vue에서 emit해서 이벤트를 받음");
-          this.nickname = nickname;
+        let _this = this;
+        BUS.$on('nickname:update', nickname => {
+          console.log("Dashboard.vue에서 emit해서 이벤트를 받음");
+
+          _this.nickname = nickname;
+          sessionStorage.setItem('nickname', nickname);
         });
       }
+    },
+    created() {
+      this.changeNicknameInSession();
     },
     beforeCreate() {
       http.get("/session")

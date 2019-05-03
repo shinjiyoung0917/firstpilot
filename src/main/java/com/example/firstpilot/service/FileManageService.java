@@ -108,6 +108,7 @@ public class FileManageService {
         return thumbnailName;
     }
 
+    // TODO: Closeable 확인
     /* 파일 객체 가져오기 */
     public ResponseEntity<byte[]> readFileByte(String fileName, HttpServletResponse res) throws IOException {
         BufferedOutputStream out = null;
@@ -121,6 +122,7 @@ public class FileManageService {
             res.setContentType("image/" + ext);
             res.setHeader("Content-Disposition", "inline;filename=" + fileName);
             File file = new File(ABSOLUTE_FILEPATH + "/" + fileName);
+
             if(file.exists()){
                 in = new FileInputStream(file);
                 out = new BufferedOutputStream(res.getOutputStream());
@@ -132,6 +134,7 @@ public class FileManageService {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            // TODO: catch 하고 수행할 로직 작성하기
         } finally {
             if(out != null){ out.flush(); }
             if(out != null){ out.close(); }

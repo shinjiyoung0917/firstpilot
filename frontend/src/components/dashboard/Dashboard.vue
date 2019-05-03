@@ -302,7 +302,7 @@
               }
               this.hideNicknameEditArea();
               this.nickname = this.editedNickname;
-              //BUS.$emit('bus:call', this.member.nickname);
+              BUS.$emit('nickname:update', this.nickname);
             }
           }).catch((e) => {
           window.alert(e);

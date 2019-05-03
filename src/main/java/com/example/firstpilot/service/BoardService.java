@@ -70,7 +70,7 @@ public class BoardService {
         log.info("readBoardDetails 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
         board.increaseHitCount();
         boardRepo.save(board);
         return board;
@@ -95,7 +95,7 @@ public class BoardService {
         return myBoardList;
     }
 
-    // TODO: 좋아요 수 업데이트 되는 것이랑 같이 트랜잭션 롤백처리 안되고 있는 듯
+    // TODO: 좋아요 수 업데이트 되는 것이랑 같이 트랜잭션 롤백처리 안되고 있는 듯, Inno DB로 바꾸기
     @Transactional
     public void createLikeBoard(Long boardId) {
         log.info("createLikeBoard 로그  - 진입");

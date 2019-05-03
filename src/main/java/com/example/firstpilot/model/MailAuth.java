@@ -33,7 +33,7 @@ public class MailAuth {
     @Column(name = "auth_key", nullable = false)
     private String authKey;
 
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date") //, nullable = false
     private String createdDate;
 
     @PrePersist

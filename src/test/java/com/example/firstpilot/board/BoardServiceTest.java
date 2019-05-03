@@ -1,32 +1,24 @@
 package com.example.firstpilot.board;
 
-import com.example.firstpilot.model.Board;
 import com.example.firstpilot.dto.BoardDto;
-import com.example.firstpilot.service.BoardService;
+import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
+import com.example.firstpilot.model.Board;
 import com.example.firstpilot.repository.BoardRepository;
 import com.example.firstpilot.util.BlockStatus;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.security.test.context.support.WithMockUser;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
-
 @RunWith(SpringRunner.class)
-@SpringBootTest
 @DataJpaTest
-@TestPropertySource(properties = {"spring.mail.username=test@test.com"})
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class BoardServiceTest {
-    @Autowired
-    private BoardService boardService;
+
     @Autowired
     private BoardRepository boardRepo;
 
