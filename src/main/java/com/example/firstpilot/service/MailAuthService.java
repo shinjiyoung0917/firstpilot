@@ -29,7 +29,7 @@ public class MailAuthService {
     private MemberService memberService;
     @Autowired
     private MailAuthRepository authRepo;
-
+    @Autowired
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
@@ -42,17 +42,16 @@ public class MailAuthService {
 
         MailAuth mailAuth = mailAuthDto.toEntity();
 
-        // TODO: 이메일 NULL일 경우 처리
         String encryptedEmail = mailAuth.encryptEmail();
-        log.info("createAuthKey 로그 - encryptedEmail : " +encryptedEmail);
+        log.info("createAuthKey 로그 - encryptedEmail : " + encryptedEmail);
 
-        if(!memberService.duplicatedEmail(encryptedEmail)) {
+        if(!memberService.checkDuplicatedEmail(encryptedEmail)) {
             log.info("createAuthKey 로그 - 중복된 이메일 아님");
+
             String authKey = mailAuth.generateKey(KEY_SIZE, false);
             String email = mailAuthDto.getEmail();
             sendMail(authKey, email);
 
-            // TODO: 더 좋은 방법이 없을까
             mailAuth = MailAuth.builder()
                     .email(encryptedEmail)
                     .authType(AuthType.SIGN_UP)

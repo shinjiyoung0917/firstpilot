@@ -41,13 +41,6 @@ public class Member {
 
     private String role;
 
-    @PreUpdate
-    public void preUpdate() {
-        CurrentTime currentTime = new CurrentTime();
-        String currentTimeString = currentTime.getCurrentTime();
-        updatedDate = currentTimeString;
-    }
-
     public MemberDto toDto() {
         return MemberDto.builder()
                 .memberId(memberId)
@@ -59,6 +52,9 @@ public class Member {
     }
 
     public Member updateMemberEntity(MemberDto memberDto) {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        updatedDate = currentTimeString;
         nickname = memberDto.getNickname();
         return this;
     }

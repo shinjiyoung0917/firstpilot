@@ -60,17 +60,16 @@ public class MemberService implements UserDetailsService {
         String encryptPassword = member.encryptPassword(passwordEncoder);
 
         String nickname = "";
-        if(!duplicatedEmail(encryptEmail)) {
+        if(!checkDuplicatedEmail(encryptEmail)) {
             boolean isNicknameExist = true;
 
             do {
                 nickname = member.generateTemporaryNickname();
-                if(!duplicatedNickname(nickname)) {
+                if(!checkDuplicatedNickname(nickname)) {
                     isNicknameExist = false;
                 }
             } while (isNicknameExist);
 
-            // TODO: 이 방법도 괜찮은지?
             member = Member.builder()
                     .email(encryptEmail)
                     .nickname(nickname)
@@ -83,13 +82,13 @@ public class MemberService implements UserDetailsService {
         }
     }
 
-    public boolean duplicatedEmail(String encryptEmail) {
-        log.info("duplicatedEmail 로그 - 진입");
+    public boolean checkDuplicatedEmail(String encryptEmail) {
+        log.info("checkDuplicatedEmail 로그 - 진입");
         return memberRepo.findByEmail(encryptEmail).isPresent();
     }
 
-    private boolean duplicatedNickname(String nickname) {
-        log.info("duplicatedNickname 로그 - 진입");
+    private boolean checkDuplicatedNickname(String nickname) {
+        log.info("checkDuplicatedNickname 로그 - 진입");
         return memberRepo.findByNickname(nickname).isPresent();
     }
 
@@ -105,7 +104,7 @@ public class MemberService implements UserDetailsService {
         return new LoginUserDetails(member);
     }
 
-    // TODO: MemberDto로 해야할지 고민해보자
+    // TODO: MemberDto로 해야할지 고민해보기
     public Member readSession() {
         log.info("readSession 로그 - 진입");
 
@@ -114,8 +113,8 @@ public class MemberService implements UserDetailsService {
             return null;
         } else {
             LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
-            log.info("readSession 로그 - member : " + login);
             log.info("readSession 로그 - member id : " + login.getMemberId());
+
             Long memberId = login.getMemberId();
             Member member = memberRepo.findByMemberId(memberId)
                     .orElseThrow(() -> new NotFoundMemberException());
@@ -137,12 +136,12 @@ public class MemberService implements UserDetailsService {
         Member member = memberRepo.findByNickname(beforeChangingNickname)
                 .orElseThrow(() -> new NotFoundMemberException());
 
-        if(duplicatedNickname(memberDto.getNickname())) {
+        if(checkDuplicatedNickname(memberDto.getNickname())) {
             log.info("updateMember 로그 - 중복으로 인해 닉네임 변경 불가");
+
             throw new AlreadyExistedNicknameException();
         }
 
-        log.info("updateMember 로그 - 닉네임 중복 아님");
         if(possibleToChangeNickname(memberDto.getUpdatedDate())) {
             return memberRepo.save(member.updateMemberEntity(memberDto)).toDto();
         } else {

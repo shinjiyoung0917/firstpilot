@@ -113,7 +113,7 @@
           content: this.content,
         };
         if(filePresence === "HAVE_FILE") {
-          data[filePath] = this.filePath;
+          data['filePath'] = this.filePath;
         }
 
         http.post('/boards', data)

@@ -85,13 +85,6 @@ public class Board {
         blockStatus = BlockStatus.UNBLOCKED;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        CurrentTime currentTime = new CurrentTime();
-        String currentTimeString = currentTime.getCurrentTime();
-        updatedDate = currentTimeString;
-    }
-
     public BoardDto toDto(Member member) {
         return BoardDto.builder()
                 .member(member)
@@ -108,6 +101,9 @@ public class Board {
     }
 
     public Board updateBoardEntity(BoardDto boardDto) {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        updatedDate = currentTimeString;
         title = boardDto.getTitle();
         content = boardDto.getContent();
         filePath = boardDto.getFilePath();

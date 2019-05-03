@@ -135,13 +135,6 @@ public class BoardService {
         LikeBoard likeBoard = likeBoardRepo.findByMemberIdAndBoardId(memberId, boardId)
                 .orElseThrow(() -> new UnableToDeleteLikeBoard());
         likeBoardRepo.deleteByLikeId(likeBoard.getLikeId());
-
-        /*LikeBoardPK pk = LikeBoardPK.builder()
-                .memberId(memberId)
-                .boardId(boardId)
-                .build();
-        likeBoardRepo.deleteById(pk);
-        */
     }
 
     @Transactional

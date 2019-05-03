@@ -78,13 +78,6 @@ public class Comment {
         blockStatus = BlockStatus.UNBLOCKED;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        CurrentTime currentTime = new CurrentTime();
-        String currentTimeString = currentTime.getCurrentTime();
-        updatedDate = currentTimeString;
-    }
-
     public CommentDto toDto(Board board, Member member) {
         return CommentDto.builder()
                 .board(board)
@@ -100,6 +93,9 @@ public class Comment {
     }
 
     public Comment updateCommentEntity(CommentDto commentDto) {
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        updatedDate = currentTimeString;
         content = commentDto.getContent();
         filePath = commentDto.getFilePath();
         return this;

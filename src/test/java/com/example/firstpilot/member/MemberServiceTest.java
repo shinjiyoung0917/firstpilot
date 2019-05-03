@@ -7,6 +7,7 @@ import com.example.firstpilot.repository.MemberRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -20,6 +21,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@DataJpaTest
 @TestPropertySource(properties = {"spring.mail.username=test@test.com"})
 public class MemberServiceTest {
     @Autowired
@@ -29,7 +31,7 @@ public class MemberServiceTest {
 
     @Test
     @WithMockUser
-    public void 닉네임_변경_테스트() {
+    public void 닉네임_수정_테스트() {
         Member member = Member.builder()
                 .email("test_email@test.com")
                 .nickname("test_nickname")

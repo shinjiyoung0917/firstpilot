@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LikeBoardRepository extends JpaRepository<LikeBoard, Long> { //LikeBoardPK
+public interface LikeBoardRepository extends JpaRepository<LikeBoard, Long> {
     Optional<List<LikeBoard> > findByMemberId(Long memberId);
     Optional<LikeBoard> findByMemberIdAndBoardId(Long memberId, Long boardId);
     void deleteByLikeId(Long likeId);

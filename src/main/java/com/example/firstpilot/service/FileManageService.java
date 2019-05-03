@@ -34,10 +34,17 @@ public class FileManageService {
     private Integer IMAGE_CONTENTTYPE_START_INDEX = 0;
     private Integer IMAGE_CONTENTTYPE_END_INDEX = 5;
 
-    /* 서버 디렉토리에 파일 업로드 */
     public ResponseEntity<String> saveBoardFileInDir(MultipartFile uploadFile) {
         log.info("saveBoardFileInDir 로그  - 진입");
 
+        File folder = new File(ABSOLUTE_FILEPATH);
+        if(!folder.exists()) {
+            try{
+                folder.mkdir();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
         try {
             String originalFileName = uploadFile.getOriginalFilename();
             byte[] bytes = uploadFile.getBytes();
@@ -90,7 +97,7 @@ public class FileManageService {
         File newFile = new File(fullPath);
 
         if(!(originalImg.getWidth() <= thumbnail_width && originalImg.getHeight() <= thumbnail_height)){
-            //이미지 썸네일로 만들기(그릇 준비 -> 그래픽 만들기 -> 그리기 -> 데이터로 쓰기)
+            // 썸네일 만들기(그릇 준비 -> 그래픽 만들기 -> 그리기 -> 데이터로 쓰기)
             BufferedImage thumbImage = new BufferedImage(thumbnail_width, thumbnail_height, BufferedImage.TYPE_3BYTE_BGR);
             Graphics2D graphic = thumbImage.createGraphics();
             graphic.drawImage(originalImg, 0, 0, thumbnail_width, thumbnail_height, null);
