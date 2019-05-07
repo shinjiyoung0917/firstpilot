@@ -111,34 +111,27 @@ public class FileManageService {
     // TODO: Closeable 확인
     /* 파일 객체 가져오기 */
     public ResponseEntity<byte[]> readFileByte(String fileName, HttpServletResponse res) throws IOException {
-        BufferedOutputStream out = null;
-        InputStream in = null;
-
         int pos = fileName.lastIndexOf(".");
         String ext = fileName.substring(pos + 1);
         byte[] bytes = null;
 
-        try {
-            res.setContentType("image/" + ext);
-            res.setHeader("Content-Disposition", "inline;filename=" + fileName);
-            File file = new File(ABSOLUTE_FILEPATH + "/" + fileName);
+        res.setContentType("image/" + ext);
+        res.setHeader("Content-Disposition", "inline;filename=" + fileName);
+        File file = new File(ABSOLUTE_FILEPATH + "/" + fileName);
 
-            if(file.exists()){
-                in = new FileInputStream(file);
-                out = new BufferedOutputStream(res.getOutputStream());
+        if(file.exists()) {
+            try(InputStream in = new FileInputStream(file);
+                BufferedOutputStream out = new BufferedOutputStream(res.getOutputStream());
+            ) {
                 int len;
                 bytes = new byte[1024];
                 while ((len = in.read(bytes)) > 0) {
                     out.write(bytes, 0, len);
                 }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            // TODO: catch 하고 수행할 로직 작성하기
-        } finally {
-            if(out != null){ out.flush(); }
-            if(out != null){ out.close(); }
-            if(in != null){ in.close(); }
+            } catch (IOException e) {
+                e.printStackTrace();
+                // TODO: catch 하고 수행할 로직 작성하기
+            } 
         }
 
         return ResponseEntity
