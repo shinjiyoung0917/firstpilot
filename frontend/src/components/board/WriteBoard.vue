@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-header></app-header>
 
     <!-- Page Content -->
     <div class="container">
@@ -49,25 +48,18 @@
     </div>
     <!-- /.container -->
 
-    <app-footer></app-footer>
   </div>
 </template>
 
 <script>
   import http from "@/http-common"
   import httpFile from "@/http-fileUpload"
-  import Header from '../layout/Header.vue'
-  import Footer from '../layout/Footer.vue'
 
   export default {
-    components: {
-      'app-header': Header,
-      'app-footer': Footer
-    },
     data() {
       return {
-        memberId: sessionStorage.getItem("memberId"),
-        nickname: sessionStorage.getItem("nickname"),
+        memberId: localStorage.getItem("memberId"),
+        nickname: localStorage.getItem("nickname"),
         title: '',
         content: '',
         fileData: '',
@@ -129,7 +121,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
+      if (!localStorage.getItem("memberId") || localStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       }

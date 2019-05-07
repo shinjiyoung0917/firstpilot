@@ -2,10 +2,18 @@
 
   <div id="app" class="container-fluid">
 
-    <div class="site-info">
+    <div id="header">
+      <app-header></app-header>
     </div>
 
-    <router-view/>
+    <div class="site-info">
+      <router-view/>
+    </div>
+
+    <div id="footer">
+      <app-footer></app-footer>
+    </div>
+
   </div>
 
 </template>

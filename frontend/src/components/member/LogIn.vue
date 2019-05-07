@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-header></app-header>
 
     <div class="login-row">
       <div class="login-form">
@@ -21,22 +20,15 @@
       </div>
     </div>
 
-    <app-footer></app-footer>
   </div>
 </template>
 
 <script>
   import http from "@/http-common"
-  import Header from '../layout/Header.vue'
-  import Footer from '../layout/Footer.vue'
   import {BUS} from '@/EventBus'
 
   export default {
     name: "Login",
-    components: {
-      'app-header': Header,
-      'app-footer': Footer
-    },
     data() {
       return {
         email: '',
@@ -56,14 +48,14 @@
           http.post('/login', bodyFormData)
             .then((res) => {
               if(res.status === 200) {
-                this.getSession();
+                this.setSessionToBrowser();
                 //this.$store.commit('loginFlush', res.data.email);
               } else {
-                window.alert("로그인에 실패하였습니다. 이메일과 비밀번호를 다시 한 번 확인해주세요.");
+                window.alert("로그인에 실패하였습니다.\n이메일과 비밀번호를 다시 한 번 확인해주세요.");
                 window.location.reload();
               }
             }).catch((e) => {
-              window.alert("로그인에 실패하였습니다. 이메일과 비밀번호를 다시 한 번 확인해주세요.");
+              window.alert("로그인에 실패하였습니다.\n이메일과 비밀번호를 다시 한 번 확인해주세요.");
               console.log(e);
             });
         }
@@ -74,17 +66,17 @@
       cancel() {
         this.$router.replace('/');
       },
-      getSession() {
+      setSessionToBrowser() {
         http.get("/session")
           .then((res) => {
             if (res.status === 200) {
               this.nickname = res.data.nickname;
               this.memberId = res.data.memberId;
 
-              sessionStorage.setItem("nickname", this.nickname);
-              this.nickname = sessionStorage.getItem("nickname");
-              sessionStorage.setItem("memberId", this.memberId);
-              this.memberId = sessionStorage.getItem("memberId");
+              localStorage.setItem("nickname", this.nickname);
+              localStorage.setItem("memberId", this.memberId);
+
+              BUS.$emit('nickname:login', this.nickname);
 
               this.$router.replace('/');
             } else {

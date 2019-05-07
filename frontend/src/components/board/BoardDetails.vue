@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-header></app-header>
 
     <!-- Page Content -->
     <div class="container">
@@ -182,21 +181,14 @@
     </div>
     <!-- /.container -->
 
-    <app-footer></app-footer>
   </div>
 </template>
 
 <script>
   import http from "@/http-common"
   import httpFile from "@/http-fileUpload"
-  import Header from '../layout/Header.vue'
-  import Footer from '../layout/Footer.vue'
 
   export default {
-    components: {
-      'app-header': Header,
-      'app-footer': Footer
-    },
     data () {
       return {
         memberId: '',
@@ -270,7 +262,7 @@
                   this.childComments.unshift(childCommentInfo);
                 }
               }
-              this.memberId = Number(sessionStorage.getItem("memberId"));
+              this.memberId = Number(localStorage.getItem("memberId"));
             }
           }).catch((e) => {
           window.alert(e);
@@ -363,7 +355,7 @@
           boardId: this.boardId,
           memberId: this.memberId,
           content: this.content,
-          nickname: sessionStorage.getItem("nickname"),
+          nickname: localStorage.getItem("nickname"),
           parentId: null
         };
         if(filePresence === "HAVE_FILE") {
@@ -389,7 +381,7 @@
           boardId: this.boardId,
           memberId: this.memberId,
           content: this.childContent,
-          nickname: sessionStorage.getItem("nickname"),
+          nickname: localStorage.getItem("nickname"),
           parentId: parent
         };
         if(filePresence === "HAVE_FILE") {
@@ -460,7 +452,7 @@
           boardId: this.boardId,
           memberId: this.memberId,
           content: this.editContent,
-          nickname: sessionStorage.getItem("nickname"),
+          nickname: localStorage.getItem("nickname"),
           parentId: parent
         };
         if(filePresence === "HAVE_FILE") {
@@ -555,7 +547,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
+      if (!localStorage.getItem("memberId") || localStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {

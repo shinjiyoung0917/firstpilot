@@ -17,6 +17,11 @@ public class ControllerAdviceForException extends ResponseEntityExceptionHandler
         // TODO: 상태코드 고치기, NPE 발생하면 X
     }
 
+    @ExceptionHandler(NotLoginMember.class)
+    public ResponseEntity handleNotLoginMember(NotLoginMember e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
     @ExceptionHandler(AlreadyExistedEmailException.class)
     public ResponseEntity handleAlreadyExistedEmailException(AlreadyExistedEmailException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

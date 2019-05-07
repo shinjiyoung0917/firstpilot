@@ -29,7 +29,6 @@ public class MailAuthDto {
                 .email(email)
                 .authType(authType)
                 .authKey(authKey)
-                .createdDate(createdDate)
                 .build();
     }
 }

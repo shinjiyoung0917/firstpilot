@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-header></app-header>
 
     <div class="site-info masthead bg-primary text-white text-center">
 
@@ -14,20 +13,12 @@
 
     </div>
 
-    <app-footer></app-footer>
   </div>
 </template>
 
 <script>
-  import Header from './layout/Header.vue'
-  import Footer from './layout/Footer.vue'
-
   export default {
-    name: "Main",
-    components: {
-      'app-header': Header,
-      'app-footer': Footer
-    }
+    name: "Main"
   }
 </script>
 

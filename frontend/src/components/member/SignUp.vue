@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-header></app-header>
 
     <div class="signup-row">
       <div class="signup-form">
@@ -52,21 +51,14 @@
       <!-- <div class='toast' style='display:none' id="toast">토스트 띄우기 테스트</div> -->
     </div>
 
-    <app-footer></app-footer>
   </div>
 </template>
 
 
 <script>
   import http from "@/http-common"
-  import Header from '../layout/Header.vue'
-  import Footer from '../layout/Footer.vue'
 
   export default {
-    components: {
-      'app-header': Header,
-      'app-footer': Footer
-    },
     data() {
       return {
         email: '',

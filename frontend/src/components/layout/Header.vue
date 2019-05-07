@@ -24,7 +24,7 @@
           </li>
 
           <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar3">
-            <router-link to="/dashboard" style="color: #888888;"> 나의 페이지 </router-link> <!-- 나의 페이지에서 회원탈퇴 구현하기 -->
+            <router-link to="/dashboard" style="color: #888888;"> 나의 페이지 </router-link>
           </li>
 
           <li class="nav-item" v-if="this.nickname !== null && this.nickname !== 'undefined'" id="header-navigation-bar4">
@@ -43,7 +43,6 @@
             <router-link to="/signup" style="color: #888888;"> 회원가입 </router-link>
           </li>
 
-          <router-view/>
         </ul>
 
       </div>
@@ -60,7 +59,7 @@
     name: "Header",
     data() {
       return {
-        nickname: sessionStorage.getItem("nickname")
+        nickname: localStorage.getItem("nickname")
       };
     },
     methods: {
@@ -69,10 +68,11 @@
           http.post('/logout')
             .then((res) => {
               if(res.status === 200) {
-                window.alert("로그아웃이 성공적으로 완료되었습니다. \n 좋은 하루 되세요!");
-                sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
-                sessionStorage.removeItem("memberId");
-                sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
+                window.alert("로그아웃이 성공적으로 완료되었습니다.\n좋은 하루 되세요!");
+
+                localStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+                localStorage.removeItem("memberId");
+                localStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
                 this.nickname = null;
               }
             }).catch((e) => {
@@ -81,45 +81,26 @@
           });
           this.$router.replace('/');
         } else {
-          window.alert("이미 로그아웃 처리 완료되었습니다.");
+          window.alert("이미 로그아웃 처리가 완료된 상태입니다.");
         }
       },
       changeNicknameInSession() {
         let _this = this;
         BUS.$on('nickname:update', nickname => {
-          console.log("Dashboard.vue에서 emit해서 이벤트를 받음");
-
           _this.nickname = nickname;
-          sessionStorage.setItem('nickname', nickname);
+          localStorage.setItem('nickname', nickname);
+        });
+      },
+      setSession() {
+        let _this = this;
+        BUS.$on('nickname:login', nickname => {
+          _this.nickname = nickname;
         });
       }
     },
     created() {
       this.changeNicknameInSession();
-    },
-    beforeCreate() {
-      http.get("/session")
-        .then((res) => {
-          if (res.status === 200) {
-            if(res.data !== null) {
-              sessionStorage.setItem("nickname", res.data.nickname);
-              sessionStorage.setItem("memberId", res.data.memberId);
-            } else {
-              // 세션 초기화?
-              sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
-              sessionStorage.removeItem("memberId");
-              sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
-            }
-          } else {
-            sessionStorage.removeItem("nickname");
-            sessionStorage.removeItem("memberId");
-            sessionStorage.clear();
-          }
-        }).catch((e) => {
-        sessionStorage.removeItem("nickname");
-        sessionStorage.removeItem("memberId");
-        sessionStorage.clear();
-      });
+      this.setSession();
     }
   }
 </script>

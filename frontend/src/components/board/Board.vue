@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-header></app-header>
 
     <!-- Page Content -->
     <div class="container">
@@ -58,13 +57,13 @@
               <div class="card h-100">
                 <img :src="board.fileSrc"> <!--class="card-img-top" -->
                 <div class="card-body">
-                  <span v-if="board.updatedDate === null" style="font-size: 10px"> {{ board.createdDate }} </span>
-                  <span v-else style="font-size: 10px"> {{ board.updatedDate }} 수정됨 </span>
+                  <span v-if="board.updatedDate === null" style="font-size: 10px; color: #2e2e2e"> {{ board.createdDate }} </span>
+                  <span v-else style="font-size: 10px; color: #2e2e2e"> {{ board.updatedDate }} 수정됨 </span>
                   <h4 class="card-title">
                     <router-link :to="{ name: 'board-details', params: { id: board.boardId, like: board.like, memberId: board.memberId }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
-                  <h7> by {{ board.nickname }} </h7>
+                  <h6 style="color: #2e2e2e"> by {{ board.nickname }} </h6>
                   <p class="card-text"> {{ board.content }} </p>
                   <a class="button" href="#">Read More <i class="ti-arrow-right"></i></a>
                 </div>
@@ -92,24 +91,16 @@
     </div>
     <!-- /.container -->
 
-    <app-footer></app-footer>
   </div>
 </template>
 
 <script>
   import http from "@/http-common"
-  import httpFile from "@/http-fileUpload"
-  import Header from '../layout/Header.vue'
-  import Footer from '../layout/Footer.vue'
 
   export default {
-    components: {
-      'app-header': Header,
-      'app-footer': Footer
-    },
     data () {
       return {
-        memberId: sessionStorage.getItem("memberId"),
+        memberId: localStorage.getItem("memberId"),
         bottom: false,
         boards: [],
         page: 0
@@ -209,7 +200,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
+      if (!localStorage.getItem("memberId") || localStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {

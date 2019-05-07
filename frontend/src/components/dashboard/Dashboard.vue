@@ -1,6 +1,5 @@
 <template>
   <div>
-    <app-header></app-header>
 
     <!-- Page Content -->
     <div class="container">
@@ -51,13 +50,13 @@
               <div class="card h-100">
                 <img :src="board.fileSrc"> <!--class="card-img-top" -->
                 <div class="card-body">
-                  <span v-if="board.updatedDate === null" style="font-size: 10px"> {{ board.createdDate }} </span>
-                  <span v-else style="font-size: 10px"> {{ board.updatedDate }} </span>
+                  <span v-if="board.updatedDate === null" style="font-size: 10px; color: #2e2e2e"> {{ board.createdDate }} </span>
+                  <span v-else style="font-size: 10px; color: #2e2e2e"> {{ board.updatedDate }} </span>
                   <h4 class="card-title">
                     <router-link  :to="{ name: 'board-details', params: { id: board.boardId, like: board.like, memberId: board.memberId }}"> {{ board.title }} </router-link>
                     <router-view/>
                   </h4>
-                  <h7> by {{ board.nickname }} </h7>
+                  <h6 style="color: #2e2e2e"> by {{ board.nickname }} </h6>
                   <p class="card-text"> {{ board.content }} </p>
                   <a class="button" href="#">Read More <i class="ti-arrow-right"></i></a>
                 </div>
@@ -111,26 +110,19 @@
     </div>
     <!-- /.container -->
 
-    <app-footer></app-footer>
   </div>
 </template>
 
 <script>
   import http from "@/http-common"
-  import Header from '../layout/Header.vue'
-  import Footer from '../layout/Footer.vue'
   import {BUS} from '@/EventBus'
 
   export default {
-    components: {
-      'app-header': Header,
-      'app-footer': Footer
-    },
     data () {
       return {
-        nickname: sessionStorage.getItem("nickname"),
-        editedNickname: sessionStorage.getItem("nickname"),
-        memberId: sessionStorage.getItem("memberId"),
+        nickname: localStorage.getItem("nickname"),
+        editedNickname: localStorage.getItem("nickname"),
+        memberId: localStorage.getItem("memberId"),
         member: '',
         boards: [],
         bottom: false,
@@ -296,7 +288,7 @@
             if(res.status === 200) {
               if(res.data === null || res.data === "") {
                 window.alert("닉네임을 변경할 수 없습니다.");
-                this.nickname = sessionStorage.getItem("nickname");
+                this.nickname = localStorage.getItem("nickname");
               } else {
                 window.alert("닉네임 수정이 성공적으로 완료되었습니다.");
               }
@@ -307,11 +299,11 @@
           }).catch((e) => {
           window.alert(e);
           console.log(e);
-          this.nickname = sessionStorage.getItem("nickname");
+          this.nickname = localStorage.getItem("nickname");
         });
       },
       withdrawal() {
-        let confirmFlag = confirm("회원탈퇴를 진행하시겠습니까? \n오직 회원만 서비스 이용가능합니다.");
+        let confirmFlag = confirm("회원탈퇴를 진행하시겠습니까?\n오직 회원만 서비스 이용가능합니다.");
 
         if(confirmFlag) {
           http.delete('/members')
@@ -333,9 +325,9 @@
         http.post('/logout')
           .then((res) => {
             if(res.status === 200) {
-              sessionStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
-              sessionStorage.removeItem("memberId");
-              sessionStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
+              localStorage.removeItem("nickname"); // 도메인 키와 데이터 모두 삭제, 특정 세션 삭제
+              localStorage.removeItem("memberId");
+              localStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
             }
           }).catch((e) => {
           window.alert(e);
@@ -344,7 +336,7 @@
       }
     },
     created() {
-      if (!sessionStorage.getItem("memberId") || sessionStorage.getItem("memberId") === 'undefined') {
+      if (!localStorage.getItem("memberId") || localStorage.getItem("memberId") === 'undefined') {
         window.alert("로그인이 필요한 서비스입니다.");
         this.$router.push('/login');
       } else {
