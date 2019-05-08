@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.model.Board;
-import com.example.firstpilot.model.LikeBoard;
 import com.example.firstpilot.dto.BoardDto;
 import com.example.firstpilot.service.BoardService;
 import com.example.firstpilot.service.FileManageService;
@@ -25,10 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.validation.Valid;
 
-import java.util.List;
-
-import java.io.IOException;
-
 @RestController
 public class BoardController {
     private static final Logger log = LoggerFactory.getLogger(BoardController.class);
@@ -39,7 +34,7 @@ public class BoardController {
     private FileManageService fileManageService;
 
     @PostMapping("/boards/file")
-    public ResponseEntity<String> postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
+    public String postBoardFile(@RequestParam("uploadFile") MultipartFile uploadFile) {
         log.info("postBoardFile 로그  - 진입");
 
         return fileManageService.saveBoardFileInDir(uploadFile);
@@ -60,17 +55,7 @@ public class BoardController {
    // TODO: JPG 파일은 왜 안되는 것인가?
     @GetMapping(value = "/files/{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> getFileStream(@PathVariable String fileName, HttpServletResponse res) {
-        try {
-            return fileManageService.readFileByte(fileName, res);
-        } catch (IOException e) {
-            // TODO: null 반환하는 것 수정
-            return null;
-        }
-    }
-
-    @GetMapping("/boards/likes")
-    public List<LikeBoard> getLikeBoardList() {
-        return boardService.readLikeBoardList();
+        return fileManageService.readFileByte(fileName, res);
     }
 
     @PostMapping("/boards/{boardId}/like")

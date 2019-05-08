@@ -8,54 +8,40 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestControllerAdvice
 public class ControllerAdviceForException extends ResponseEntityExceptionHandler {
+    // TODO: 원래 NPE는 발생하면 안되지만, 꼭 필요하다면 처리
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity handleNullPointerException(NullPointerException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        // TODO: 상태코드 고치기, NPE 발생하면 안됨
     }
 
-    @ExceptionHandler(NotLoginMember.class)
-    public ResponseEntity handleNotLoginMember(NotLoginMember e) {
+    @ExceptionHandler(NotLoginMemberException.class)
+    public ResponseEntity handleNotLoginMemberException(NotLoginMemberException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundResourcesException.class)
+    public ResponseEntity handleNotFoundResourcesException(NotFoundResourcesException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestFromMemberException.class)
+    public ResponseEntity handleBadRequestFromMemberException(BadRequestFromMemberException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
-    @ExceptionHandler(AlreadyExistedEmailException.class)
-    public ResponseEntity handleAlreadyExistedEmailException(AlreadyExistedEmailException e) {
+    // TODO: 이 메서드를 그대로 냅둘지, 변경할지 고민
+    @ExceptionHandler(UnableToDeleteLikeBoardException.class)
+    public ResponseEntity handleUnableToDeleteLikeBoardException(UnableToDeleteLikeBoardException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
-    @ExceptionHandler(AlreadyExistedNicknameException.class)
-    public ResponseEntity handleAlreadyExistedNicknameException(AlreadyExistedNicknameException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    @ExceptionHandler(MailingException.class)
+    public ResponseEntity handleMailingException(MailingException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
     }
 
-    @ExceptionHandler(MessagingException.class)
-    public ResponseEntity handleMessagingException(MessagingException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
-    @ExceptionHandler(NotFoundMemberException.class)
-    public ResponseEntity handleNotFoundMemberException(NotFoundMemberException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
-    @ExceptionHandler(NotTimeForNicknameChange.class)
-    public ResponseEntity handleNotTimeForNicknameChange(NotTimeForNicknameChange e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
-    @ExceptionHandler(NotFoundBoardException.class)
-    public ResponseEntity handleNotFoundBoardException(NotFoundBoardException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
-    @ExceptionHandler(NotFoundCommentException.class)
-    public ResponseEntity handleNotFoundCommentException(NotFoundCommentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
-    @ExceptionHandler(UnableToDeleteLikeBoard.class)
-    public ResponseEntity handleUnableToDeleteLikeBoard(UnableToDeleteLikeBoard e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    @ExceptionHandler(ResourceIOStreamException.class)
+    public ResponseEntity handleResourceIOStreamException(ResourceIOStreamException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
     }
 }

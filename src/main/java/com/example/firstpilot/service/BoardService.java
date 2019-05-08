@@ -1,6 +1,6 @@
 package com.example.firstpilot.service;
 
-import com.example.firstpilot.exceptionAndHandler.UnableToDeleteLikeBoard;
+import com.example.firstpilot.exceptionAndHandler.UnableToDeleteLikeBoardException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
-import com.example.firstpilot.exceptionAndHandler.NotFoundMemberException;
-import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
-
 import javax.transaction.Transactional;
+
+import com.example.firstpilot.exceptionAndHandler.NotFoundResourcesException;
 
 @Service
 public class BoardService {
@@ -44,7 +41,7 @@ public class BoardService {
         log.info("createBoard 로그  - 진입");
 
         Member member = memberRepo.findByMemberId(boardDto.getMemberId())
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
 
         Board board = boardDto.toEntity(member);
         boardRepo.save(board);
@@ -53,16 +50,15 @@ public class BoardService {
     public void updateBoard(Long boardId, BoardDto boardDto) {
         log.info("updateBoard 로그  - 진입");
 
-        memberRepo.findByMemberId(boardDto.getMemberId())
-                .orElseThrow(NotFoundMemberException::new);
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
 
         boardRepo.save(board.updateBoardEntity(boardDto));
     }
 
     public Page<Board> readBoardList(Pageable pageable) {
         log.info("readBoardList 로그  - 진입");
+
         return boardRepo.findAllByBlockStatus(pageable, BlockStatus.UNBLOCKED);
     }
 
@@ -70,7 +66,7 @@ public class BoardService {
         log.info("readBoardDetails 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
         board.increaseHitCount();
         boardRepo.save(board);
         return board;
@@ -78,7 +74,7 @@ public class BoardService {
 
     public void deleteBoard(Long boardId) {
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
         board.updateBoardBlockStatus();
 
         for(Comment comment : board.getComments()) {
@@ -91,7 +87,7 @@ public class BoardService {
         log.info("readDashboard 로그  - 진입");
         Long memberId = memberService.readSession().getMemberId();
         Page<Board> myBoardList = boardRepo.findByMemberIdAndBlockStatus(pageable, memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
         return myBoardList;
     }
 
@@ -104,7 +100,7 @@ public class BoardService {
         Member member = memberService.readSession();
         Long memberId = member.getMemberId();
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
 
         LikeBoard likeBoard = LikeBoard.builder()
                 .memberId(memberId)
@@ -113,13 +109,6 @@ public class BoardService {
                 .board(board)
                 .build();
         likeBoardRepo.save(likeBoard);
-    }
-
-    public List<LikeBoard> readLikeBoardList() {
-        Long memberId = memberService.readSession().getMemberId();
-        List<LikeBoard> likeBoardList = likeBoardRepo.findByMemberId(memberId)
-                .orElseThrow(NotFoundMemberException::new);
-        return likeBoardList;
     }
 
     @Transactional
@@ -131,7 +120,7 @@ public class BoardService {
         Long memberId = memberService.readSession().getMemberId();
 
         LikeBoard likeBoard = likeBoardRepo.findByMemberIdAndBoardId(memberId, boardId)
-                .orElseThrow(UnableToDeleteLikeBoard::new);
+                .orElseThrow(UnableToDeleteLikeBoardException::new);
         likeBoardRepo.deleteByLikeId(likeBoard.getLikeId());
     }
 
@@ -140,7 +129,7 @@ public class BoardService {
         log.info("updateLikeCountIncrease 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
         board.increaseLikeCount();
         boardRepo.save(board);
     }
@@ -150,7 +139,7 @@ public class BoardService {
         log.info("updateLikeCountDecrease 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
         board.decreaseLikeCount();
         boardRepo.save(board);
     }

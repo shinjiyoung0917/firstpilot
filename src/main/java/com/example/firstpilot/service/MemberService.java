@@ -32,10 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.example.firstpilot.exceptionAndHandler.AlreadyExistedEmailException;
-import com.example.firstpilot.exceptionAndHandler.AlreadyExistedNicknameException;
-import com.example.firstpilot.exceptionAndHandler.NotFoundMemberException;
-import com.example.firstpilot.exceptionAndHandler.NotTimeForNicknameChange;
+import com.example.firstpilot.exceptionAndHandler.*;
 
 @Service
 public class MemberService implements UserDetailsService {
@@ -80,7 +77,7 @@ public class MemberService implements UserDetailsService {
                     .build();
             return memberRepo.save(member).toDto();
         } else {
-            throw new AlreadyExistedEmailException();
+            throw new BadRequestFromMemberException("이미 존재하는 이메일입니다.");
         }
     }
 
@@ -105,21 +102,19 @@ public class MemberService implements UserDetailsService {
         return new LoginUserDetails(member);
     }
 
-    // TODO: MemberDto로 해야할지 고민해보기
     public Member readSession() {
         log.info("readSession 로그 - 진입");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication.getPrincipal().equals("anonymousUser")) {
-            // TODO: null 반환하는 것 수정
-            return null;
+            throw new NotLoginMemberException();
         } else {
             LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
             log.info("readSession 로그 - member id : " + login.getMemberId());
 
             Long memberId = login.getMemberId();
             Member member = memberRepo.findByMemberId(memberId)
-                    .orElseThrow(NotFoundMemberException::new);
+                    .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
             return member;
         }
     }
@@ -127,7 +122,7 @@ public class MemberService implements UserDetailsService {
     /* 닉네임 변경 가능 여부 (단순히 닉네임 수정 버튼 눌렀을 때) */
     public Boolean readMemberNicknameChangePeriod(Long memberId) {
         Member member = memberRepo.findByMemberId(memberId)
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
         return possibleToChangeNickname(member.getUpdatedDate());
     }
 
@@ -136,18 +131,18 @@ public class MemberService implements UserDetailsService {
 
         String beforeChangingNickname = readSession().getNickname();
         Member member = memberRepo.findByNickname(beforeChangingNickname)
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
 
         if(checkDuplicatedNickname(memberDto.getNickname())) {
             log.info("updateMember 로그 - 중복으로 인해 닉네임 변경 불가");
 
-            throw new AlreadyExistedNicknameException();
+            throw new BadRequestFromMemberException("이미 존재하는 닉네임입니다.");
         }
 
         if(possibleToChangeNickname(memberDto.getUpdatedDate())) {
             return memberRepo.save(member.updateMemberEntity(memberDto)).toDto();
         } else {
-            throw new NotTimeForNicknameChange();
+            throw new BadRequestFromMemberException("닉네임을 변경할 수 있는 기간이 아닙니다.");
         }
     }
 
@@ -200,9 +195,9 @@ public class MemberService implements UserDetailsService {
     /* 회원탈퇴 시 게시물, 댓글 함께 삭제(상태 변환) */
     private void deleteBoardsAndComments(Long memberId) {
         List<Board> boards = boardRepo.findAllByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
         List<Comment> comments = commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
 
         log.info("deleteBoardsAndComments 로그 - 본인 게시물, 댓글 개수 : " + boards.size() + ", " + comments.size());
 

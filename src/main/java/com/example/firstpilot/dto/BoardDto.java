@@ -35,6 +35,7 @@ public class BoardDto {
     private Long likeCount = 0L;
     @Builder.Default
     private Long commentCount = 0L;
+
     private String createdDate;
     private String updatedDate;
     private BlockStatus blockStatus;

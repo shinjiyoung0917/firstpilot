@@ -1,10 +1,10 @@
 package com.example.firstpilot.board;
 
-import com.example.firstpilot.dto.BoardDto;
-import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
 import com.example.firstpilot.model.Board;
+import com.example.firstpilot.dto.BoardDto;
 import com.example.firstpilot.repository.BoardRepository;
 import com.example.firstpilot.util.BlockStatus;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+
+import com.example.firstpilot.exceptionAndHandler.NotFoundResourcesException;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -43,7 +45,7 @@ public class BoardServiceTest {
         boardRepo.save(board.updateBoardEntity(boardDto));
 
         Board foundBoard = boardRepo.findByBoardIdAndBlockStatus(board.getBoardId(), BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() ->  new NotFoundResourcesException("존재하지 않는 게시물입니다."));
 
         assertThat(board.getTitle())
                 .isEqualTo(foundBoard.getTitle());

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -17,12 +16,14 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.*;
 import java.io.*;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.Optional;
 
 import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletResponse;
+
+import com.example.firstpilot.exceptionAndHandler.ResourceIOStreamException;
 
 @Service
 public class FileManageService {
@@ -34,7 +35,7 @@ public class FileManageService {
     private Integer IMAGE_CONTENTTYPE_START_INDEX = 0;
     private Integer IMAGE_CONTENTTYPE_END_INDEX = 5;
 
-    public ResponseEntity<String> saveBoardFileInDir(MultipartFile uploadFile) {
+    public String saveBoardFileInDir(MultipartFile uploadFile) {
         log.info("saveBoardFileInDir 로그  - 진입");
 
         File folder = new File(ABSOLUTE_FILEPATH);
@@ -67,13 +68,14 @@ public class FileManageService {
                                 makeThumbnail(ABSOLUTE_FILEPATH, fileName, originalFileName);
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                throw new ResourceIOStreamException("썸네일 이미지 생성에 실패하였습니다.");
                             }
                         }
                     });
-            return new ResponseEntity(fileName, HttpStatus.OK);
+            return fileName;
         } catch(IOException e) {
             e.printStackTrace();
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            throw new ResourceIOStreamException("업로드할 파일을 읽어들이는 데 실패하였습니다.");
         }
     }
 
@@ -81,7 +83,7 @@ public class FileManageService {
         return UUID.randomUUID().toString() + "_" + originalFileName;
     }
 
-    private String makeThumbnail(String uploadRootPath, String fileName, String oriFileName) throws IOException{
+    private String makeThumbnail(String uploadRootPath, String fileName, String oriFileName) throws IOException {
         log.info("makeThumbnail 로그  - uploadRootPath : " + uploadRootPath);
         log.info("makeThumbnail 로그  - fileName : " + fileName);
         log.info("makeThumbnail 로그  - oriFileName : " + oriFileName);
@@ -109,7 +111,7 @@ public class FileManageService {
     }
 
     /* 파일 객체 가져오기 */
-    public ResponseEntity<byte[]> readFileByte(String fileName, HttpServletResponse res) throws IOException {
+    public ResponseEntity<byte[]> readFileByte(String fileName, HttpServletResponse res) {
         int pos = fileName.lastIndexOf(".");
         String ext = fileName.substring(pos + 1);
         byte[] bytes = null;
@@ -129,7 +131,7 @@ public class FileManageService {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                // TODO: catch 하고 수행할 로직 작성하기
+                throw new ResourceIOStreamException("이미지 파일 불러오기에 실패하였습니다.");
             }
         }
 

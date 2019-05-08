@@ -19,7 +19,8 @@ import javax.mail.internet.MimeMessage;
 
 import java.util.Date;
 
-import com.example.firstpilot.exceptionAndHandler.AlreadyExistedEmailException;
+import com.example.firstpilot.exceptionAndHandler.MailingException;
+import com.example.firstpilot.exceptionAndHandler.BadRequestFromMemberException;
 
 @Service
 public class MailAuthService {
@@ -52,6 +53,8 @@ public class MailAuthService {
             String email = mailAuthDto.getEmail();
             sendMail(authKey, email);
 
+            mailAuth.updateMailAuthEntity();
+
             mailAuth = MailAuth.builder()
                     .email(encryptedEmail)
                     .authType(AuthType.SIGN_UP)
@@ -60,7 +63,7 @@ public class MailAuthService {
 
             return authRepo.save(mailAuth).toDto();
         } else {
-            throw new AlreadyExistedEmailException();
+            throw new BadRequestFromMemberException("이미 존재하는 이메일입니다.");
         }
     }
 
@@ -79,6 +82,7 @@ public class MailAuthService {
             mailSender.send(message);
         } catch(MessagingException e) {
             e.printStackTrace();
+            throw new MailingException();
         }
     }
 

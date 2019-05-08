@@ -10,7 +10,6 @@ import com.example.firstpilot.service.MailAuthService;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
 import javax.validation.Valid;
@@ -52,11 +51,11 @@ public class MemberController {
 
     /* 닉네임 변경 가능 여부 확인 요청 */
     @GetMapping("/members/{memberId}/change-period")
-    public ResponseEntity<Boolean> getMemberNicknameChangePeriod(@PathVariable("memberId") Long memberId) {
+    public Boolean getMemberNicknameChangePeriod(@PathVariable("memberId") Long memberId) {
         log.info("getMember 로그 - 진입");
 
         boolean exceedOneWeek = memberService.readMemberNicknameChangePeriod(memberId);
-        return new ResponseEntity<>(exceedOneWeek, HttpStatus.OK);
+        return exceedOneWeek;
     }
 
     @PutMapping("/members")

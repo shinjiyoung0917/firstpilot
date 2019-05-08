@@ -1,6 +1,5 @@
 package com.example.firstpilot.service;
 
-import com.example.firstpilot.exceptionAndHandler.NotFoundMemberException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import com.example.firstpilot.exceptionAndHandler.NotFoundCommentException;
-import com.example.firstpilot.exceptionAndHandler.NotFoundBoardException;
-
 import javax.transaction.Transactional;
+
+import com.example.firstpilot.exceptionAndHandler.NotFoundResourcesException;
 
 @Service
 public class CommentService {
@@ -40,7 +38,7 @@ public class CommentService {
         log.info("createOrUpdateComments 로그  - filePath : " + commentDto.getFilePath());
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundBoardException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 게시물입니다."));
         Member member = memberService.readSession();
 
         Comment comment = commentDto.toEntity(board, member);
@@ -54,15 +52,16 @@ public class CommentService {
 
     public void updateComments(Long commentId, CommentDto commentDto) {
         Comment comment = commentRepo.findByCommentIdAndBlockStatus(commentId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundCommentException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 댓글입니다."));
 
         commentRepo.save(comment.updateCommentEntity(commentDto));
     }
 
     public void deleteComment(Long commentId) {
         log.info("deleteComment 로그  - 진입");
+
         Comment comment = commentRepo.findByCommentIdAndBlockStatus(commentId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundCommentException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 댓글입니다."));
 
         if(comment.getParentId() != null) {
             comment.decreaseChildCount();
@@ -74,9 +73,10 @@ public class CommentService {
 
     public List<Comment> readMyComments() {
         log.info("readMyComments 로그  - 진입");
+
         Long memberId = memberService.readSession().getMemberId();
         List<Comment> myCommentList = commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(NotFoundMemberException::new);
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
         return myCommentList;
     }
 }

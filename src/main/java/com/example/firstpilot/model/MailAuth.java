@@ -51,9 +51,10 @@ public class MailAuth {
                 .build();
     }
 
-    /*public MailAuth updateMailAuthEntity(MailAuthDto mailAuthDto) {
+    public MailAuth updateMailAuthEntity() {
+
         return this;
-    }*/
+    }
 
     public String encryptEmail() {
         EncryptSHA256 sha = new EncryptSHA256();

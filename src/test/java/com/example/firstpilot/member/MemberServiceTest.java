@@ -15,9 +15,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.example.firstpilot.exceptionAndHandler.NotFoundMemberException;
-
 import static org.assertj.core.api.Java6Assertions.assertThat;
+
+import com.example.firstpilot.exceptionAndHandler.NotFoundResourcesException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -46,7 +46,7 @@ public class MemberServiceTest {
             memberRepo.save(member.updateMemberEntity(memberDto));
 
             Member foundMember = memberRepo.findByMemberId(member.getMemberId())
-                    .orElseThrow(NotFoundMemberException::new);
+                    .orElseThrow(() ->  new NotFoundResourcesException("존재하지 않는 회원입니다."));
 
             assertThat(member.getNickname())
                     .isEqualTo(foundMember.getNickname());
