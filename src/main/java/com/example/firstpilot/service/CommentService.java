@@ -40,7 +40,7 @@ public class CommentService {
         log.info("createOrUpdateComments 로그  - filePath : " + commentDto.getFilePath());
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
         Member member = memberService.readSession();
 
         Comment comment = commentDto.toEntity(board, member);
@@ -54,7 +54,7 @@ public class CommentService {
 
     public void updateComments(Long commentId, CommentDto commentDto) {
         Comment comment = commentRepo.findByCommentIdAndBlockStatus(commentId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundCommentException());
+                .orElseThrow(NotFoundCommentException::new);
 
         commentRepo.save(comment.updateCommentEntity(commentDto));
     }
@@ -62,7 +62,7 @@ public class CommentService {
     public void deleteComment(Long commentId) {
         log.info("deleteComment 로그  - 진입");
         Comment comment = commentRepo.findByCommentIdAndBlockStatus(commentId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundCommentException());
+                .orElseThrow(NotFoundCommentException::new);
 
         if(comment.getParentId() != null) {
             comment.decreaseChildCount();
@@ -76,7 +76,7 @@ public class CommentService {
         log.info("readMyComments 로그  - 진입");
         Long memberId = memberService.readSession().getMemberId();
         List<Comment> myCommentList = commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         return myCommentList;
     }
 }

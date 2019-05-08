@@ -44,7 +44,7 @@ public class BoardService {
         log.info("createBoard 로그  - 진입");
 
         Member member = memberRepo.findByMemberId(boardDto.getMemberId())
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
 
         Board board = boardDto.toEntity(member);
         boardRepo.save(board);
@@ -54,9 +54,9 @@ public class BoardService {
         log.info("updateBoard 로그  - 진입");
 
         memberRepo.findByMemberId(boardDto.getMemberId())
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
 
         boardRepo.save(board.updateBoardEntity(boardDto));
     }
@@ -78,7 +78,7 @@ public class BoardService {
 
     public void deleteBoard(Long boardId) {
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
         board.updateBoardBlockStatus();
 
         for(Comment comment : board.getComments()) {
@@ -91,11 +91,10 @@ public class BoardService {
         log.info("readDashboard 로그  - 진입");
         Long memberId = memberService.readSession().getMemberId();
         Page<Board> myBoardList = boardRepo.findByMemberIdAndBlockStatus(pageable, memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         return myBoardList;
     }
 
-    // TODO: 좋아요 수 업데이트 되는 것이랑 같이 트랜잭션 롤백처리 안되고 있는 듯, Inno DB로 바꾸기
     @Transactional
     public void createLikeBoard(Long boardId) {
         log.info("createLikeBoard 로그  - 진입");
@@ -105,7 +104,7 @@ public class BoardService {
         Member member = memberService.readSession();
         Long memberId = member.getMemberId();
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
 
         LikeBoard likeBoard = LikeBoard.builder()
                 .memberId(memberId)
@@ -116,11 +115,10 @@ public class BoardService {
         likeBoardRepo.save(likeBoard);
     }
 
-    // TODO: readSession 안쓰고 파라미터로 받아오는게 나을까?
     public List<LikeBoard> readLikeBoardList() {
         Long memberId = memberService.readSession().getMemberId();
         List<LikeBoard> likeBoardList = likeBoardRepo.findByMemberId(memberId)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         return likeBoardList;
     }
 
@@ -133,7 +131,7 @@ public class BoardService {
         Long memberId = memberService.readSession().getMemberId();
 
         LikeBoard likeBoard = likeBoardRepo.findByMemberIdAndBoardId(memberId, boardId)
-                .orElseThrow(() -> new UnableToDeleteLikeBoard());
+                .orElseThrow(UnableToDeleteLikeBoard::new);
         likeBoardRepo.deleteByLikeId(likeBoard.getLikeId());
     }
 
@@ -142,7 +140,7 @@ public class BoardService {
         log.info("updateLikeCountIncrease 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
         board.increaseLikeCount();
         boardRepo.save(board);
     }
@@ -152,7 +150,7 @@ public class BoardService {
         log.info("updateLikeCountDecrease 로그  - 진입");
 
         Board board = boardRepo.findByBoardIdAndBlockStatus(boardId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
         board.decreaseLikeCount();
         boardRepo.save(board);
     }

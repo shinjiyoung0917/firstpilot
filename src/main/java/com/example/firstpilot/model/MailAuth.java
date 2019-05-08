@@ -1,13 +1,12 @@
 package com.example.firstpilot.model;
 
-import com.example.firstpilot.util.AuthType;
 import lombok.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.example.firstpilot.dto.MailAuthDto;
 import com.example.firstpilot.util.CurrentTime;
 import com.example.firstpilot.util.MailAuthPK;
+import com.example.firstpilot.util.AuthType;
+import com.example.firstpilot.util.EncryptSHA256;
 
 import javax.persistence.*;
 
@@ -52,16 +51,13 @@ public class MailAuth {
                 .build();
     }
 
-    public MailAuth updateMailAuthEntity(MailAuthDto mailAuthDto) {
-
+    /*public MailAuth updateMailAuthEntity(MailAuthDto mailAuthDto) {
         return this;
-    }
+    }*/
 
-    private static final Logger log = LoggerFactory.getLogger(MailAuth.class);
     public String encryptEmail() {
-        log.info("encryptEmail 로그 - 진입");
-        Member member = Member.builder().build();
-        email = member.encryptSHA256(email);
+        EncryptSHA256 sha = new EncryptSHA256();
+        email = sha.encryptSHA256(email);
         return email;
     }
 

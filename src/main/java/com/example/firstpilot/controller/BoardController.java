@@ -57,13 +57,13 @@ public class BoardController {
         return boardService.readBoardList(pageable);
     }
 
-   // TODO: JPG 파일은 왜 안되는 건가..?
+   // TODO: JPG 파일은 왜 안되는 것인가?
     @GetMapping(value = "/files/{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<byte[]> getFileStream(@PathVariable String fileName, HttpServletResponse res) {
         try {
             return fileManageService.readFileByte(fileName, res);
         } catch (IOException e) {
-            // TODO: 수정
+            // TODO: null 반환하는 것 수정
             return null;
         }
     }

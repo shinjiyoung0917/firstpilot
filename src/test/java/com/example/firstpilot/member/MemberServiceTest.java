@@ -46,7 +46,7 @@ public class MemberServiceTest {
             memberRepo.save(member.updateMemberEntity(memberDto));
 
             Member foundMember = memberRepo.findByMemberId(member.getMemberId())
-                    .orElseThrow(() -> new NotFoundMemberException());
+                    .orElseThrow(NotFoundMemberException::new);
 
             assertThat(member.getNickname())
                     .isEqualTo(foundMember.getNickname());

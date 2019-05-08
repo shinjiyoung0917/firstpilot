@@ -1,7 +1,5 @@
 package com.example.firstpilot.model;
 
-import com.example.firstpilot.util.LikeBoardPK;
-
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;

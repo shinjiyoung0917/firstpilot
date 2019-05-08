@@ -43,7 +43,7 @@ public class BoardServiceTest {
         boardRepo.save(board.updateBoardEntity(boardDto));
 
         Board foundBoard = boardRepo.findByBoardIdAndBlockStatus(board.getBoardId(), BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundBoardException());
+                .orElseThrow(NotFoundBoardException::new);
 
         assertThat(board.getTitle())
                 .isEqualTo(foundBoard.getTitle());

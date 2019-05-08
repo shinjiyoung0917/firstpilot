@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Getter
 @Builder
@@ -25,6 +26,7 @@ public class CommentDto {
     private String nickname;
 
     @NotBlank(message = "내용을 입력해주세요.")
+    @Size(max = 1000, min = 1, message = "내용의 글자 수는 1자 이상 1000자 이하여야 합니다.")
     private String content;
 
     private String filePath;

@@ -108,7 +108,6 @@ public class FileManageService {
         return thumbnailName;
     }
 
-    // TODO: Closeable 확인
     /* 파일 객체 가져오기 */
     public ResponseEntity<byte[]> readFileByte(String fileName, HttpServletResponse res) throws IOException {
         int pos = fileName.lastIndexOf(".");
@@ -131,7 +130,7 @@ public class FileManageService {
             } catch (IOException e) {
                 e.printStackTrace();
                 // TODO: catch 하고 수행할 로직 작성하기
-            } 
+            }
         }
 
         return ResponseEntity

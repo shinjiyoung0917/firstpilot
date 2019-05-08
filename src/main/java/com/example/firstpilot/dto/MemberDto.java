@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @Data
 @Builder
@@ -19,6 +20,7 @@ public class MemberDto {
     private String email;
 
     @NotBlank(message = "닉네임을 입력해주세요.")
+    @Size(max = 15, min = 1, message = "닉네임의 글자 수는 1자 이상 15자 이하여야 합니다.")
     private String nickname;
 
     @NotBlank(message = "비밀번호를 입력해주세요.")

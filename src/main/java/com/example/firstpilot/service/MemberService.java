@@ -12,6 +12,7 @@ import com.example.firstpilot.repository.CommentRepository;
 import com.example.firstpilot.util.LoginUserDetails;
 import com.example.firstpilot.util.BlockStatus;
 import com.example.firstpilot.util.CurrentTime;
+import com.example.firstpilot.util.EncryptSHA256;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ public class MemberService implements UserDetailsService {
     private CommentRepository commentRepo;
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private EncryptSHA256 sha = new EncryptSHA256();
 
     public MemberDto createMember(MemberDto memberDto) {
         log.info("createMember 로그 - 진입");
@@ -97,9 +99,8 @@ public class MemberService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("loadUserByUsername 로그 - email : " + username);
 
-        Member member = Member.builder().build();
-        String encryptEmail = member.encryptSHA256(username);
-        member = memberRepo.findByEmail(encryptEmail)
+        String encryptEmail = sha.encryptSHA256(username);
+        Member member = memberRepo.findByEmail(encryptEmail)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
         return new LoginUserDetails(member);
     }
@@ -110,6 +111,7 @@ public class MemberService implements UserDetailsService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication.getPrincipal().equals("anonymousUser")) {
+            // TODO: null 반환하는 것 수정
             return null;
         } else {
             LoginUserDetails login = (LoginUserDetails) authentication.getPrincipal();
@@ -117,7 +119,7 @@ public class MemberService implements UserDetailsService {
 
             Long memberId = login.getMemberId();
             Member member = memberRepo.findByMemberId(memberId)
-                    .orElseThrow(() -> new NotFoundMemberException());
+                    .orElseThrow(NotFoundMemberException::new);
             return member;
         }
     }
@@ -125,7 +127,7 @@ public class MemberService implements UserDetailsService {
     /* 닉네임 변경 가능 여부 (단순히 닉네임 수정 버튼 눌렀을 때) */
     public Boolean readMemberNicknameChangePeriod(Long memberId) {
         Member member = memberRepo.findByMemberId(memberId)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         return possibleToChangeNickname(member.getUpdatedDate());
     }
 
@@ -134,7 +136,7 @@ public class MemberService implements UserDetailsService {
 
         String beforeChangingNickname = readSession().getNickname();
         Member member = memberRepo.findByNickname(beforeChangingNickname)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
 
         if(checkDuplicatedNickname(memberDto.getNickname())) {
             log.info("updateMember 로그 - 중복으로 인해 닉네임 변경 불가");
@@ -198,9 +200,9 @@ public class MemberService implements UserDetailsService {
     /* 회원탈퇴 시 게시물, 댓글 함께 삭제(상태 변환) */
     private void deleteBoardsAndComments(Long memberId) {
         List<Board> boards = boardRepo.findAllByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
         List<Comment> comments = commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
-                .orElseThrow(() -> new NotFoundMemberException());
+                .orElseThrow(NotFoundMemberException::new);
 
         log.info("deleteBoardsAndComments 로그 - 본인 게시물, 댓글 개수 : " + boards.size() + ", " + comments.size());
 

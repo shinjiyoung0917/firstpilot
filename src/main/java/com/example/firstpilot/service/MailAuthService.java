@@ -64,7 +64,7 @@ public class MailAuthService {
         }
     }
 
-    public void sendMail(String key, String email) {
+    private void sendMail(String key, String email) {
         log.info("sendMail 로그 - 진입");
         StringBuffer text = new StringBuffer().append("회원가입 인증코드입니다.\n").append(key);
 

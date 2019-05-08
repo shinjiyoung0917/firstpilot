@@ -20,12 +20,11 @@ public class BoardDto {
     private String nickname;
 
     @NotBlank(message = "제목을 입력해주세요.")
-    @Size(max = 30, min = 1, message = "제목의 글자 수가 30자를 초과하였습니다.")
+    @Size(max = 30, min = 1, message = "제목의 글자 수는 1자 이상 30자 이하여야 합니다.")
     private String title;
 
     @NotBlank(message = "내용을 입력해주세요.")
-    @Size(max = 2000, min = 1, message = "내용의 글자 수가 2000자를 초과하였습니다.")
-    // TODO: size 확인
+    @Size(max = 2000, min = 1, message = "내용의 글자 수는 1자 이상 2000자 이하여야 합니다.")
     private String content;
 
     private String filePath;
