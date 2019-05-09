@@ -35,8 +35,6 @@ public class MailAuth {
     @Column(name = "created_date", nullable = false)
     private String createdDate;
 
-
-
     @PrePersist
     public void prePersist() {
         CurrentTime currentTime = new CurrentTime();

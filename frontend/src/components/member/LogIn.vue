@@ -52,6 +52,7 @@
                 //this.$store.commit('loginFlush', res.data.email);
               } else {
                 window.alert("로그인에 실패하였습니다.\n이메일과 비밀번호를 다시 한 번 확인해주세요.");
+                debugger
                 window.location.reload();
               }
             }).catch((e) => {

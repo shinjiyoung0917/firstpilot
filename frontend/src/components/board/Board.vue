@@ -150,8 +150,9 @@
             }
 
           }).catch((e) => {
-          window.alert(e.response.data);
-          console.log(e.response.data);
+            window.alert(JSON.stringify(e));
+            this.$router.replace(e.response.data.path);
+
         });
       },
       makeSnippet(board, TitleOrContent) {

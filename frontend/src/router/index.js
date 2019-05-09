@@ -56,13 +56,13 @@ export default new Router({
       component: Dashboard
     },
     {
-      path: '/404',
+      path: '/error',
       name: 'error-page',
       component: ErrorPage
     },
     {
       path: '*',
-      redirect: '/404'
+      redirect: '/error'
     }
   ]
 })
