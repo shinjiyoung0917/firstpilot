@@ -18,6 +18,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import java.util.Date;
+import java.util.Optional;
 
 import com.example.firstpilot.exceptionAndHandler.MailingException;
 import com.example.firstpilot.exceptionAndHandler.BadRequestFromMemberException;
@@ -53,13 +54,16 @@ public class MailAuthService {
             String email = mailAuthDto.getEmail();
             sendMail(authKey, email);
 
-            mailAuth.updateMailAuthEntity();
-
-            mailAuth = MailAuth.builder()
-                    .email(encryptedEmail)
-                    .authType(AuthType.SIGN_UP)
-                    .authKey(authKey)
-                    .build();
+            Optional<MailAuth> foundMailAuth = findDuplicatedEmail(encryptedEmail);
+            if(foundMailAuth.isPresent()) {
+                mailAuth = foundMailAuth.get().updateMailAuthEntity();
+            } else {
+                mailAuth = MailAuth.builder()
+                        .email(encryptedEmail)
+                        .authType(AuthType.SIGN_UP)
+                        .authKey(authKey)
+                        .build();
+            }
 
             return authRepo.save(mailAuth).toDto();
         } else {
@@ -84,6 +88,12 @@ public class MailAuthService {
             e.printStackTrace();
             throw new MailingException();
         }
+    }
+
+    private Optional<MailAuth> findDuplicatedEmail(String encryptedEmail) {
+        log.info("findDuplicatedEmail 로그 - 진입");
+
+        return authRepo.findByEmail(encryptedEmail);
     }
 
 }

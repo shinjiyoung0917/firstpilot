@@ -55,11 +55,11 @@ public class MemberService implements UserDetailsService {
 
         Member member = memberDto.toEntity();
 
-        String encryptEmail = member.encryptEmail();
-        String encryptPassword = member.encryptPassword(passwordEncoder);
+        String encryptedEmail = member.encryptEmail();
+        String encryptedPassword = member.encryptPassword(passwordEncoder);
 
         String nickname = "";
-        if(!checkDuplicatedEmail(encryptEmail)) {
+        if(!checkDuplicatedEmail(encryptedEmail)) {
             boolean isNicknameExist = true;
 
             do {
@@ -70,9 +70,9 @@ public class MemberService implements UserDetailsService {
             } while (isNicknameExist);
 
             member = Member.builder()
-                    .email(encryptEmail)
+                    .email(encryptedEmail)
                     .nickname(nickname)
-                    .password(encryptPassword)
+                    .password(encryptedPassword)
                     .role("ROLE_USER")
                     .build();
             return memberRepo.save(member).toDto();
@@ -81,13 +81,15 @@ public class MemberService implements UserDetailsService {
         }
     }
 
-    public boolean checkDuplicatedEmail(String encryptEmail) {
+    public boolean checkDuplicatedEmail(String encryptedEmail) {
         log.info("checkDuplicatedEmail 로그 - 진입");
-        return memberRepo.findByEmail(encryptEmail).isPresent();
+
+        return memberRepo.findByEmail(encryptedEmail).isPresent();
     }
 
     private boolean checkDuplicatedNickname(String nickname) {
         log.info("checkDuplicatedNickname 로그 - 진입");
+
         return memberRepo.findByNickname(nickname).isPresent();
     }
 
@@ -96,8 +98,8 @@ public class MemberService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("loadUserByUsername 로그 - email : " + username);
 
-        String encryptEmail = sha.encryptSHA256(username);
-        Member member = memberRepo.findByEmail(encryptEmail)
+        String encryptedEmail = sha.encryptSHA256(username);
+        Member member = memberRepo.findByEmail(encryptedEmail)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
         return new LoginUserDetails(member);
     }

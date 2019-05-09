@@ -180,8 +180,8 @@
             }
 
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       makeSnippet(data, TitleOrContent) {
@@ -211,8 +211,8 @@
           .then((res) => {
 
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
 
       },
@@ -224,8 +224,8 @@
           .then((res) => {
 
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       addComments() {
@@ -254,8 +254,8 @@
               }
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       showNicknameEditArea() {
@@ -270,8 +270,8 @@
               }
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       hideNicknameEditArea() {
@@ -297,8 +297,8 @@
               BUS.$emit('nickname:update', this.nickname);
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
           this.nickname = localStorage.getItem("nickname");
         });
       },
@@ -314,8 +314,8 @@
                 BUS.$emit('bus:call', '');
               }
             }).catch((e) => {
-            window.alert(e);
-            console.log(e);
+            window.alert(e.response.data);
+            console.log(e.response.data);
           });
           this.$router.replace('/');
         } else {
@@ -330,8 +330,8 @@
               localStorage.clear();               // 저장된 모든 값 삭제, 세션 전체 삭제
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       }
     },

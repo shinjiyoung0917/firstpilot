@@ -130,8 +130,8 @@
               this.board['fileSrc'] = "http://localhost:8081/files/" + this.board.filePath;
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       /* 게시물 수정 요청 (파일 먼저 서버에 저장) */
@@ -152,8 +152,8 @@
                   this.editData();
                 }
               }).catch((e) => {
-              window.alert(e);
-              console.log(e);
+              window.alert(e.response.data);
+              console.log(e.response.data);
             });
           } else {
             this.editData();
@@ -176,8 +176,8 @@
               this.$router.push('/boards/' + this.boardId);
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       /* 선택한 파일 데이터 가져오기 */

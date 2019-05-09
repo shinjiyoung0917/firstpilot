@@ -83,8 +83,8 @@
               window.alert(res.status + " 에러");
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       }
     }

@@ -265,8 +265,8 @@
               this.memberId = Number(localStorage.getItem("memberId"));
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       deleteBoard() {
@@ -293,8 +293,8 @@
           .then((res) => {
 
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       toLike() {
@@ -305,8 +305,8 @@
           .then((res) => {
 
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       /* 댓글 등록 요청 (파일 먼저 서버에 저장) */
@@ -338,8 +338,8 @@
                 }
               }
             }).catch((e) => {
-            window.alert(e);
-            console.log(e);
+            window.alert(e.response.data);
+            console.log(e.response.data);
           });
         } else {
           if(parent === null) {
@@ -371,8 +371,8 @@
               this.showComments(res.data);
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       /* 파일 데이터를 제외한 나머지 대댓글 정보 등록 요청 */
@@ -398,8 +398,8 @@
               this.showChildComments(res.data);
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       showComments(commentsData) {
@@ -440,8 +440,8 @@
                 this.editComment("HAVE_FILE", index, commentId, parent);
               }
             }).catch((e) => {
-            window.alert(e);
-            console.log(e);
+            window.alert(e.response.data);
+            console.log(e.response.data);
           });
         } else {
           this.editComment("NO_FILE", index, commentId, parent);
@@ -479,8 +479,8 @@
               this.hideCommentEditArea(index, parent);
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       },
       showCommentEditArea(index, content, parent) {
@@ -536,8 +536,8 @@
                 this.board.commentCount -= 1;
               }
             }).catch((e) => {
-            window.alert(e);
-            console.log(e);
+            window.alert(e.response.data);
+            console.log(e.response.data);
           });
         } else{
         }

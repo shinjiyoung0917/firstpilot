@@ -1,12 +1,12 @@
 package com.example.firstpilot.model;
 
-import lombok.*;
-
 import com.example.firstpilot.dto.MailAuthDto;
 import com.example.firstpilot.util.CurrentTime;
 import com.example.firstpilot.util.MailAuthPK;
 import com.example.firstpilot.util.AuthType;
 import com.example.firstpilot.util.EncryptSHA256;
+
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -35,6 +35,8 @@ public class MailAuth {
     @Column(name = "created_date", nullable = false)
     private String createdDate;
 
+
+
     @PrePersist
     public void prePersist() {
         CurrentTime currentTime = new CurrentTime();
@@ -52,7 +54,9 @@ public class MailAuth {
     }
 
     public MailAuth updateMailAuthEntity() {
-
+        CurrentTime currentTime = new CurrentTime();
+        String currentTimeString = currentTime.getCurrentTime();
+        createdDate = currentTimeString;
         return this;
     }
 

@@ -84,8 +84,8 @@
                   this.writeData("HAVE_FILE");
                 }
               }).catch((e) => {
-              window.alert(e);
-              console.log(e);
+              window.alert(e.response.data);
+              console.log(e.response.data);
             });
           } else {
             this.writeData("NO_FILE");
@@ -115,8 +115,8 @@
               this.$router.push('/boards');
             }
           }).catch((e) => {
-          window.alert(e);
-          console.log(e);
+          window.alert(e.response.data);
+          console.log(e.response.data);
         });
       }
     },

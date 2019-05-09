@@ -125,8 +125,8 @@
                 //this.getTime();
               }
             }).catch(e => {
-              window.alert(e);
-              console.log(e);
+              window.alert(e.response.data);
+              console.log(e.response.data);
             });
         }
       },
@@ -167,8 +167,8 @@
                 window.alert("이메일과 비밀번호를 다시 한 번 확인해주세요.");
               }
           }).catch((e) => {
-            window.alert(e);
-            console.log(e);
+            window.alert(e.response.data);
+            console.log(e.response.data);
           });
         }
       },
