@@ -150,9 +150,10 @@
             }
 
           }).catch((e) => {
-            window.alert(JSON.stringify(e));
-            this.$router.replace(e.response.data.path);
-
+            if(e.response.data.path === "/login") {
+              this.$router.replace(e.response.data.path);
+            }
+            console.log(e);
         });
       },
       makeSnippet(board, TitleOrContent) {

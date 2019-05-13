@@ -54,7 +54,7 @@ public class MemberController {
     public Boolean getMemberNicknameChangePeriod(@PathVariable("memberId") Long memberId) {
         log.info("getMember 로그 - 진입");
 
-        boolean exceedOneWeek = memberService.readMemberNicknameChangePeriod(memberId);
+        boolean exceedOneWeek = memberService.readMemberNicknameChangePeriod();
         return exceedOneWeek;
     }
 

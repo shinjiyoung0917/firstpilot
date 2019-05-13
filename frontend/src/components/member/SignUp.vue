@@ -116,14 +116,10 @@
 
           http.post("/auth", data)
             .then(res => {
-              if(res.data.email === "Already-Exist") {
-                window.alert("이미 가입된 이메일입니다.")
-              } else {
-                this.authKey = res.data.authKey;
-                this.isCreatedAuthKey = 1;
-                window.alert("인증코드를 메일로 발송하였습니다.\n확인하신 후 인증코드를 입력해주세요.");
-                //this.getTime();
-              }
+              this.authKey = res.data.authKey;
+              this.isCreatedAuthKey = 1;
+              window.alert("인증코드를 메일로 발송하였습니다.\n확인하신 후 인증코드를 입력해주세요.");
+              //this.getTime();
             }).catch(e => {
               window.alert(e.response.data);
               console.log(e.response.data);
@@ -141,7 +137,6 @@
         } else {
           window.alert("인증코드를 다시 한 번 확인해주세요.");
         }
-
       },
       signup() {
         if(this.isUsedAuthKey === 0) {
@@ -157,12 +152,8 @@
           http.post('/members', data)
             .then((res) => {
               if(res.data) {
-                if(res.data.email === "Already-Exist") {
-                  window.alert("이미 가입된 이메일입니다.")
-                } else {
-                  this.isSignUp = 1;
-                  this.nickname = res.data.nickname;
-                }
+                this.isSignUp = 1;
+                this.nickname = res.data.nickname;
               } else {
                 window.alert("이메일과 비밀번호를 다시 한 번 확인해주세요.");
               }

@@ -107,6 +107,16 @@ public class MemberService implements UserDetailsService {
     public Member readSession() {
         log.info("readSession 로그 - 진입");
 
+        Long memberId = readMemberIdOfSession();
+
+        Member member = memberRepo.findByMemberId(memberId)
+                .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
+        return member;
+    }
+
+    public Long readMemberIdOfSession() {
+        log.info("readMemberIdOfSession 로그 - 진입");
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication.getPrincipal().equals("anonymousUser")) {
             throw new NotLoginMemberException();
@@ -115,14 +125,14 @@ public class MemberService implements UserDetailsService {
             log.info("readSession 로그 - member id : " + login.getMemberId());
 
             Long memberId = login.getMemberId();
-            Member member = memberRepo.findByMemberId(memberId)
-                    .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
-            return member;
+
+            return memberId;
         }
     }
 
     /* 닉네임 변경 가능 여부 (단순히 닉네임 수정 버튼 눌렀을 때) */
-    public Boolean readMemberNicknameChangePeriod(Long memberId) {
+    public Boolean readMemberNicknameChangePeriod() {
+        Long memberId = readMemberIdOfSession();
         Member member = memberRepo.findByMemberId(memberId)
                 .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
         return possibleToChangeNickname(member.getUpdatedDate());

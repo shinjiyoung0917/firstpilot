@@ -85,6 +85,7 @@ public class BoardService {
 
     public Page<Board> readMyBoard(Pageable pageable) {
         log.info("readDashboard 로그  - 진입");
+
         Long memberId = memberService.readSession().getMemberId();
         Page<Board> myBoardList = boardRepo.findByMemberIdAndBlockStatus(pageable, memberId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));

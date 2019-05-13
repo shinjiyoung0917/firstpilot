@@ -180,8 +180,10 @@
             }
 
           }).catch((e) => {
-          window.alert(e.response.data);
-          console.log(e.response.data);
+          if(e.response.data.path === "/login") {
+            this.$router.replace(e.response.data.path);
+          }
+          console.log(e);
         });
       },
       makeSnippet(data, TitleOrContent) {
@@ -254,8 +256,10 @@
               }
             }
           }).catch((e) => {
-          window.alert(e.response.data);
-          console.log(e.response.data);
+          if(e.response.data.path === "/login") {
+            this.$router.replace(e.response.data.path);
+          }
+          console.log(e);
         });
       },
       showNicknameEditArea() {
