@@ -74,7 +74,7 @@ public class CommentService {
     public List<Comment> readMyComments() {
         log.info("readMyComments 로그  - 진입");
 
-        Long memberId = memberService.readSession().getMemberId();
+        Long memberId = memberService.readMemberIdOfSession();
         List<Comment> myCommentList = commentRepo.findByMemberIdAndBlockStatus(memberId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
         return myCommentList;

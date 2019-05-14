@@ -86,7 +86,7 @@ public class BoardService {
     public Page<Board> readMyBoard(Pageable pageable) {
         log.info("readDashboard 로그  - 진입");
 
-        Long memberId = memberService.readSession().getMemberId();
+        Long memberId = memberService.readMemberIdOfSession();
         Page<Board> myBoardList = boardRepo.findByMemberIdAndBlockStatus(pageable, memberId, BlockStatus.UNBLOCKED)
                 .orElseThrow(() -> new NotFoundResourcesException("존재하지 않는 회원입니다."));
         return myBoardList;
@@ -118,7 +118,7 @@ public class BoardService {
 
         updateLikeCountDecrease(boardId);
 
-        Long memberId = memberService.readSession().getMemberId();
+        Long memberId = memberService.readMemberIdOfSession();
 
         LikeBoard likeBoard = likeBoardRepo.findByMemberIdAndBoardId(memberId, boardId)
                 .orElseThrow(UnableToDeleteLikeBoardException::new);
